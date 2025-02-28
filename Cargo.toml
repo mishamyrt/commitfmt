@@ -1,0 +1,80 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.80"
+homepage = "https://github.com/mishamyrt/commitfmt"
+documentation = "https://github.com/mishamyrt/commitfmt"
+repository = "https://github.com/mishamyrt/commitfmt"
+authors = ["Mikhael Khrustik <misha@myrt.co>"]
+license = "MIT"
+
+[workspace.dependencies]
+commitfmt_git = { path = "crates/commitfmt_git" }
+
+once_cell = "1.20.3"
+thiserror = "2.0.11"
+serde = "1.0.218"
+serde_json = "1.0.139"
+serde_yaml_ng = "0.10"
+regex = "1.11.1"
+
+tempfile = "3.17"
+
+# Parsing
+nom = "8.0.0"
+toml = "0.8.20"
+build-deps = "0.1.4"
+
+pico-args = "0.5.0"
+clap = { version = "4.5.30", features = ["derive"] }
+log = "0.4.26"
+fern = "0.7.1"
+colored = "3.0.0"
+enum-map = "2.7.3"
+
+[workspace.lints.rust]
+unreachable_pub = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = [
+    "cfg(fuzzing)",
+    "cfg(codspeed)",
+] }
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -2 }
+# Allowed pedantic lints
+char_lit_as_u8 = "allow"
+collapsible_else_if = "allow"
+collapsible_if = "allow"
+implicit_hasher = "allow"
+map_unwrap_or = "allow"
+match_same_arms = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+similar_names = "allow"
+single_match_else = "allow"
+too_many_lines = "allow"
+# Without the hashes we run into a `rustfmt` bug in some snapshot tests, see #13250
+needless_raw_string_hashes = "allow"
+# Disallowed restriction lints
+print_stdout = "warn"
+print_stderr = "warn"
+dbg_macro = "warn"
+empty_drop = "warn"
+empty_structs_with_brackets = "warn"
+exit = "warn"
+get_unwrap = "warn"
+rc_buffer = "warn"
+rc_mutex = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+# nursery rules
+redundant_clone = "warn"
+debug_assert_with_mut_call = "warn"
+unused_peekable = "warn"
+
+# Diagnostics are not actionable: Enable once https://github.com/rust-lang/rust-clippy/issues/13774 is resolved.
+large_stack_arrays = "allow"

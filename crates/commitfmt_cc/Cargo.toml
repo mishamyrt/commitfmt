@@ -1,0 +1,34 @@
+[package]
+name = "commitfmt_cc"
+version = "0.0.0"
+publish = false
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+build = "build.rs"
+
+[dependencies]
+once_cell = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+tempfile = { workspace = true }
+nom = { workspace = true }
+serde = { workspace = true }
+
+
+[dev-dependencies]
+toml = { workspace = true }
+build-deps = { workspace = true }
+
+[dev-dependencies.test-generator]
+# This fork of test-generator adds support for cargo workspaces, see
+# also https://github.com/frehberg/test-generator/pull/14
+git = "https://github.com/JamesGuthrie/test-generator.git"
+rev = "82e799979980962aec1aa324ec6e0e4cad781f41"
+
+[lints]
+workspace = true
