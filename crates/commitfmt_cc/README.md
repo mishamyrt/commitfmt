@@ -1,6 +1,9 @@
 # Commitfmt Conventional Commits
 
-## References
+Fail Safe parser of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) message. The parser tries to extract maximum information from the message even in a very distorted format.
 
-- [git trailer config](https://github.com/git/git/blob/master/Documentation/config/trailer.adoc)
-- [](https://git-scm.com/docs/git-interpret-trailers)
+## Examples
+
+Examples of parsing results for different conditions can be found in [doc_tests](resources/doc_tests).
+
+
