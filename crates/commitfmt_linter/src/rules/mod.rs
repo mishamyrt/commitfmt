@@ -3,10 +3,21 @@ use commitfmt_macros::rules_enum;
 pub mod body;
 pub mod header;
 
-pub(crate) enum Linter {
+pub enum Linter {
     Header,
     Body,
     Footer,
+}
+
+impl Linter {
+    pub fn from_str(name: &str) -> Option<Self> {
+        match name {
+            "header" => Some(Linter::Header),
+            "body" => Some(Linter::Body),
+            "footer" => Some(Linter::Footer),
+            _ => None,
+        }
+    }
 }
 
 rules_enum! {
