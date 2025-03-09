@@ -158,5 +158,5 @@ pub(crate) fn map_names(func: &ItemFn) -> syn::Result<TokenStream> {
         }
     };
 
-    Ok(expanded.into())
+    Ok(expanded)
 }
