@@ -32,4 +32,7 @@ pub enum ConfigError {
 
     #[error("Unsupported file type: {0}")]
     UnsupportedFileType(String),
+
+    #[error("Config file is missing")]
+    MissingConfigFile,
 }

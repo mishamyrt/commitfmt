@@ -1,5 +1,15 @@
 use crate::{parse_toml::parse_toml, settings::CommitSettings, ConfigError};
 
+/// List of known config file names
+const KNOWN_PATHS: &[&str] = &[
+    ".commitfmt.toml",
+    "commitfmt.toml",
+    ".commitfmt.yaml",
+    "commitfmt.yaml",
+    ".commitfmt.yml",
+    "commitfmt.yml",
+];
+
 /// Maximum size of the config file
 /// If the file is larger than this, return an error.
 const MAX_CONFIG_SIZE: u64 = 1_000_000;
@@ -27,6 +37,7 @@ impl Format {
 pub trait CommitSettingsParser {
     fn from_str(format: Format, data: &str) -> Result<CommitSettings, ConfigError>;
     fn from_file(path: &std::path::Path) -> Result<CommitSettings, ConfigError>;
+    fn load(dir_path: &std::path::Path) -> Result<CommitSettings, ConfigError>;
 }
 
 impl CommitSettingsParser for CommitSettings {
@@ -51,6 +62,16 @@ impl CommitSettingsParser for CommitSettings {
         let data = std::fs::read_to_string(path).map_err(ConfigError::IOError)?;
 
         Self::from_str(format, &data)
+    }
+
+    fn load(dir_path: &std::path::Path) -> Result<CommitSettings, ConfigError> {
+        for known_path in KNOWN_PATHS {
+            let path = dir_path.join(known_path);
+            if path.exists() {
+                return Self::from_file(&path);
+            }
+        }
+        Err(ConfigError::MissingConfigFile)
     }
 }
 
