@@ -1,6 +1,7 @@
 mod description_leading_space;
 mod settings;
 
-pub(crate) use description_leading_space::{DescriptionLeadingSpace, description_leading_space};
+#[allow(unused)]
+pub(crate) use description_leading_space::{description_leading_space, DescriptionLeadingSpace};
 
 pub use settings::Settings;

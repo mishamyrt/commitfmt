@@ -31,9 +31,9 @@ impl Violation for DescriptionLeadingSpace {
 
     fn fix(&self, message: &mut Message) -> Result<(), crate::violation::ViolationError> {
         let description = &mut message.header.description;
-        description.insert_str(0, " ");
+        description.insert(0, ' ');
 
-        return Ok(());
+        Ok(())
     }
 }
 

@@ -33,12 +33,12 @@ impl Violation for LeadingNewLine {
     fn fix(&self, message: &mut Message) -> Result<(), crate::violation::ViolationError> {
         match message.body.as_mut() {
             Some(body) => {
-                body.insert_str(0, "\n");
+                body.insert(0, '\n');
             }
             None => return Err(ViolationError::EmptyBody()),
         };
 
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -65,7 +65,7 @@ mod tests {
             body: Some("\nbody".to_string()),
             footers: vec![],
         };
-        let mut checker = Report::new();
+        let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 0);
     }
@@ -77,7 +77,7 @@ mod tests {
             body: Some("body".to_string()),
             footers: vec![],
         };
-        let mut checker = Report::new();
+        let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 1);
     }
@@ -89,7 +89,7 @@ mod tests {
             body: None,
             footers: vec![],
         };
-        let mut checker = Report::new();
+        let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 0);
     }

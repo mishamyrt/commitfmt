@@ -13,23 +13,23 @@ pub struct Check {
 impl Check {
     pub fn new(settings: Settings, rules: RuleSet) -> Self {
         Self {
-            report: Report::new(),
+            report: Report::default(),
             settings,
             rules,
         }
     }
 
     fn lint_header(&self, message: &Message) {
-        if self.rules.enabled(Rule::HeaderDescriptionLeadingSpace) {
+        if self.rules.contains(Rule::HeaderDescriptionLeadingSpace) {
             header::description_leading_space(&self.report, message);
         }
     }
 
     fn lint_body(&self, message: &Message) {
-        if self.rules.enabled(Rule::BodyLeadingNewLine) {
+        if self.rules.contains(Rule::BodyLeadingNewLine) {
             body::leading_nl(&self.report, message);
         }
-        if self.rules.enabled(Rule::BodyMaxLineLength) {
+        if self.rules.contains(Rule::BodyMaxLineLength) {
             body::max_line_length(&self.report, message, self.settings.body.max_line_length);
         }
     }
