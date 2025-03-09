@@ -1,3 +1,4 @@
+use commitfmt_linter::case::TextCase;
 use toml::{map::Map, Table, Value};
 
 use commitfmt_linter::rule_set::RuleSet;
@@ -23,15 +24,10 @@ impl TomlParser for Settings {
     /// There is the place where we should handle settings for rules.
     fn parse_rule(&mut self, rule: Rule, value: &Value) -> Result<bool, ConfigError> {
         match rule {
-            Rule::BodyMaxLineLength => {
-                let parsed_value = require_usize(value)?;
-                if parsed_value == 0 {
-                    return Ok(false);
-                }
-
-                self.body.max_line_length = parsed_value;
-                Ok(true)
-            }
+            Rule::BodyMaxLineLength => require_usize(value, &mut self.body.max_line_length),
+            Rule::BodyMaxLength => require_usize(value, &mut self.body.max_length),
+            Rule::BodyMinLength => require_usize(value, &mut self.body.min_length),
+            Rule::BodyCase => require_text_case(value, &mut self.body.case),
             _ => match value.as_bool() {
                 Some(is_enabled) => Ok(is_enabled),
                 None => Err(ConfigError::UnexpectedFieldType(rule.as_display().to_owned(), "bool".to_owned())),
@@ -68,7 +64,20 @@ impl TomlParser for Settings {
     }
 }
 
-fn require_usize(value: &Value) -> Result<usize, ConfigError> {
+fn require_text_case(value: &Value, target: &mut TextCase) -> Result<bool, ConfigError> {
+    let Some(parsed) = value.as_str() else {
+        return Err(ConfigError::UnexpectedFieldType("case".to_string(), "string".to_string()));
+    };
+
+    let Some(parsed) = TextCase::from_name(parsed) else {
+        return Err(ConfigError::ParseError("Invalid text case".to_string()));
+    };
+
+    *target = parsed;
+    Ok(true)
+}
+
+fn require_usize(value: &Value, target: &mut usize) -> Result<bool, ConfigError> {
     let Some(parsed) = value.as_integer() else {
         return Err(ConfigError::UnexpectedFieldType("max-line-length".to_string(), "integer".to_string()));
     };
@@ -76,10 +85,17 @@ fn require_usize(value: &Value) -> Result<usize, ConfigError> {
         return Err(ConfigError::ParseError("Max line length must be greater or equal to 0".to_string()));
     }
 
-    match usize::try_from(parsed) {
-        Ok(parsed) => Ok(parsed),
-        Err(err) => Err(ConfigError::ParseError(err.to_string())),
+    let parsed = match usize::try_from(parsed) {
+        Ok(parsed) => parsed,
+        Err(err) => return Err(ConfigError::ParseError(err.to_string())),
+    };
+
+    if parsed == 0 {
+        return Ok(false);
     }
+
+    *target = parsed;
+    Ok(true)
 }
 
 pub(crate) fn parse_toml(data: &str) -> Result<CommitSettings, ConfigError> {
@@ -149,5 +165,18 @@ unsafe-fixes = true";
         let config = parse_toml(config).unwrap();
         assert!(config.rules.contains(Rule::BodyMaxLineLength));
         assert!(config.formatting.unsafe_fixes);
+    }
+
+    #[test]
+    fn test_parse_toml_with_text_case() {
+        let config = "
+[body]
+case = \"upper\"
+
+[formatting]
+unsafe-fixes = true";
+        let config = parse_toml(config).unwrap();
+        assert!(config.rules.contains(Rule::BodyCase));
+        assert!(config.settings.body.case == TextCase::Upper);
     }
 }

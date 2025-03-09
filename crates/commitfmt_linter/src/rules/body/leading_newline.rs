@@ -46,6 +46,7 @@ impl Violation for LeadingNewLine {
     }
 }
 
+/// Checks for missing newlines at the start of the body
 pub(crate) fn leading_nl(report: &Report, message: &Message) {
     let Some(body) = message.body.as_ref() else {
         return;
@@ -97,15 +98,4 @@ mod tests {
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 0);
     }
-
-    // #[test]
-    // fn test_body_leading_nl_fix() {
-    //     let message: Message = Message {
-    //         header: Header::from("feat: my feature"),
-    //         body: Some("body".to_string()),
-    //         footers: vec![],
-    //     };
-    //     let mut checker = Checker::new();
-    //     leading_nl(&mut checker, &message);
-    // }
 }

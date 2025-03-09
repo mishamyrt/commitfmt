@@ -79,7 +79,7 @@ impl CommitSettingsParser for CommitSettings {
 mod tests {
     use std::cell::RefCell;
 
-    use commitfmt_linter::{rule_set::RuleSet, rules::{self, body}};
+    use commitfmt_linter::{rule_set::RuleSet, rules};
 
     use crate::settings::FormattingSettings;
 
@@ -93,18 +93,16 @@ max-line-length = 80
 
 [formatting]
 unsafe-fixes = true";
+        let mut settings = rules::Settings::default();
+        settings.body.max_line_length = 80;
+
         let expected = CommitSettings {
             formatting: FormattingSettings {
                 unsafe_fixes: true,
                 footers: RefCell::new(vec![]),
             },
             rules: RuleSet::default(),
-            settings: rules::Settings {
-                header: rules::header::Settings::default(),
-                body: body::Settings {
-                    max_line_length: 80,
-                },
-            },
+            settings,
         };
 
         let result = CommitSettings::from_str(

@@ -15,7 +15,18 @@ impl Default for Report {
 }
 
 impl Report {
+    /// Adds a violation
     pub fn add_violation(&self, rule: Box<dyn Violation>) {
         self.violations.borrow_mut().push(rule);
+    }
+
+    /// Returns the number of violations
+    pub fn len(&self) -> usize {
+        self.violations.borrow().len()
+    }
+
+    /// Returns true if there are no violations
+    pub fn is_empty(&self) -> bool {
+        self.violations.borrow().is_empty()
     }
 }

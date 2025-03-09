@@ -5,10 +5,10 @@ use commitfmt_cc::message::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
-/// Checks for long body lines.
+/// Checks for long body.
 ///
 /// ## Why is this bad?
-/// Long body lines can make it hard to read and parse.
+/// If feature or fix needs huge description, maybe it indicates something wrong.
 ///
 /// ## Example
 /// ```git-commit
@@ -21,40 +21,37 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my feature
 ///
-/// My super long body, which is longer than 72 characters
-/// and should be split into multiple lines
+/// My body
 /// ```
 #[derive(ViolationMetadata)]
-pub(crate) struct MaxLineLength {
+pub(crate) struct MaxLength {
     pub(crate) max_length: usize,
 }
 
-impl Violation for MaxLineLength {
+impl Violation for MaxLength {
     fn group(&self) -> LinterGroup {
         LinterGroup::Body
     }
 
     fn message(&self) -> String {
-        format!("Body line is longer than {} characters", self.max_length)
+        format!("Body is longer than {} characters", self.max_length)
     }
 }
 
-/// Checks for long body lines
-pub(crate) fn max_line_length(report: &Report, message: &Message, max_length: usize) {
-    if max_length == 0 {
+/// Checks for long body
+pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
+    if length == 0 {
         return;
     }
     let Some(body) = message.body.as_ref() else {
         return;
     };
-    for line in body.lines() {
-        if line.len() > max_length {
-            let violation = Box::new(MaxLineLength {
-                max_length,
-            });
-            report.add_violation(violation);
-            return;
-        }
+
+    if body.len() > length {
+        let violation = Box::new(MaxLength {
+            max_length: length,
+        });
+        report.add_violation(violation);
     }
 }
 
@@ -65,20 +62,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_max_line_length() {
+    fn test_max_length() {
         let mut report = Report::default();
 
         let message: Message = Message {
             header: Header::from("feat: my feature"),
-            body: Some("\nBody\nWith some text".to_string()),
+            body: Some("\nBody with some text".to_string()),
             footers: vec![],
         };
 
-        max_line_length(&mut report, &message, 72);
+        max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 0);
 
-        max_line_length(&mut report, &message, 5);
+        max_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "MaxLineLength");
+        assert_eq!(report.violations.borrow()[0].rule_name(), "MaxLength");
     }
 }

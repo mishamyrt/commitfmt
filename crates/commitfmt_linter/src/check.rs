@@ -35,6 +35,18 @@ impl Check {
         if self.rules.contains(Rule::BodyMaxLineLength) {
             body::max_line_length(&self.report, message, self.settings.body.max_line_length);
         }
+        if self.rules.contains(Rule::BodyMaxLength) {
+            body::max_length(&self.report, message, self.settings.body.max_length);
+        }
+        if self.rules.contains(Rule::BodyMinLength) {
+            body::min_length(&self.report, message, self.settings.body.min_length);
+        }
+        if self.rules.contains(Rule::BodyFullStop) {
+            body::full_stop(&self.report, message);
+        }
+        if self.rules.contains(Rule::BodyCase) {
+            body::case(&self.report, message, self.settings.body.case);
+        }
     }
 
     pub fn run(&self, message: &Message) {
