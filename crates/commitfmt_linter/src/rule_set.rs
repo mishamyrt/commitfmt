@@ -85,6 +85,12 @@ impl RuleSet {
         self.0.count_ones() as usize
     }
 
+    /// Returns `true` if this set is empty.
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        self.0 == 0
+    }
+
     /// Returns `true` if `rule` is in this set.
     #[inline]
     pub const fn contains(&self, rule: Rule) -> bool {
@@ -101,6 +107,7 @@ mod tests {
         let empty_set = RuleSet::empty();
         assert_eq!(empty_set.0, 0);
         assert_eq!(empty_set.len(), 0);
+        assert!(empty_set.is_empty());
     }
 
     #[test]
@@ -110,6 +117,7 @@ mod tests {
         assert!(set.contains(Rule::BodyLeadingNewLine));
         assert!(!set.contains(Rule::BodyMaxLineLength));
         assert_eq!(set.len(), 1);
+        assert!(!set.is_empty());
 
         set.insert(Rule::BodyMaxLineLength);
         assert!(set.contains(Rule::BodyMaxLineLength));
