@@ -64,3 +64,53 @@ fn parse_attr<'a, const LEN: usize>(
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_docs() {
+        let input = quote! {
+            #[doc = "foo"]
+            #[doc = "bar"]
+            #[doc = "baz"]
+            struct Foo;
+        };
+        let input: DeriveInput = syn::parse2(input).unwrap();
+        let docs = get_docs(&input.attrs).unwrap();
+        assert_eq!(docs, "foo\nbar\nbaz\n");
+    }
+
+    #[test]
+    fn test_parse_attr() {
+        let input = quote! {
+            #[doc = "foo"]
+            #[doc = "bar"]
+            #[doc = "baz"]
+            struct Foo;
+        };
+        let input: DeriveInput = syn::parse2(input).unwrap();
+        let doc = parse_attr(["doc"], &input.attrs[0]).unwrap();
+        assert_eq!(doc.value(), "foo");
+
+        let doc = parse_attr(["doc"], &input.attrs[1]).unwrap();
+        assert_eq!(doc.value(), "bar");
+
+        let doc = parse_attr(["doc"], &input.attrs[2]).unwrap();
+        assert_eq!(doc.value(), "baz");
+    }
+
+    #[test]
+    fn test_violation_metadata() {
+        let input = quote! {
+            #[doc = "foo"]
+            #[doc = "bar"]
+            #[doc = "baz"]
+            struct Foo;
+        };
+        let input: DeriveInput = syn::parse2(input).unwrap();
+        let docs = violation_metadata(input).unwrap();
+        assert!(docs.to_string().find("fn rule_name").is_some());
+    }
+}
