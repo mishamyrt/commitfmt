@@ -3,7 +3,7 @@ use quote::{format_ident, quote};
 use syn::{parenthesized, Ident, LitStr, Path, Token};
 use syn::parse::{Parse, ParseStream};
 
-/// One mapping from (LinterVariant, "rule-string") => rules::some_module::SomeRule
+/// One mapping from `(LinterVariant, "rule-string") => rules::some_module::SomeRule`
 struct RuleEntry {
     linter: Ident,
     rule_name: LitStr,
@@ -38,7 +38,7 @@ impl Parse for RuleEntry {
     }
 }
 
-/// A list of all RuleEntry items, parsed until input is exhausted.
+/// A list of all `RuleEntry` items, parsed until input is exhausted.
 struct RuleList {
     entries: Vec<RuleEntry>,
 }
@@ -70,16 +70,39 @@ pub(crate) fn generate_rule_enum(input: TokenStream) -> TokenStream {
     });
 
     // Build each match arm (Body, "leading-newline") => Some(Rule::BodyLeadingNewLine)
-    let matches = entries.iter().map(|entry| {
+    let rule_to_lit_matches = entries.iter().map(|entry| {
         let linter_ident = &entry.linter;
-        let rule_lit = &entry.rule_name;
         let last_seg = &entry.path.segments.last().unwrap().ident;
         let variant_ident = format_ident!("{}{}", linter_ident, last_seg);
+        let rule_lit = &entry.rule_name;
+
+        quote! {
+            Rule::#variant_ident => #rule_lit
+        }
+    });
+
+    let lit_to_rule_matches = entries.iter().map(|entry| {
+        let linter_ident = &entry.linter;
+        let last_seg = &entry.path.segments.last().unwrap().ident;
+        let variant_ident = format_ident!("{}{}", linter_ident, last_seg);
+        let rule_lit = &entry.rule_name;
 
         quote! {
             (#linter_ident, #rule_lit) => Rule::#variant_ident
         }
     });
+
+    let body_rules = entries.iter()
+        .filter(|entry| {
+            entry.linter == "Body"
+        }).map(|entry| {
+            let linter_ident = &entry.linter;
+            let last_seg = &entry.path.segments.last().unwrap().ident;
+            let variant_ident = format_ident!("{}{}", linter_ident, last_seg);
+            quote! {
+                Rule::#variant_ident
+            }
+        });
 
     let expanded = quote! {
         /// An enum containing all named rules, with each variant prefixed
@@ -89,16 +112,28 @@ pub(crate) fn generate_rule_enum(input: TokenStream) -> TokenStream {
             #(#variants),*
         }
 
-        /// Given a linter and raw rule name, produce the corresponding Rule variant (if any).
-        pub fn rule_by_name(linter: Linter, name: &str) -> Option<Rule> {
-            #![allow(clippy::enum_glob_use)]
-            use Linter::*;
-            Some(match (linter, name) {
-                #(#matches,)*
-                _ => return None,
-            })
+
+        impl Rule {
+            pub fn as_display(&self) -> &'static str {
+                match self {
+                    #(#rule_to_lit_matches),*
+                }
+            }
+
+            pub fn from_name(linter: Linter, name: &str) -> Option<Self> {
+                #![allow(clippy::enum_glob_use)]
+                use Linter::*;
+
+                Some(match (linter, name) {
+                    #(#lit_to_rule_matches),*
+                    ,_ => return None,
+                })
+            }
         }
+
+        pub const BODY_RULES: &[Rule] = &[#(#body_rules),*];
+
     };
 
-    return expanded.into()
+    expanded.into()
 }
