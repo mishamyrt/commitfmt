@@ -23,8 +23,8 @@ impl Check {
     }
 
     fn lint_header(&self, message: &Message) {
-        if self.rules.contains(Rule::HeaderDescriptionLeadingSpace) {
-            header::description_leading_space(&self.report, message);
+        if self.rules.contains(Rule::HeaderLeadingSpace) {
+            header::leading_space(&self.report, message);
         }
     }
 

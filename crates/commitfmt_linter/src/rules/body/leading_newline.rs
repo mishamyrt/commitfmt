@@ -1,4 +1,5 @@
 use crate::report::Report;
+use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationError, ViolationMetadata};
 use commitfmt_cc::message::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -25,6 +26,9 @@ use commitfmt_macros::ViolationMetadata;
 pub(crate) struct LeadingNewLine;
 
 impl Violation for LeadingNewLine {
+    fn group(&self) -> LinterGroup {
+        LinterGroup::Body
+    }
 
     fn message(&self) -> String {
         String::from("Body must start with a newline")

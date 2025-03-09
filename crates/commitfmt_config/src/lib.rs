@@ -4,7 +4,7 @@ pub mod parse;
 pub(crate) mod parse_toml;
 pub(crate) mod config;
 
-use commitfmt_linter::rules::Linter;
+use commitfmt_linter::rules::LinterGroup;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -21,8 +21,8 @@ pub enum ConfigError {
     #[error("Unexpected field type for {0}. Expected {1}")]
     UnexpectedFieldType(String, String),
 
-    #[error("Unknown rule: {0}")]
-    UnknownRule(Linter, String),
+    #[error("Unknown rule: {0} → {1}")]
+    UnknownRule(LinterGroup, String),
 
     #[error("Invalid TOML file: {0}")]
     TomlError(String),

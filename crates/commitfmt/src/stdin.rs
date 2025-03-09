@@ -4,6 +4,7 @@ use commitfmt_cc::message::Message;
 use commitfmt_config::settings::CommitSettings;
 use commitfmt_config::parse::CommitSettingsParser;
 use commitfmt_linter::check::Check;
+use commitfmt_linter::rules::Rule;
 use log::info;
 
 pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::ExitCode {
@@ -28,6 +29,12 @@ pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::Exi
         let violation = violation_box.as_ref();
         info!("{}", violation.rule_name().bright_red());
         info!("{}", violation.message());
+
+        let Some(rule) = Rule::from_violation(violation) else {
+            panic!("Failed to get rule from violation");
+        };
+
+        info!("{}", rule.as_display().dimmed());
     }
 
     process::ExitCode::SUCCESS

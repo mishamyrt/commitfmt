@@ -1,4 +1,5 @@
 use crate::report::Report;
+use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::message::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -29,6 +30,10 @@ pub(crate) struct MaxLineLength {
 }
 
 impl Violation for MaxLineLength {
+    fn group(&self) -> LinterGroup {
+        LinterGroup::Body
+    }
+
     fn message(&self) -> String {
         format!("Body line is longer than {} characters", self.max_length)
     }

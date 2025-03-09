@@ -1,8 +1,8 @@
 mod violation_metadata;
-mod rules_enum;
+mod map_names;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, Error};
+use syn::{parse_macro_input, DeriveInput, Error, ItemFn};
 
 use violation_metadata::violation_metadata;
 
@@ -15,7 +15,10 @@ pub fn derive_violation_metadata(item: TokenStream) -> TokenStream {
         .into()
 }
 
-#[proc_macro]
-pub fn rules_enum(input: TokenStream) -> TokenStream {
-    rules_enum::generate_rule_enum(input)
+#[proc_macro_attribute]
+pub fn map_names(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let func = parse_macro_input!(item as ItemFn);
+    map_names::map_names(&func)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }

@@ -1,7 +1,7 @@
 use toml::{map::Map, Table, Value};
 
 use commitfmt_linter::rule_set::RuleSet;
-use commitfmt_linter::rules::{Linter, Rule, Settings};
+use commitfmt_linter::rules::{LinterGroup, Rule, Settings};
 
 use crate::config::FormattingConfig;
 use crate::settings::CommitSettings;
@@ -12,7 +12,7 @@ use crate::ConfigError;
 trait TomlParser {
     fn parse_rule(&mut self, rule: Rule, value: &Value) -> Result<bool, ConfigError>;
 
-    fn parse(&mut self, linter: Linter, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError>;
+    fn parse(&mut self, linter: LinterGroup, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError>;
 }
 
 impl TomlParser for Settings {
@@ -41,7 +41,7 @@ impl TomlParser for Settings {
 
     /// Parse the rule configuration for the given linter
     /// and return the enabled and disabled rules
-    fn parse(&mut self, linter: Linter, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError> {
+    fn parse(&mut self, linter: LinterGroup, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError> {
         let Some(linter_config) = config.get(linter.as_display()) else {
             return Ok((RuleSet::empty(), RuleSet::empty()));
         };
@@ -90,7 +90,7 @@ pub(crate) fn parse_toml(data: &str) -> Result<CommitSettings, ConfigError> {
     let mut settings = Settings::default();
     let mut rules = RuleSet::default();
 
-    for linter in Linter::iter() {
+    for linter in LinterGroup::iter() {
         let (enabled_rules, disabled_rules) = settings.parse(linter, &config_map)?;
 
         rules = rules.subtract(disabled_rules);
@@ -121,7 +121,7 @@ description-leading-space = true";
         let config = parse_toml(config).unwrap();
         assert!(config.settings.body.max_line_length == 80);
         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-        assert!(config.rules.contains(Rule::HeaderDescriptionLeadingSpace));
+        assert!(config.rules.contains(Rule::HeaderLeadingSpace));
         assert!(!config.formatting.unsafe_fixes);
     }
 
@@ -135,7 +135,7 @@ max-line-length = 80
 description-leading-space = false";
         let config = parse_toml(config).unwrap();
         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-        assert!(!config.rules.contains(Rule::HeaderDescriptionLeadingSpace));
+        assert!(!config.rules.contains(Rule::HeaderLeadingSpace));
     }
 
     #[test]

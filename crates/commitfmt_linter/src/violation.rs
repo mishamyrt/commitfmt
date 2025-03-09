@@ -2,6 +2,8 @@
 use commitfmt_cc::message::Message;
 use thiserror::Error;
 
+use crate::rules::LinterGroup;
+
 /// A violation of a lint rule
 #[derive(Error, Debug)]
 pub enum ViolationError {
@@ -32,6 +34,9 @@ pub trait ViolationMetadata {
 pub trait Violation: ViolationMetadata {
     /// The message used to describe the violation.
     fn message(&self) -> String;
+
+    /// Returns the linter group of this violation
+    fn group(&self) -> LinterGroup;
 
     /// Whether the violation is fixable
     fn fix_mode(&self) -> FixMode {

@@ -1,3 +1,4 @@
+use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
 use crate::report::Report;
 use commitfmt_cc::message::Message;
@@ -22,9 +23,13 @@ use commitfmt_macros::ViolationMetadata;
 /// body
 /// ```
 #[derive(ViolationMetadata)]
-pub(crate) struct DescriptionLeadingSpace;
+pub(crate) struct LeadingSpace;
 
-impl Violation for DescriptionLeadingSpace {
+impl Violation for LeadingSpace {
+    fn group(&self) -> LinterGroup {
+        LinterGroup::Header
+    }
+
     fn message(&self) -> String {
         String::from("Body must start with a newline")
     }
@@ -37,9 +42,9 @@ impl Violation for DescriptionLeadingSpace {
     }
 }
 
-pub(crate) fn description_leading_space(report: &Report, message: &Message) {
+pub(crate) fn leading_space(report: &Report, message: &Message) {
     let description = &message.header.description;
     if !description.starts_with(' ') {
-        report.add_violation(Box::new(DescriptionLeadingSpace));
+        report.add_violation(Box::new(LeadingSpace));
     }
 }
