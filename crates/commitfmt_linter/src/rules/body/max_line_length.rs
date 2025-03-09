@@ -40,6 +40,9 @@ impl Violation for MaxLineLength {
 }
 
 pub(crate) fn max_line_length(report: &Report, message: &Message, max_length: usize) {
+    if max_length == 0 {
+        return;
+    }
     let Some(body) = message.body.as_ref() else {
         return;
     };
