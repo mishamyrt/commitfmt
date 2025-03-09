@@ -1,0 +1,27 @@
+[package]
+name = "commitfmt"
+version = "0.0.0"
+publish = false
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+
+[dependencies]
+commitfmt_cc = { workspace = true }
+commitfmt_linter = { workspace = true }
+commitfmt_config = { workspace = true }
+
+thiserror = { workspace = true }
+tempfile = { workspace = true }
+clap = { workspace = true }
+colored = { workspace = true }
+atty = "0.2.14"
+fern = { workspace = true }
+log = { workspace = true }
+
+[lints]
+workspace = true

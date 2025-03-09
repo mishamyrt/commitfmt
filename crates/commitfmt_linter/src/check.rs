@@ -1,8 +1,11 @@
+use std::cell::RefCell;
+
 use commitfmt_cc::message::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
 use crate::rules::{body, header, Rule, Settings};
+use crate::violation::Violation;
 
 pub struct Check {
     pub(crate) report: Report,
@@ -42,6 +45,10 @@ impl Check {
         }
 
         self.lint_body(message);
+    }
+
+    pub fn violations_ref(&self) -> &RefCell<Vec<Box<dyn Violation>>> {
+        &self.report.violations
     }
 }
 
