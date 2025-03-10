@@ -60,7 +60,7 @@ fn verify_resource(resource: &str) {
         if expected.contains_key("scope") {
             assert_eq!(actual.header.scope.len(), expected["scope"].as_array().unwrap().len());
             for i in 0..expected["scope"].as_array().unwrap().len() {
-                assert_eq!(actual.header.scope[i], expected["scope"][i].as_str().unwrap().to_string());
+                assert_eq!(actual.header.scope.0[i].to_string(), expected["scope"][i].as_str().unwrap().to_string());
             }
         }
 

@@ -48,6 +48,8 @@ impl Message {
 
 #[cfg(test)]
 mod tests {
+    use crate::header::Scope;
+
     use super::*;
 
     #[test]
@@ -62,7 +64,7 @@ Authored-By: John Doe";
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
-                scope: vec![],
+                scope: Scope::default(),
                 description: " my feature".to_string(),
                 breaking: false,
             },
@@ -89,7 +91,7 @@ Authored-By: John Doe";
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
-                scope: vec![],
+                scope: Scope::default(),
                 description: " my feature".to_string(),
                 breaking: false,
             },
