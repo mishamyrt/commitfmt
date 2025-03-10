@@ -11,13 +11,35 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
 
     #[rustfmt::skip]
     Some(match (linter, code) {
-        (Header, "description-leading-space") => header::LeadingSpace,
+        // Header description
+        (Header, "description-case")          => header::DescriptionCase,
+        (Header, "full-stop")                 => header::DescriptionFullStop,
+        (Header, "description-leading-space") => header::DescriptionLeadingSpace,
+        (Header, "description-max-length")    => header::DescriptionMaxLength,
+        (Header, "description-min-length")    => header::DescriptionMinLength,
+        // Header type
+        (Header, "type-case")                 => header::TypeCase,
+        (Header, "type-enum")                 => header::TypeEnum,
+        (Header, "type-max-length")           => header::TypeMaxLength,
+        (Header, "type-min-length")           => header::TypeMinLength,
+        (Header, "type-required")             => header::TypeRequired,
+        // Header scope
+        (Header, "scope-case")                => header::ScopeCase,
+        (Header, "scope-enum")                => header::ScopeEnum,
+        (Header, "scope-max-length")          => header::ScopeMaxLength,
+        (Header, "scope-min-length")          => header::ScopeMinLength,
+        (Header, "scope-required")            => header::ScopeRequired,
+        // Header global
+        (Header, "breaking-exclamation")      => header::BreakingExclamation,
+        (Header, "max-length")                => header::MaxLength,
+        (Header, "min-length")                => header::MinLength,
+        // Body
+        (Body, "case")                        => body::Case,
+        (Body, "full-stop")                   => body::FullStop,
         (Body, "leading-newline")             => body::LeadingNewLine,
         (Body, "max-line-length")             => body::MaxLineLength,
         (Body, "max-length")                  => body::MaxLength,
         (Body, "min-length")                  => body::MinLength,
-        (Body, "full-stop")                   => body::FullStop,
-        (Body, "case")                        => body::Case,
         _ => return None
     })
 }

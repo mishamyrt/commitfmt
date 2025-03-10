@@ -8,17 +8,24 @@ use nom::sequence::{preceded, separated_pair};
 use nom::{IResult, Parser};
 
 pub const DEFAULT_SEPARATOR: &str = ":";
-const BREAKING_TAG: &str = "BREAKING CHANGES";
 
 /// Footer represents a commit footer
 /// It consists of a key and a value separated by a colon (by default).
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Footer {
     pub key: String,
     pub value: String,
 }
 
 impl Footer {
+    pub const BREAKING_TAG: &str = "BREAKING CHANGES";
+
+    /// Checks if a key is a breaking change
+    pub fn is_breaking_key(key: &str) -> bool {
+        let lower_key = key.to_lowercase();
+        key == Self::BREAKING_TAG || lower_key == "breaking-changes" || lower_key == "breakingchanges"
+    }
+
     /// Checks if a character is a valid key character
     fn is_valid_key_char(c: char) -> bool {
         c.is_ascii_alphabetic() || c == '-'
@@ -27,7 +34,7 @@ impl Footer {
     /// Parse a footer key
     fn key_parser(input: &str) -> IResult<&str, &str> {
         alt((
-            tag(BREAKING_TAG),
+            tag(Self::BREAKING_TAG),
             take_while1(Self::is_valid_key_char),
         )).parse(input)
     }
@@ -128,5 +135,16 @@ mod tests {
             },
         ]);
         assert_eq!(Footer::parse(input, DEFAULT_SEPARATOR), expected);
+    }
+
+    #[test]
+    fn test_is_breaking_key() {
+        assert!(Footer::is_breaking_key("BREAKING CHANGES"));
+        assert!(Footer::is_breaking_key("breaking-changes"));
+        assert!(Footer::is_breaking_key("breakingchanges"));
+        assert!(Footer::is_breaking_key("BreakingChanges"));
+        assert!(!Footer::is_breaking_key("BREAKING CHANGES BUT NO"));
+        assert!(!Footer::is_breaking_key("not-breaking"));
+        assert!(!Footer::is_breaking_key(""));
     }
 }

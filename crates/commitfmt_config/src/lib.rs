@@ -21,6 +21,9 @@ pub enum ConfigError {
     #[error("Unexpected field type for {0}. Expected {1}")]
     UnexpectedFieldType(String, String),
 
+    #[error("Unexpected value type. Expected: {0}")]
+    UnexpectedValueType(String),
+
     #[error("Unknown rule: {0} → {1}")]
     UnknownRule(LinterGroup, String),
 

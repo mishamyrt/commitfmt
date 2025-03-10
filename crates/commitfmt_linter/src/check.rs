@@ -22,9 +22,74 @@ impl Check {
         }
     }
 
+    fn lint_header_type(&self, message: &Message) {
+        if self.rules.contains(Rule::HeaderTypeCase) {
+            header::type_case(&self.report, message, self.settings.header.type_case);
+        }
+        if self.rules.contains(Rule::HeaderTypeMaxLength) {
+            header::type_max_length(&self.report, message, self.settings.header.type_max_length);
+        }
+        if self.rules.contains(Rule::HeaderTypeMinLength) {
+            header::type_min_length(&self.report, message, self.settings.header.type_min_length);
+        }
+        if self.rules.contains(Rule::HeaderTypeEnum) {
+            header::type_enum(&self.report, message, &self.settings.header.type_enum);
+        }
+        if self.rules.contains(Rule::HeaderTypeRequired) {
+            header::type_required(&self.report, message);
+        }
+    }
+
+    fn lint_header_scope(&self, message: &Message) {
+        if self.rules.contains(Rule::HeaderScopeCase) {
+            header::scope_case(&self.report, message, self.settings.header.scope_case);
+        }
+        if self.rules.contains(Rule::HeaderScopeMaxLength) {
+            header::scope_max_length(&self.report, message, self.settings.header.scope_max_length);
+        }
+        if self.rules.contains(Rule::HeaderScopeMinLength) {
+            header::scope_min_length(&self.report, message, self.settings.header.scope_min_length);
+        }
+        if self.rules.contains(Rule::HeaderScopeEnum) {
+            header::scope_enum(&self.report, message, &self.settings.header.scope_enum);
+        }
+        if self.rules.contains(Rule::HeaderScopeRequired) {
+            header::scope_required(&self.report, message);
+        }
+    }
+
+    fn lint_header_description(&self, message: &Message) {
+        if self.rules.contains(Rule::HeaderDescriptionLeadingSpace) {
+            header::description_leading_space(&self.report, message);
+        }
+        if self.rules.contains(Rule::HeaderDescriptionFullStop) {
+            header::description_full_stop(&self.report, message);
+        }
+        if self.rules.contains(Rule::HeaderDescriptionCase) {
+            header::description_case(&self.report, message, self.settings.header.description_case);
+        }
+        if self.rules.contains(Rule::HeaderDescriptionMaxLength) {
+            header::description_max_length(&self.report, message, self.settings.header.description_max_length);
+        }
+        if self.rules.contains(Rule::HeaderDescriptionMinLength) {
+            header::description_min_length(&self.report, message, self.settings.header.description_min_length);
+        }
+    }
+
     fn lint_header(&self, message: &Message) {
-        if self.rules.contains(Rule::HeaderLeadingSpace) {
-            header::leading_space(&self.report, message);
+        self.lint_header_type(message);
+        self.lint_header_scope(message);
+        self.lint_header_description(message);
+
+        // Common rules
+        if self.rules.contains(Rule::HeaderMaxLength) {
+            header::max_length(&self.report, message, self.settings.header.max_length);
+        }
+        if self.rules.contains(Rule::HeaderMinLength) {
+            header::min_length(&self.report, message, self.settings.header.min_length);
+        }
+        if self.rules.contains(Rule::HeaderBreakingExclamation) {
+            header::breaking_exclamation(&self.report, message);
         }
     }
 

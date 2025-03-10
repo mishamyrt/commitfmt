@@ -23,9 +23,9 @@ use commitfmt_macros::ViolationMetadata;
 /// body
 /// ```
 #[derive(ViolationMetadata)]
-pub(crate) struct LeadingSpace;
+pub(crate) struct DescriptionLeadingSpace;
 
-impl Violation for LeadingSpace {
+impl Violation for DescriptionLeadingSpace {
     fn group(&self) -> LinterGroup {
         LinterGroup::Header
     }
@@ -42,9 +42,9 @@ impl Violation for LeadingSpace {
     }
 }
 
-pub(crate) fn leading_space(report: &Report, message: &Message) {
+pub(crate) fn description_leading_space(report: &Report, message: &Message) {
     let description = &message.header.description;
     if !description.starts_with(' ') {
-        report.add_violation(Box::new(LeadingSpace));
+        report.add_violation(Box::new(DescriptionLeadingSpace));
     }
 }

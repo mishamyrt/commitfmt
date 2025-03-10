@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::{char, space0};
 use nom::combinator::{opt, verify};
@@ -22,12 +24,12 @@ impl Scope {
     const SEPARATOR_DISPLAY: &str = ", ";
 
     /// Create a scope from an iterator
-    pub fn from_iter<I: IntoIterator<Item = T>, T: Into<Box<str>>>(iter: I) -> Self {
-        Self(iter.into_iter().map(|s| s.into()).collect())
+    pub fn from_values<I: IntoIterator<Item = T>, T: Into<Box<str>>>(iter: I) -> Self {
+        Self(iter.into_iter().map(std::convert::Into::into).collect())
     }
 
     /// Create a scope from a string
-    pub fn from_str(s: &str) -> Self {
+    pub fn from(s: &str) -> Self {
         let (_, scopes) = Self::parse(s).unwrap_or_default();
 
         Self(scopes)
@@ -46,7 +48,7 @@ impl Scope {
             preceded(space0, char(')')),
         )
         .parse(input)
-        .map(|(next_input, scopes)| (next_input, scopes.into_iter().map(|s| s.into()).collect()))
+        .map(|(next_input, scopes)| (next_input, scopes.into_iter().map(std::convert::Into::into).collect()))
     }
 
     /// Returns the number of scopes
@@ -76,14 +78,6 @@ impl Scope {
         self.0.iter()
     }
 
-    /// Returns the string representation of the scopes
-    pub fn to_string(&self) -> String {
-        let mut result = String::with_capacity(self.str_len());
-        self.render_to(&mut result);
-
-        result
-    }
-
     /// Internal method for scope rendering
     /// Does not add allocates new string, just appends to given `target`
     fn render_to(&self, target: &mut String) {
@@ -92,6 +86,15 @@ impl Scope {
             target.push_str(&self.0.join(Self::SEPARATOR_DISPLAY));
             target.push(')');
         }
+    }
+}
+
+impl Display for Scope {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut display = String::with_capacity(self.str_len());
+        self.render_to(&mut display);
+        write!(f, "{display}")?;
+        Ok(())
     }
 }
 
@@ -121,7 +124,7 @@ impl Header {
         let (_, (kind, scope, breaking, description)) = result;
 
         let scope = match scope {
-            Some(scopes) => Scope::from_iter(scopes),
+            Some(scopes) => Scope::from_values(scopes),
             None => Scope::default(),
         };
 
@@ -206,7 +209,7 @@ mod tests {
     #[test]
     fn test_scope_parse() {
         let input = "(scope1,scope2)";
-        let result = Scope::from_str(input);
+        let result = Scope::from(input);
         assert_eq!(result.len(), 2);
         assert_eq!(result.0[0].as_ref(), "scope1");
         assert_eq!(result.0[1].as_ref(), "scope2");
@@ -216,31 +219,31 @@ mod tests {
     fn test_scope_parse_empty() {
         let inputs = vec!["", "()", "(,)", " "];
         for input in inputs {
-            assert!(Scope::from_str(input).is_empty());
+            assert!(Scope::from(input).is_empty());
         }
     }
 
     #[test]
     fn test_scope_format() {
-        let scope = Scope::from_iter(vec!["scope1".to_string(), "scope2".to_string()]);
+        let scope = Scope::from_values(vec!["scope1".to_string(), "scope2".to_string()]);
         assert_eq!(scope.to_string(), "(scope1, scope2)");
 
-        let scope = Scope::from_iter(vec!["scope1".to_string()]);
+        let scope = Scope::from_values(vec!["scope1".to_string()]);
         assert_eq!(scope.to_string(), "(scope1)");
 
-        let scope = Scope::from_iter::<_, String>(vec![]);
+        let scope = Scope::from_values::<_, String>(vec![]);
         assert_eq!(scope.to_string(), "");
     }
 
     #[test]
     fn test_scope_len() {
-        let scope = Scope::from_iter(vec!["scope1".to_string(), "scope2".to_string()]);
+        let scope = Scope::from_values(vec!["scope1".to_string(), "scope2".to_string()]);
         assert_eq!(scope.str_len(), scope.to_string().len());
 
-        let scope = Scope::from_iter(vec!["scope1".to_string()]);
+        let scope = Scope::from_values(vec!["scope1".to_string()]);
         assert_eq!(scope.str_len(), scope.to_string().len());
 
-        let scope = Scope::from_iter::<_, String>(vec![]);
+        let scope = Scope::from_values::<_, String>(vec![]);
         assert_eq!(scope.str_len(), scope.to_string().len());
     }
 

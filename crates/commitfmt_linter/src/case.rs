@@ -17,7 +17,7 @@ const NAME_SNAKE: &str = "snake";
 const NAME_START: &str = "start";
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub enum CodeWordCase {
+pub enum WordCase {
     #[default]
     Any,
     Lower,
@@ -37,50 +37,50 @@ pub enum TextCase {
     Start,
 }
 
-impl std::fmt::Display for CodeWordCase {
+impl std::fmt::Display for WordCase {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl CodeWordCase {
+impl WordCase {
     pub fn is_match(&self, word: &str) -> bool {
         match self {
-            CodeWordCase::Any => true,
-            CodeWordCase::Lower => word.chars().all(char::is_lowercase),
-            CodeWordCase::Upper => word.chars().all(char::is_uppercase),
-            CodeWordCase::Camel => {
+            WordCase::Any => true,
+            WordCase::Lower => word.chars().all(char::is_lowercase),
+            WordCase::Upper => word.chars().all(char::is_uppercase),
+            WordCase::Camel => {
                 let mut chars = word.chars();
                 chars.next().is_some_and(char::is_lowercase) && chars.any(char::is_uppercase)
             }
-            CodeWordCase::Kebab => all_consuming(Self::kebab_case).parse(word).is_ok(),
-            CodeWordCase::Pascal => all_consuming(Self::pascal_case).parse(word).is_ok(),
-            CodeWordCase::Snake => all_consuming(Self::snake_case).parse(word).is_ok(),
+            WordCase::Kebab => all_consuming(Self::kebab_case).parse(word).is_ok(),
+            WordCase::Pascal => all_consuming(Self::pascal_case).parse(word).is_ok(),
+            WordCase::Snake => all_consuming(Self::snake_case).parse(word).is_ok(),
         }
     }
 
-    pub fn from_name(name: &str) -> Option<CodeWordCase> {
+    pub fn from_name(name: &str) -> Option<WordCase> {
         match name {
-            NAME_ANY => Some(CodeWordCase::Any),
-            NAME_LOWER => Some(CodeWordCase::Lower),
-            NAME_UPPER => Some(CodeWordCase::Upper),
-            NAME_CAMEL => Some(CodeWordCase::Camel),
-            NAME_KEBAB => Some(CodeWordCase::Kebab),
-            NAME_PASCAL => Some(CodeWordCase::Pascal),
-            NAME_SNAKE => Some(CodeWordCase::Snake),
+            NAME_ANY => Some(WordCase::Any),
+            NAME_LOWER => Some(WordCase::Lower),
+            NAME_UPPER => Some(WordCase::Upper),
+            NAME_CAMEL => Some(WordCase::Camel),
+            NAME_KEBAB => Some(WordCase::Kebab),
+            NAME_PASCAL => Some(WordCase::Pascal),
+            NAME_SNAKE => Some(WordCase::Snake),
             _ => None,
         }
     }
 
     pub fn name(&self) -> &'static str {
         match self {
-            CodeWordCase::Any => NAME_ANY,
-            CodeWordCase::Lower => NAME_LOWER,
-            CodeWordCase::Upper => NAME_UPPER,
-            CodeWordCase::Camel => NAME_CAMEL,
-            CodeWordCase::Kebab => NAME_KEBAB,
-            CodeWordCase::Pascal => NAME_PASCAL,
-            CodeWordCase::Snake => NAME_SNAKE,
+            WordCase::Any => NAME_ANY,
+            WordCase::Lower => NAME_LOWER,
+            WordCase::Upper => NAME_UPPER,
+            WordCase::Camel => NAME_CAMEL,
+            WordCase::Kebab => NAME_KEBAB,
+            WordCase::Pascal => NAME_PASCAL,
+            WordCase::Snake => NAME_SNAKE,
         }
     }
 
@@ -148,54 +148,54 @@ impl TextCase {
 mod tests {
     use crate::case::TextCase;
 
-    use super::CodeWordCase;
+    use super::WordCase;
 
     #[test]
     fn test_match_any() {
-        assert!(CodeWordCase::Any.is_match("f_o-bAr"));
+        assert!(WordCase::Any.is_match("f_o-bAr"));
     }
 
     #[test]
     fn test_match_lower() {
-        assert!(CodeWordCase::Lower.is_match("foobar"));
-        assert!(!CodeWordCase::Lower.is_match("Foobar"));
-        assert!(!CodeWordCase::Lower.is_match("foo bar"));
+        assert!(WordCase::Lower.is_match("foobar"));
+        assert!(!WordCase::Lower.is_match("Foobar"));
+        assert!(!WordCase::Lower.is_match("foo bar"));
     }
 
     #[test]
     fn test_match_upper() {
-        assert!(CodeWordCase::Upper.is_match("FOOBAR"));
-        assert!(!CodeWordCase::Upper.is_match("foobar"));
-        assert!(!CodeWordCase::Upper.is_match("FOO BAR"));
+        assert!(WordCase::Upper.is_match("FOOBAR"));
+        assert!(!WordCase::Upper.is_match("foobar"));
+        assert!(!WordCase::Upper.is_match("FOO BAR"));
     }
 
     #[test]
     fn test_match_camel() {
-        assert!(CodeWordCase::Camel.is_match("fooBar"));
-        assert!(!CodeWordCase::Camel.is_match("FooBar"));
-        assert!(!CodeWordCase::Camel.is_match("foo-bar"));
+        assert!(WordCase::Camel.is_match("fooBar"));
+        assert!(!WordCase::Camel.is_match("FooBar"));
+        assert!(!WordCase::Camel.is_match("foo-bar"));
     }
 
     #[test]
     fn test_match_kebab() {
-        assert!(CodeWordCase::Kebab.is_match("foo-bar"));
-        assert!(CodeWordCase::Kebab.is_match("foobar"));
-        assert!(!CodeWordCase::Kebab.is_match("FooBar"));
-        assert!(!CodeWordCase::Kebab.is_match("foo_bar"));
+        assert!(WordCase::Kebab.is_match("foo-bar"));
+        assert!(WordCase::Kebab.is_match("foobar"));
+        assert!(!WordCase::Kebab.is_match("FooBar"));
+        assert!(!WordCase::Kebab.is_match("foo_bar"));
     }
 
     #[test]
     fn test_match_pascal() {
-        assert!(CodeWordCase::Pascal.is_match("FooBar"));
-        assert!(CodeWordCase::Pascal.is_match("Foobar"));
-        assert!(!CodeWordCase::Pascal.is_match("foo-bar"));
-        assert!(!CodeWordCase::Pascal.is_match("fooBar"));
+        assert!(WordCase::Pascal.is_match("FooBar"));
+        assert!(WordCase::Pascal.is_match("Foobar"));
+        assert!(!WordCase::Pascal.is_match("foo-bar"));
+        assert!(!WordCase::Pascal.is_match("fooBar"));
     }
 
     #[test]
     fn test_match_snake() {
-        assert!(CodeWordCase::Snake.is_match("foo_bar"));
-        assert!(!CodeWordCase::Snake.is_match("FooBar"));
+        assert!(WordCase::Snake.is_match("foo_bar"));
+        assert!(!WordCase::Snake.is_match("FooBar"));
     }
 
     #[test]
