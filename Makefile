@@ -6,6 +6,10 @@ test:
 build:
 	cargo build
 
+.PHONY: release
+release:
+	cargo build --release
+
 .PHONY: format
 format:
 	cargo fmt
