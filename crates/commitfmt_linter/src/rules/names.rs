@@ -13,7 +13,7 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
     Some(match (linter, code) {
         // Header description
         (Header, "description-case")          => header::DescriptionCase,
-        (Header, "full-stop")                 => header::DescriptionFullStop,
+        (Header, "description-full-stop")     => header::DescriptionFullStop,
         (Header, "description-leading-space") => header::DescriptionLeadingSpace,
         (Header, "description-max-length")    => header::DescriptionMaxLength,
         (Header, "description-min-length")    => header::DescriptionMinLength,
