@@ -156,6 +156,7 @@ dependencies = [
  "clap",
  "colored",
  "commitfmt_cc",
+ "commitfmt_config",
  "commitfmt_linter",
  "fern",
  "log",
@@ -203,12 +204,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "commitfmt_hook"
+version = "0.0.0"
+dependencies = [
+ "minijinja",
+ "serde",
+ "test-generator",
+]
+
+[[package]]
 name = "commitfmt_linter"
 version = "0.0.0"
 dependencies = [
  "commitfmt_cc",
  "commitfmt_macros",
  "itertools",
+ "nom",
  "paste",
  "proc-macro2 1.0.93",
  "quote 1.0.38",
@@ -351,6 +362,15 @@ name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+
+[[package]]
+name = "minijinja"
+version = "2.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e36f1329330bb1614c94b78632b9ce45dd7d761f3304a1bed07b2990a7c5097"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "nom"
