@@ -12,6 +12,9 @@ pub enum ViolationError {
 
     #[error("Body is empty")]
     EmptyBody(),
+
+    #[error("Data is empty: {0}")]
+    Empty(String),
 }
 
 /// The fix mode of a violation
