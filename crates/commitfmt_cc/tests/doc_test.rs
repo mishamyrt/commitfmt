@@ -82,6 +82,10 @@ fn verify_resource(resource: &str) {
                 assert_eq!(actual.footers[i].value, footer["value"].as_str().unwrap().to_string());
             }
         }
+
+        if expected.contains_key("breaking") {
+            assert_eq!(actual.header.breaking, expected["breaking"].as_bool().unwrap());
+        }
     }
 
     // assert_eq!(cases.len(), 1);

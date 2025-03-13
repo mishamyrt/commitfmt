@@ -23,7 +23,6 @@ Authored-By: Co Mitter <comitter@example.com>
 
 ```toml
 description = "my cool feature"
-scope = []
 footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
@@ -41,7 +40,6 @@ Reviewed-By: Re Viewer <reviewer@example.com>
 ```
 
 ```toml
-scope = []
 description = "my cool feature"
 footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" },
@@ -63,7 +61,6 @@ Multiline-Details: First
 ```
 
 ```toml
-scope = []
 description = "my cool feature"
 footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" },
@@ -85,7 +82,6 @@ Authored-By: Co Mitter <comitter@example.com>
 ```
 
 ```toml
-scope = []
 body = "\n# This is a comment\n# This is another comment"
 description = "my cool feature"
 footers = [
@@ -107,7 +103,25 @@ Authored-By: Co Mitter <comitter@example.com>
 ```
 
 ```toml
-scope = []
+description = "my cool feature"
+footers = [
+  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
+]
+```
+<!-- </DOC_TEST> -->
+
+### Right before comments
+
+<!-- <DOC_TEST> -->
+```git-commit
+my cool feature
+
+Authored-By: Co Mitter <comitter@example.com>
+# This is a comment
+# This is another comment
+```
+
+```toml
 description = "my cool feature"
 footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
@@ -130,7 +144,6 @@ Authored-By: Co Mitter <comitter@example.com>
 ```
 
 ```toml
-scope = []
 description = "my cool feature"
 body = "\n# This is a comment\n# This is another comment\n\nBody content"
 footers = [
@@ -154,10 +167,10 @@ Authored-By: Co Mitter <comitter@example.com>
 ```
 
 ```toml
-scope = []
 description = "my cool feature"
 body = "\nBody content\n\n# This is a comment\n# This is another comment"
 footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
+<!-- </DOC_TEST> -->
