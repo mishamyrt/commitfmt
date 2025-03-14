@@ -1,6 +1,6 @@
 use std::process;
 use colored::Colorize;
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_config::settings::CommitSettings;
 use commitfmt_config::parse::CommitSettingsParser;
 use commitfmt_linter::check::Check;

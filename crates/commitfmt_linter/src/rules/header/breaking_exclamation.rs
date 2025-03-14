@@ -1,8 +1,7 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use commitfmt_cc::footer::FooterList;
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -52,7 +51,7 @@ pub(crate) fn breaking_exclamation(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer::SeparatorAlignment, footer_list::FooterList, header::Header};
+    use commitfmt_cc::{Footer, FooterList, Header, SeparatorAlignment};
 
     use super::*;
 

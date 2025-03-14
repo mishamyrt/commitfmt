@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
@@ -131,7 +131,7 @@ impl Check {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::message::Message;
+    use commitfmt_cc::Message;
 
     use crate::{check::Check, rule_set::RuleSet, rules};
 

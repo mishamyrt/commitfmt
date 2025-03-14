@@ -1,4 +1,4 @@
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 use crate::report::Report;
@@ -65,7 +65,7 @@ pub(crate) fn full_stop(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_list::FooterList, header::Header};
+    use commitfmt_cc::{FooterList, Header};
 
     use super::*;
 

@@ -1,7 +1,7 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -41,7 +41,7 @@ pub(crate) fn scope_required(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_list::FooterList, header::Header};
+    use commitfmt_cc::{FooterList, Header};
 
     use super::*;
 
@@ -52,7 +52,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(ui): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: FooterList::default(),
         };
 
         scope_required(&mut report, &message);
@@ -61,7 +61,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: FooterList::default(),
         };
 
         scope_required(&mut report, &message);

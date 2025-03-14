@@ -1,4 +1,4 @@
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 use crate::case::TextCase;
@@ -54,7 +54,7 @@ pub(crate) fn case(report: &Report, message: &Message, case: TextCase) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_list::FooterList, header::Header};
+    use commitfmt_cc::{FooterList, Header};
 
     use super::*;
 

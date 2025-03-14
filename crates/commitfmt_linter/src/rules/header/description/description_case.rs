@@ -2,7 +2,7 @@ use crate::case::TextCase;
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -47,7 +47,7 @@ pub(crate) fn description_case(report: &Report, message: &Message, case: TextCas
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_list::FooterList, header::Header};
+    use commitfmt_cc::{FooterList, Header};
 
     use super::*;
 

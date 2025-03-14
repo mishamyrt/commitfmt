@@ -1,7 +1,7 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -50,9 +50,7 @@ pub(crate) fn type_enum(report: &Report, message: &Message, allowed: &Vec<Box<st
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
-
-    use commitfmt_cc::{footer_list::FooterList, header::Header};
+    use commitfmt_cc::{FooterList, Header};
 
     use super::*;
 

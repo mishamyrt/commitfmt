@@ -1,5 +1,5 @@
 
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use thiserror::Error;
 
 use crate::rules::LinterGroup;

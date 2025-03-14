@@ -1,7 +1,7 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationError, ViolationMetadata};
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -59,7 +59,7 @@ pub(crate) fn leading_nl(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_list::FooterList, header::Header, message::Message};
+    use commitfmt_cc::{FooterList, Header, Message};
 
     use super::*;
 
