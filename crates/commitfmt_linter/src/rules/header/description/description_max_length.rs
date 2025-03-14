@@ -43,7 +43,7 @@ pub(crate) fn description_max_length(report: &Report, message: &Message, length:
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -54,7 +54,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
         description_max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 0);
@@ -62,7 +62,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature description where i added some bugs and fixed some others which are longer than 72 characters"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
         description_max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 1);

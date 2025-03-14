@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate test_generator;
 
-use commitfmt_cc::message::Message;
+use commitfmt_cc::Message;
 use nom::multi::many0;
 use nom::{
     bytes::complete::{tag, take_until},
@@ -78,8 +78,8 @@ fn verify_resource(resource: &str) {
             assert_eq!(actual.footers.len(), expected["footers"].as_array().unwrap().len());
             for i in 0..expected["footers"].as_array().unwrap().len() {
                 let footer = expected["footers"][i].as_table().unwrap();
-                assert_eq!(actual.footers[i].key, footer["key"].as_str().unwrap().to_string());
-                assert_eq!(actual.footers[i].value, footer["value"].as_str().unwrap().to_string());
+                assert_eq!(actual.footers.0[i].key, footer["key"].as_str().unwrap().to_string());
+                assert_eq!(actual.footers.0[i].value, footer["value"].as_str().unwrap().to_string());
             }
         }
 

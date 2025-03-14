@@ -1,8 +1,4 @@
-use crate::{
-    body::parse_body,
-    footer::{Footer, DEFAULT_SEPARATOR},
-    header::Header,
-};
+use crate::{body::parse_body, footer::{Footer, FooterList}, header::Header};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -16,12 +12,12 @@ pub enum ParseError {
 pub struct Message {
     pub header: Header,
     pub body: Option<String>,
-    pub footers: Vec<Footer>,
+    pub footers: FooterList,
 }
 
 impl Message {
     pub fn parse(input: &str) -> Result<Self, ParseError> {
-        Self::parse_with_separators(input, DEFAULT_SEPARATOR)
+        Self::parse_with_separators(input, Footer::DEFAULT_SEPARATOR)
     }
 
     pub fn parse_with_separators(input: &str, separators: &str) -> Result<Self, ParseError> {
@@ -32,7 +28,7 @@ impl Message {
             return Ok(Message {
                 header,
                 body: None,
-                footers: vec![],
+                footers: FooterList::default(),
             });
         }
 
@@ -48,7 +44,7 @@ impl Message {
 
 #[cfg(test)]
 mod tests {
-    use crate::header::Scope;
+    use crate::{footer::SeparatorAlignment, footer_list, header::Scope};
 
     use super::*;
 
@@ -69,9 +65,11 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: Some("\nDescription body".to_string()),
-            footers: vec![Footer {
+            footers: footer_list![Footer {
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
             }],
         };
 
@@ -83,11 +81,9 @@ Authored-By: John Doe";
 
     #[test]
     fn test_parse_without_body() {
-        let commit_msg = "feat: my feature
+        let commit_msg = "feat: my feature\n\nAuthored-By: John Doe\n";
 
-Authored-By: John Doe";
-
-        let parsed = Message::parse(commit_msg);
+        let parsed = Message::parse(commit_msg).unwrap();
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
@@ -96,15 +92,14 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: vec![Footer {
+            footers: footer_list![Footer {
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
             }],
         };
 
-        match parsed {
-            Ok(parsed) => assert_eq!(parsed, expected),
-            Err(e) => panic!("Unable to parse commit message: {}", e),
-        }
+        assert_eq!(parsed, expected);
     }
 }

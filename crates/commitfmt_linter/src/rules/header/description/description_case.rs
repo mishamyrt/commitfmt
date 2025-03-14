@@ -47,7 +47,7 @@ pub(crate) fn description_case(report: &Report, message: &Message, case: TextCas
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -58,7 +58,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db-core, ui-core, req-internal): my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         description_case(&mut report, &message, TextCase::Lower);
@@ -67,7 +67,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: My feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         description_case(&report, &message, TextCase::Lower);

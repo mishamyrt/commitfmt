@@ -6,33 +6,19 @@ use nom::combinator::{opt, verify};
 use nom::multi::separated_list0;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, Parser};
-use thiserror::Error;
 
 /// Scope of a commit is a list of strings
 /// Example: (scope1, scope2)
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct Scope(pub Vec<Box<str>>);
 
-#[derive(Debug, Error)]
-pub enum ScopeParseError {
-    #[error("invalid scope: {0}")]
-    InvalidScope(String),
-}
-
 impl Scope {
     const SEPARATOR_CHAR: char = ',';
     const SEPARATOR_DISPLAY: &str = ", ";
 
     /// Create a scope from an iterator
-    pub fn from_values<I: IntoIterator<Item = T>, T: Into<Box<str>>>(iter: I) -> Self {
+    pub fn from<I: IntoIterator<Item = T>, T: Into<Box<str>>>(iter: I) -> Self {
         Self(iter.into_iter().map(std::convert::Into::into).collect())
-    }
-
-    /// Create a scope from a string
-    pub fn from(s: &str) -> Self {
-        let (_, scopes) = Self::parse(s).unwrap_or_default();
-
-        Self(scopes)
     }
 
     /// Parse a list of scopes.
@@ -124,7 +110,7 @@ impl Header {
         let (_, (kind, scope, breaking, description)) = result;
 
         let scope = match scope {
-            Some(scopes) => Scope::from_values(scopes),
+            Some(scopes) => Scope::from(scopes),
             None => Scope::default(),
         };
 
@@ -209,41 +195,41 @@ mod tests {
     #[test]
     fn test_scope_parse() {
         let input = "(scope1,scope2)";
-        let result = Scope::from(input);
+        let result = Scope::parse(input).unwrap().1;
         assert_eq!(result.len(), 2);
-        assert_eq!(result.0[0].as_ref(), "scope1");
-        assert_eq!(result.0[1].as_ref(), "scope2");
+        assert_eq!(result[0].as_ref(), "scope1");
+        assert_eq!(result[1].as_ref(), "scope2");
     }
 
     #[test]
     fn test_scope_parse_empty() {
         let inputs = vec!["", "()", "(,)", " "];
         for input in inputs {
-            assert!(Scope::from(input).is_empty());
+            assert!(Scope::parse(input).unwrap().1.is_empty());
         }
     }
 
     #[test]
     fn test_scope_format() {
-        let scope = Scope::from_values(vec!["scope1".to_string(), "scope2".to_string()]);
+        let scope = Scope::from(vec!["scope1".to_string(), "scope2".to_string()]);
         assert_eq!(scope.to_string(), "(scope1, scope2)");
 
-        let scope = Scope::from_values(vec!["scope1".to_string()]);
+        let scope = Scope::from(vec!["scope1".to_string()]);
         assert_eq!(scope.to_string(), "(scope1)");
 
-        let scope = Scope::from_values::<_, String>(vec![]);
+        let scope = Scope::from::<_, String>(vec![]);
         assert_eq!(scope.to_string(), "");
     }
 
     #[test]
     fn test_scope_len() {
-        let scope = Scope::from_values(vec!["scope1".to_string(), "scope2".to_string()]);
+        let scope = Scope::from(vec!["scope1".to_string(), "scope2".to_string()]);
         assert_eq!(scope.str_len(), scope.to_string().len());
 
-        let scope = Scope::from_values(vec!["scope1".to_string()]);
+        let scope = Scope::from(vec!["scope1".to_string()]);
         assert_eq!(scope.str_len(), scope.to_string().len());
 
-        let scope = Scope::from_values::<_, String>(vec![]);
+        let scope = Scope::from::<_, String>(vec![]);
         assert_eq!(scope.str_len(), scope.to_string().len());
     }
 

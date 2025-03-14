@@ -57,7 +57,7 @@ pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -68,7 +68,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nBody with some text".to_string()),
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         min_length(&mut report, &message, 5);

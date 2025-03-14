@@ -52,7 +52,7 @@ pub(crate) fn type_enum(report: &Report, message: &Message, allowed: &Vec<Box<st
 mod tests {
     use std::vec;
 
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -65,7 +65,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         type_enum(&mut report, &message, &allowed);
@@ -74,7 +74,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feature: my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         type_enum(&mut report, &message, &allowed);

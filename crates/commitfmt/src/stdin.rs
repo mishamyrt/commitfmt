@@ -27,14 +27,12 @@ pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::Exi
 
     for violation_box in check.violations_ref().borrow().iter() {
         let violation = violation_box.as_ref();
-        info!("{}", violation.rule_name().bright_red());
-        info!("{}", violation.message());
-
         let Some(rule) = Rule::from_violation(violation) else {
             panic!("Failed to get rule from violation");
         };
 
-        info!("{}", rule.as_display().dimmed());
+        let line = format!("- {} {}", violation.message(), rule.as_display().dimmed());
+        info!("{}", line);
     }
 
     process::ExitCode::SUCCESS

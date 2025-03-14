@@ -48,7 +48,7 @@ pub(crate) fn scope_case(report: &Report, message: &Message, case: WordCase) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -59,7 +59,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db-core, ui-core, req-internal): my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         scope_case(&mut report, &message, WordCase::Kebab);
@@ -68,7 +68,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(DB_Core, UICore, req-internal): my feature"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
 
         scope_case(&mut report, &message, WordCase::Kebab);

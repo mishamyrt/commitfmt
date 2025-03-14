@@ -1,4 +1,4 @@
-use crate::footer::Footer;
+use crate::footer::FooterList;
 
 const COMMENT_CHAR: &str = "#";
 const OLD_CONFLICTS_TITLE: &str = "Conflicts:";
@@ -45,7 +45,7 @@ fn extract_meaningful_body(input: &str) -> &str {
 }
 
 /// Parse body and footer
-pub fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Option<Vec<Footer>>) {
+pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Option<FooterList>) {
     if input.is_empty() {
         return (None, None);
     }
@@ -56,25 +56,27 @@ pub fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Opti
     // If no block is found, than input is single block.
     let last_block_index: usize = meaningful_input.rfind("\n\n").unwrap_or(0);
     if last_block_index == 0 {
-        match Footer::parse(meaningful_input.trim(), footer_separators) {
-            Some(footers) => return (None, Some(footers)),
-            None => return (Some(input.to_string()), None),
+        match FooterList::parse(meaningful_input.trim_start(), footer_separators) {
+            Ok((_rest, footers)) => return (None, Some(footers)),
+            Err(_) => return (Some(input.to_string()), None),
         }
     }
 
-    let last_block = &meaningful_input[last_block_index+2..];
+    let last_block = &meaningful_input[last_block_index + 2..];
 
-    match Footer::parse(last_block, footer_separators) {
-        Some(footers) => {
+    match FooterList::parse(last_block, footer_separators) {
+        Ok((_rest, footers)) => {
             let body = Some(meaningful_input[..last_block_index].to_string());
             (body, Some(footers))
         }
-        None => (Some(meaningful_input.to_string()), None),
+        Err(_) => (Some(meaningful_input.to_string()), None),
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::{footer::{Footer, SeparatorAlignment}, footer_list};
+
     use super::*;
 
     #[test]
@@ -97,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_extract_meaningful_body_with_continuation() {
-        let input = "my body\n# some comment\n# another comment\nAnd body again";
+        let input = "my body\n# some comment\n# another comment\nAnd body again\n";
         assert_eq!(extract_meaningful_body(input), "my body\n# some comment\n# another comment\nAnd body again");
     }
 
@@ -106,10 +108,13 @@ mod tests {
         let input = "my body\n\nmyfooter: my value";
         let expected = (
             Some("my body".to_string()),
-            Some(vec![Footer {
+            Some(footer_list![Footer {
                 key: "myfooter".to_string(),
-                value: "my value".to_string()
-            }]));
+                value: "my value".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            }]),
+        );
         assert_eq!(parse_body(input, ":"), expected);
     }
 
@@ -123,10 +128,13 @@ Authored-By: Co Mitter <comitter@example.com>
 # This is another comment";
         let expected = (
             Some("my cool feature".to_string()),
-            Some(vec![Footer {
+            Some(footer_list![Footer {
                 key: "Authored-By".to_string(),
-                value: "Co Mitter <comitter@example.com>".to_string()
-            }]));
+                value: "Co Mitter <comitter@example.com>".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            }]),
+        );
         assert_eq!(parse_body(input, ":"), expected);
     }
 }

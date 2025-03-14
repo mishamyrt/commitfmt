@@ -5,47 +5,58 @@ use commitfmt_cc::message::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
-/// Checks for long header.
+/// Checks for too long footers.
 ///
 /// ## Why is this bad?
-/// Long commit messages will be truncated when displayed in the logs.
+/// If the footer contains a lot of information, something probably
+/// didn't go according to plan. Maybe it should be in the body?
 ///
 /// ## Example
 /// ```git-commit
-/// feat: my super feature with description which is longer than 72 characters and should be split into multiple lines
+/// feat: my feature
+///
+/// BREAKING CHANGES: My very long footer where I talk about all the changes in this feature
+/// Time: 2 hours
+/// Complexity: 10
+/// Mood: happy
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
-/// feat: my super feature
+/// feat: my feature
 ///
-/// Description which is longer than 72 characters
-/// and should be split into multiple lines.
+/// My long body footer I talk about all the changes in this feature
+///
+/// BREAKING CHANGES: feature api breakage
+/// Time: 2 hours
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct MaxLength {
-    pub(crate) max_length: usize,
+    pub(crate) length: usize,
 }
 
 impl Violation for MaxLength {
     fn group(&self) -> LinterGroup {
-        LinterGroup::Header
+        LinterGroup::Footer
     }
 
     fn message(&self) -> String {
-        format!("Header is longer than {} characters", self.max_length)
+        format!("Total footers length is longer than {} characters", self.length)
     }
 }
 
-/// Checks for long body
+/// Checks for long footers
 pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
+    let Some(body) = message.body.as_ref() else {
+        return;
+    };
 
-    if message.header.len() > length {
+    if body.len() > length {
         let violation = Box::new(MaxLength {
-            max_length: length,
+            length: length,
         });
         report.add_violation(violation);
     }
@@ -63,8 +74,8 @@ mod tests {
 
         let message: Message = Message {
             header: Header::from("feat: my feature"),
-            body: None,
-            footers: FooterList::default()
+            body: Some("\nBody with some text".to_string()),
+            footers: FooterList::default(),
         };
 
         max_length(&mut report, &message, 72);

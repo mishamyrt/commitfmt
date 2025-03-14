@@ -43,7 +43,7 @@ pub(crate) fn description_min_length(report: &Report, message: &Message, length:
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::header::Header;
+    use commitfmt_cc::{footer_list::FooterList, header::Header};
 
     use super::*;
 
@@ -54,7 +54,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test: add more cases for parser"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
         description_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
@@ -62,7 +62,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test: add"),
             body: None,
-            footers: vec![],
+            footers: FooterList::default()
         };
         description_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
