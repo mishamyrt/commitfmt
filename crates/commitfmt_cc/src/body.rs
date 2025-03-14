@@ -1,4 +1,4 @@
-use crate::footer::FooterList;
+use crate::footer::Footer;
 
 const COMMENT_CHAR: &str = "#";
 const OLD_CONFLICTS_TITLE: &str = "Conflicts:";
@@ -45,7 +45,7 @@ fn extract_meaningful_body(input: &str) -> &str {
 }
 
 /// Parse body and footer
-pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Option<FooterList>) {
+pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Option<Vec<Footer>>) {
     if input.is_empty() {
         return (None, None);
     }
@@ -56,7 +56,7 @@ pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String
     // If no block is found, than input is single block.
     let last_block_index: usize = meaningful_input.rfind("\n\n").unwrap_or(0);
     if last_block_index == 0 {
-        match FooterList::parse(meaningful_input.trim_start(), footer_separators) {
+        match Footer::parse(meaningful_input.trim_start(), footer_separators) {
             Ok((_rest, footers)) => return (None, Some(footers)),
             Err(_) => return (Some(input.to_string()), None),
         }
@@ -64,7 +64,7 @@ pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String
 
     let last_block = &meaningful_input[last_block_index + 2..];
 
-    match FooterList::parse(last_block, footer_separators) {
+    match Footer::parse(last_block, footer_separators) {
         Ok((_rest, footers)) => {
             let body = Some(meaningful_input[..last_block_index].to_string());
             (body, Some(footers))
@@ -75,7 +75,7 @@ pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String
 
 #[cfg(test)]
 mod tests {
-    use crate::{footer::{Footer, SeparatorAlignment}, footer_list};
+    use crate::footer::{Footer, SeparatorAlignment};
 
     use super::*;
 
@@ -108,7 +108,7 @@ mod tests {
         let input = "my body\n\nmyfooter: my value";
         let expected = (
             Some("my body".to_string()),
-            Some(footer_list![Footer {
+            Some(vec![Footer {
                 key: "myfooter".to_string(),
                 value: "my value".to_string(),
                 separator: ':',
@@ -128,7 +128,7 @@ Authored-By: Co Mitter <comitter@example.com>
 # This is another comment";
         let expected = (
             Some("my cool feature".to_string()),
-            Some(footer_list![Footer {
+            Some(vec![Footer {
                 key: "Authored-By".to_string(),
                 value: "Co Mitter <comitter@example.com>".to_string(),
                 separator: ':',

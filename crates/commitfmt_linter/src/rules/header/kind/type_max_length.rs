@@ -42,13 +42,15 @@ pub(crate) fn type_max_length(report: &Report, message: &Message, length: usize)
     };
 
     if kind.len() > length {
-        report.add_violation(Box::new(TypeMaxLength { length }));
+        report.add_violation(Box::new(TypeMaxLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -59,7 +61,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("i18n:  add greek support"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         type_max_length(&mut report, &message, 10);
         assert_eq!(report.len(), 0);
@@ -67,7 +69,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("internationalization: add greek support"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         type_max_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);

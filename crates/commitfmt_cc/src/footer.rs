@@ -25,7 +25,7 @@ pub struct Footer {
     pub alignment: SeparatorAlignment,
 }
 
-impl<'input> Footer {
+impl Footer {
     /// Keep this constant because it's exception and breaks git trailers format
     pub(crate) const BREAKING_TAG: &'static str = "BREAKING CHANGES";
 
@@ -45,9 +45,13 @@ impl<'input> Footer {
         self.key.len() + value_len + 2
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.key.is_empty() && self.value.is_empty()
+    }
+
     /// Returns a footer from a string. Returns `None` if the input is not a valid footer.
     pub fn from_value(input: &str) -> Option<Self> {
-        match Self::parser(Self::DEFAULT_SEPARATOR).parse(input) {
+        match Self::take(Self::DEFAULT_SEPARATOR).parse(input) {
             Ok((_, footer)) => Some(footer),
             Err(_) => None,
         }
@@ -55,7 +59,7 @@ impl<'input> Footer {
 
     /// Returns a footer from a string. Returns `None` if the input is not a valid footer.
     pub fn from_value_with_separators(input: &str, separators: &str) -> Option<Self> {
-        match Self::parser(separators).parse(input) {
+        match Self::take(separators).parse(input) {
             Ok((_, footer)) => Some(footer),
             Err(_) => None,
         }
@@ -68,10 +72,10 @@ impl<'input> Footer {
     }
 
     pub fn is_breaking_change(&self) -> bool {
-        return Self::is_breaking_key(&self.key);
+        Self::is_breaking_key(&self.key)
     }
 
-      /// Parses a separator and its alignment.
+    /// Parses a separator and its alignment.
     /// Returns `None` if the input is not a valid separator string.
     fn parse_separator(separator_with_spaces: &str) -> Option<(char, SeparatorAlignment)> {
         let mut balance: i16 = 0;
@@ -99,13 +103,21 @@ impl<'input> Footer {
         Some((separator, alignment))
     }
 
-    /// Returns a nom parser for a commit footer (trailer) format
-    pub(crate) fn parser(separators: &str) -> impl Parser<&str, Output = Footer, Error = Error<&str>> {
-        return map(
-            (
-                Self::key_parser,
-                recognize((preceded(space0, one_of(separators)), space0)),
-                Self::value_parser),
+    /// Takes many footers from the input
+    /// Returns them and the rest of the input
+    pub(crate) fn parse<'input, 'sep: 'input>(
+        input: &'input str,
+        separators: &'sep str
+    ) -> IResult<&'input str, Vec<Footer>> {
+
+        all_consuming(separated_list1(tag("\n"), Self::take(separators))).parse(input)
+    }
+
+    /// Parses one footer (trailer) from the input.
+    /// Returns it and the rest of the input.
+    fn take(separators: &str) -> impl Parser<&str, Output = Footer, Error = Error<&str>> {
+        map(
+            (Self::key_parser, recognize((preceded(space0, one_of(separators)), space0)), Self::value_parser),
             |(key, separator_with_spaces, value)| {
                 let (separator, alignment) = Self::parse_separator(separator_with_spaces).unwrap();
 
@@ -116,7 +128,7 @@ impl<'input> Footer {
                     alignment,
                 }
             },
-        );
+        )
     }
 
     /// Checks if a character is a valid key character
@@ -163,88 +175,12 @@ impl std::fmt::Display for Footer {
     }
 }
 
-/// Shorthand macro to create a FooterList
-#[macro_export]
-macro_rules! footer_list {
-    () => (
-        $crate::footer_list::FooterList::default()
-    );
-    ($($x:expr),+ $(,)?) => (
-        $crate::footer::FooterList::from_values(vec![$($x),+])
-    );
-}
-
-#[derive(Debug, Clone, Default, PartialEq)]
-pub struct FooterList(pub Vec<Footer>);
-
-impl<'input> FooterList {
-    /// Create a scope from an iterator
-    pub fn from_values<I: IntoIterator<Item = T>, T: Into<Footer>>(iter: I) -> Self {
-        Self(iter.into_iter().map(std::convert::Into::into).collect())
-    }
-
-    /// Checks if the footer list contains a specific key
-    #[inline]
-    pub fn contains(&self, key: &str) -> bool {
-        self.0.iter().any(|f| f.key == key)
-    }
-
-    /// Checks if the footer list contains a breaking change
-    #[inline]
-    pub fn contains_breaking_change(&self) -> bool {
-        self.0.iter().any(|f| f.is_breaking_change())
-    }
-
-    /// Checks if the footer list is empty
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    /// Returns the number of footers in the list
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    /// Returns an iterator over the footers
-    #[inline]
-    pub fn iter(&self) -> std::slice::Iter<Footer> {
-        self.0.iter()
-    }
-
-    /// Returns the footer at the given index
-    #[inline]
-    pub fn get(&self, index: usize) -> Option<&Footer> {
-        self.0.get(index)
-    }
-
-    /// Returns a mutable reference to the footer at the given index
-    #[inline]
-    pub fn get_mut(&mut self, index: usize) -> Option<&mut Footer> {
-        self.0.get_mut(index)
-    }
-
-    /// Push a footer to the list
-    #[inline]
-    pub fn push(&mut self, footer: Footer) {
-        self.0.push(footer);
-    }
-
-    /// Parse a footer list from a string
-    pub(crate) fn parse(input: &'input str, separators: &'input str) -> IResult<&'input str, Self> {
-        let (rest, footers) = all_consuming(separated_list1(tag("\n"), Footer::parser(separators))).parse(input)?;
-
-        Ok((rest, Self(footers)))
-    }
-}
-
-#[allow(unused_imports)]
+#[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_parse() {
+    fn test_take() {
         let input = "Authored-By: John Doe\nCommitter: Jane Doe";
         let expected = Footer {
             key: "Authored-By".into(),
@@ -253,13 +189,13 @@ mod tests {
             alignment: SeparatorAlignment::Left,
         };
 
-        let (rest, footer) = Footer::parser(":").parse(input).unwrap();
+        let (rest, footer) = Footer::take(":").parse(input).unwrap();
         assert_eq!(footer, expected);
         assert_eq!(rest, "\nCommitter: Jane Doe");
     }
 
     #[test]
-    fn test_parse_multiline() {
+    fn test_take_multiline() {
         let input = "BREAKING CHANGES: Long description\n That even contains newlines";
         let expected = Footer {
             key: "BREAKING CHANGES".into(),
@@ -268,13 +204,13 @@ mod tests {
             alignment: SeparatorAlignment::Left,
         };
 
-        let (_, footer) = Footer::parser(":").parse(input).unwrap();
+        let (_, footer) = Footer::take(":").parse(input).unwrap();
         assert_eq!(footer, expected);
     }
 
     #[test]
-    fn test_parse_alignment() {
-        let mut parser = Footer::parser(":#");
+    fn test_take_alignment() {
+        let mut parser = Footer::take(":#");
 
         let (_, footer) = parser.parse("Authored-By: John Doe").unwrap();
         assert_eq!(footer.alignment, SeparatorAlignment::Left);
@@ -298,22 +234,22 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_list_single() {
-        let footer = FooterList::parse("foo: bar", Footer::DEFAULT_SEPARATOR).unwrap().1;
+    fn test_parse_single() {
+        let footer = Footer::parse("foo: bar", Footer::DEFAULT_SEPARATOR).unwrap().1;
 
-        assert_eq!(footer.0.len(), 1);
-        assert_eq!(footer.0[0].key, "foo");
-        assert_eq!(footer.0[0].value, "bar");
+        assert_eq!(footer.len(), 1);
+        assert_eq!(footer[0].key, "foo");
+        assert_eq!(footer[0].value, "bar");
     }
 
     #[test]
-    fn test_parse_list_multiple() {
-        let result = FooterList::parse("foo: bar\nbaz: qux", Footer::DEFAULT_SEPARATOR).unwrap().1;
+    fn test_parse_multiple() {
+        let result = Footer::parse("foo: bar\nbaz: qux", Footer::DEFAULT_SEPARATOR).unwrap().1;
 
-        assert_eq!(result.0.len(), 2);
-        assert_eq!(result.0[0].key, "foo");
-        assert_eq!(result.0[0].value, "bar");
-        assert_eq!(result.0[1].key, "baz");
-        assert_eq!(result.0[1].value, "qux");
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].key, "foo");
+        assert_eq!(result[0].value, "bar");
+        assert_eq!(result[1].key, "baz");
+        assert_eq!(result[1].value, "qux");
     }
 }

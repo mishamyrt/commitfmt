@@ -41,7 +41,7 @@ pub(crate) fn scope_required(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -52,7 +52,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(ui): my feature"),
             body: None,
-            footers: FooterList::default(),
+            footers: vec![],
         };
 
         scope_required(&mut report, &message);
@@ -61,7 +61,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: FooterList::default(),
+            footers: vec![],
         };
 
         scope_required(&mut report, &message);

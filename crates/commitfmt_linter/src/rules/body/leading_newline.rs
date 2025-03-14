@@ -59,7 +59,7 @@ pub(crate) fn leading_nl(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header, Message};
+    use commitfmt_cc::{Header, Message};
 
     use super::*;
 
@@ -68,7 +68,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nbody".to_string()),
-            footers: FooterList::default()
+            footers: vec![]
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -80,7 +80,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("body".to_string()),
-            footers: FooterList::default()
+            footers: vec![]
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -92,7 +92,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![]
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);

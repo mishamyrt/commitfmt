@@ -49,7 +49,7 @@ pub(crate) fn scope_enum(report: &Report, message: &Message, allowed: &[Box<str>
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -62,7 +62,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         scope_enum(&mut report, &message, &allowed);
@@ -71,7 +71,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(DB_Core, UICore): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         scope_enum(&mut report, &message, &allowed);

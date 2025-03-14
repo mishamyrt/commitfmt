@@ -37,18 +37,22 @@ impl Violation for TypeMinLength {
 /// Checks for scope maximum length
 pub(crate) fn type_min_length(report: &Report, message: &Message, length: usize) {
     let Some(kind) = &message.header.kind else {
-        report.add_violation(Box::new(TypeMinLength { length }));
+        report.add_violation(Box::new(TypeMinLength {
+            length,
+        }));
         return;
     };
 
     if kind.len() < length {
-        report.add_violation(Box::new(TypeMinLength { length }));
+        report.add_violation(Box::new(TypeMinLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -59,7 +63,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test: add more cases for parser"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         type_min_length(&mut report, &message, 1);
         assert_eq!(report.len(), 0);
@@ -67,7 +71,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("tests"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         type_min_length(&mut report, &message, 1);
         assert_eq!(report.len(), 1);

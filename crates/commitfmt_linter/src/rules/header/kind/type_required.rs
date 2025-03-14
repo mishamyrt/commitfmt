@@ -42,7 +42,7 @@ pub(crate) fn type_required(report: &Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -53,7 +53,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         type_required(&mut report, &message);
@@ -62,7 +62,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         type_required(&mut report, &message);

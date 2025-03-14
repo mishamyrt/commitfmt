@@ -37,13 +37,15 @@ impl Violation for DescriptionMinLength {
 /// Checks for scope maximum length
 pub(crate) fn description_min_length(report: &Report, message: &Message, length: usize) {
     if message.header.description.len() < length {
-        report.add_violation(Box::new(DescriptionMinLength { length }));
+        report.add_violation(Box::new(DescriptionMinLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -54,7 +56,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test: add more cases for parser"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         description_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
@@ -62,7 +64,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test: add"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         description_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);

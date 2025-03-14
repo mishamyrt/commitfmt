@@ -37,13 +37,15 @@ impl Violation for DescriptionMaxLength {
 /// Checks for scope maximum length
 pub(crate) fn description_max_length(report: &Report, message: &Message, length: usize) {
     if message.header.description.len() > length {
-        report.add_violation(Box::new(DescriptionMaxLength { length }));
+        report.add_violation(Box::new(DescriptionMaxLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -54,7 +56,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         description_max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 0);
@@ -62,7 +64,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature description where i added some bugs and fixed some others which are longer than 72 characters"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![]
         };
         description_max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 1);

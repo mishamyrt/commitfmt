@@ -3,7 +3,7 @@ mod names;
 
 pub mod body;
 pub mod header;
-pub mod footers;
+pub mod footer;
 
 pub use linter_group::LinterGroup;
 pub use names::Rule;
@@ -12,4 +12,5 @@ pub use names::Rule;
 pub struct Settings {
     pub body: body::Settings,
     pub header: header::Settings,
+    pub footer: footer::Settings,
 }

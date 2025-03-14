@@ -44,6 +44,8 @@ impl TomlParser for Settings {
             Rule::BodyMinLength => require_usize(value, &mut self.body.min_length),
             Rule::BodyCase => require_text_case(value, &mut self.body.case),
 
+            Rule::FooterMaxLength => require_usize(value, &mut self.footer.max_length),
+
             _ => match value.as_bool() {
                 Some(is_enabled) => Ok(is_enabled),
                 None => Err(ConfigError::UnexpectedFieldType(rule.as_display().to_owned(), "bool".to_owned())),

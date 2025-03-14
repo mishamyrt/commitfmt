@@ -1,5 +1,8 @@
-use crate::{body::parse_body, footer::{Footer, FooterList}, header::Header};
 use thiserror::Error;
+
+use crate::body::parse_body;
+use crate::footer::Footer;
+use crate::header::Header;
 
 #[derive(Debug, Error)]
 pub enum ParseError {
@@ -12,7 +15,7 @@ pub enum ParseError {
 pub struct Message {
     pub header: Header,
     pub body: Option<String>,
-    pub footers: FooterList,
+    pub footers: Vec<Footer>,
 }
 
 impl Message {
@@ -28,7 +31,7 @@ impl Message {
             return Ok(Message {
                 header,
                 body: None,
-                footers: FooterList::default(),
+                footers: vec![],
             });
         }
 
@@ -44,7 +47,7 @@ impl Message {
 
 #[cfg(test)]
 mod tests {
-    use crate::{footer::SeparatorAlignment, footer_list, header::Scope};
+    use crate::{footer::SeparatorAlignment, header::Scope};
 
     use super::*;
 
@@ -65,7 +68,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: Some("\nDescription body".to_string()),
-            footers: footer_list![Footer {
+            footers: vec![Footer {
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',
@@ -92,7 +95,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: footer_list![Footer {
+            footers: vec![Footer {
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',

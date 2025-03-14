@@ -1,7 +1,7 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use commitfmt_cc::Message;
+use commitfmt_cc::{Footer, Message};
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
@@ -30,7 +30,7 @@ pub(crate) struct BreakingExclamation;
 
 impl Violation for BreakingExclamation {
     fn group(&self) -> LinterGroup {
-        LinterGroup::Header
+        LinterGroup::Footer
     }
 
     fn message(&self) -> String {
@@ -44,14 +44,14 @@ pub(crate) fn breaking_exclamation(report: &Report, message: &Message) {
         return;
     }
 
-    if message.footers.contains_breaking_change() {
+    if message.footers.iter().any(Footer::is_breaking_change) {
         report.add_violation(Box::new(BreakingExclamation));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{Footer, FooterList, Header, SeparatorAlignment};
+    use commitfmt_cc::{Footer, Header, SeparatorAlignment};
 
     use super::*;
 
@@ -69,7 +69,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat!: my feature"),
             body: None,
-            footers: FooterList::from_values(footers.to_owned()),
+            footers: footers.to_owned(),
         };
 
         breaking_exclamation(&mut report, &message);
@@ -78,7 +78,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: FooterList::from_values(footers.to_owned()),
+            footers: footers.to_owned(),
         };
 
         breaking_exclamation(&mut report, &message);

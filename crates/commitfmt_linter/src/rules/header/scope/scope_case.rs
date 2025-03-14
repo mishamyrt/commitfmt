@@ -40,7 +40,9 @@ impl Violation for ScopeCase {
 pub(crate) fn scope_case(report: &Report, message: &Message, case: WordCase) {
     for scope in message.header.scope.iter() {
         if !case.is_match(scope) {
-            report.add_violation(Box::new(ScopeCase { case }));
+            report.add_violation(Box::new(ScopeCase {
+                case,
+            }));
             return;
         }
     }
@@ -48,7 +50,7 @@ pub(crate) fn scope_case(report: &Report, message: &Message, case: WordCase) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -59,7 +61,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db-core, ui-core, req-internal): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         scope_case(&mut report, &message, WordCase::Kebab);
@@ -68,7 +70,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(DB_Core, UICore, req-internal): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         scope_case(&mut report, &message, WordCase::Kebab);

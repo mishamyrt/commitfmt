@@ -4,7 +4,7 @@ use commitfmt_cc::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
-use crate::rules::{body, header, Rule, Settings};
+use crate::rules::{body, header, footer, Rule, Settings};
 use crate::violation::Violation;
 
 pub struct Check {
@@ -88,9 +88,6 @@ impl Check {
         if self.rules.contains(Rule::HeaderMinLength) {
             header::min_length(&self.report, message, self.settings.header.min_length);
         }
-        if self.rules.contains(Rule::HeaderBreakingExclamation) {
-            header::breaking_exclamation(&self.report, message);
-        }
     }
 
     fn lint_body(&self, message: &Message) {
@@ -114,6 +111,15 @@ impl Check {
         }
     }
 
+    fn lint_footers(&self, message: &Message) {
+        if self.rules.contains(Rule::FooterMaxLength) {
+            footer::max_length(&self.report, message, self.settings.footer.max_length);
+        }
+        if self.rules.contains(Rule::FooterBreakingExclamation) {
+            footer::breaking_exclamation(&self.report, message);
+        }
+    }
+
     pub fn run(&self, message: &Message) {
         self.lint_header(message);
 
@@ -122,6 +128,9 @@ impl Check {
         }
 
         self.lint_body(message);
+        if !message.footers.is_empty() {
+            self.lint_footers(message);
+        }
     }
 
     pub fn violations_ref(&self) -> &RefCell<Vec<Box<dyn Violation>>> {

@@ -41,13 +41,15 @@ pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
     }
 
     if message.header.len() < length {
-        report.add_violation(Box::new(MinLength { length }));
+        report.add_violation(Box::new(MinLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -58,7 +60,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("test"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
 
         min_length(&mut report, &message, 4);

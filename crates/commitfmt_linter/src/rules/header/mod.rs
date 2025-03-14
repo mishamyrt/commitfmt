@@ -2,7 +2,6 @@ mod description;
 mod kind;
 mod scope;
 
-mod breaking_exclamation;
 mod max_length;
 mod min_length;
 mod settings;
@@ -31,7 +30,6 @@ pub(crate) use {
         scope_min_length, ScopeMinLength,
         scope_required, ScopeRequired
     },
-    breaking_exclamation::{breaking_exclamation, BreakingExclamation},
     max_length::{max_length, MaxLength},
     min_length::{min_length, MinLength},
 };

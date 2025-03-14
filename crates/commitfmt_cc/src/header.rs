@@ -3,7 +3,7 @@ use std::fmt::Display;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::{char, space0};
 use nom::combinator::{opt, verify};
-use nom::multi::separated_list0;
+use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, Parser};
 
@@ -27,7 +27,7 @@ impl Scope {
     pub fn parse(input: &str) -> IResult<&str, Vec<Box<str>>> {
         delimited(
             preceded(space0, char('(')),
-            separated_list0(
+            separated_list1(
                 preceded(space0, char(Self::SEPARATOR_CHAR)),
                 preceded(space0, take_while1(|c: char| !c.is_whitespace() && c != Self::SEPARATOR_CHAR && c != ')')),
             ),
@@ -205,7 +205,8 @@ mod tests {
     fn test_scope_parse_empty() {
         let inputs = vec!["", "()", "(,)", " "];
         for input in inputs {
-            assert!(Scope::parse(input).unwrap().1.is_empty());
+            let result = Scope::parse(input);
+            assert!(result.is_err());
         }
     }
 

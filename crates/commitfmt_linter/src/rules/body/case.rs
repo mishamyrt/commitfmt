@@ -47,14 +47,16 @@ pub(crate) fn case(report: &Report, message: &Message, case: TextCase) {
     };
 
     if !case.is_match(body) {
-        let violation = Box::new(Case{ case });
+        let violation = Box::new(Case {
+            case,
+        });
         report.add_violation(violation);
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -65,7 +67,7 @@ mod tests {
         let mut message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("feature description".to_string()),
-            footers: FooterList::default(),
+            footers: vec![],
         };
 
         case(&mut report, &message, TextCase::Lower);

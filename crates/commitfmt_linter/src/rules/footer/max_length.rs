@@ -15,20 +15,20 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: My very long footer where I talk about all the changes in this feature
-/// Time: 2 hours
-/// Complexity: 10
-/// Mood: happy
+/// BREAKING CHANGES: I had to heavily rework several modules.
+///  Compatibility of TreeView and Card components may be broken
+///  due to the library update.
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
 /// feat: my feature
 ///
-/// My long body footer I talk about all the changes in this feature
+/// I had to heavily rework several modules. Compatibility
+/// of TreeView and Card components may be broken due
+/// to the library update.
 ///
-/// BREAKING CHANGES: feature api breakage
-/// Time: 2 hours
+/// BREAKING CHANGES: TreeView and Card APIs
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct MaxLength {
@@ -41,7 +41,7 @@ impl Violation for MaxLength {
     }
 
     fn message(&self) -> String {
-        format!("Total footers length is longer than {} characters", self.length)
+        format!("Footer length is longer than {} characters", self.length)
     }
 }
 
@@ -50,21 +50,20 @@ pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
-    let Some(body) = message.body.as_ref() else {
-        return;
-    };
 
-    if body.len() > length {
-        let violation = Box::new(MaxLength {
-            length: length,
-        });
-        report.add_violation(violation);
+    for footer in message.footers.iter() {
+        if footer.len() > length {
+            let violation = Box::new(MaxLength {
+                length,
+            });
+            report.add_violation(violation);
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::{Footer, Header, SeparatorAlignment};
 
     use super::*;
 
@@ -74,8 +73,13 @@ mod tests {
 
         let message: Message = Message {
             header: Header::from("feat: my feature"),
-            body: Some("\nBody with some text".to_string()),
-            footers: FooterList::default(),
+            body: None,
+            footers: vec![Footer {
+                key: "BREAKING CHANGES".to_string(),
+                value: "some breaking changes".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left
+            }],
         };
 
         max_length(&mut report, &message, 72);

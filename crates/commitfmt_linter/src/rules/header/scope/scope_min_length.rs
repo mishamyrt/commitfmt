@@ -37,13 +37,15 @@ impl Violation for ScopeMinLength {
 /// Checks for scope minimum length
 pub(crate) fn scope_min_length(report: &Report, message: &Message, length: usize) {
     if message.header.scope.str_len() < length {
-        report.add_violation(Box::new(ScopeMinLength { length }));
+        report.add_violation(Box::new(ScopeMinLength {
+            length,
+        }));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{FooterList, Header};
+    use commitfmt_cc::Header;
 
     use super::*;
 
@@ -54,7 +56,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db-core, ui-core): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         scope_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
@@ -62,7 +64,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
-            footers: FooterList::default()
+            footers: vec![],
         };
         scope_min_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);

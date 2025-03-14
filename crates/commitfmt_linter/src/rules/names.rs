@@ -30,7 +30,6 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
         (Header, "scope-min-length")          => header::ScopeMinLength,
         (Header, "scope-required")            => header::ScopeRequired,
         // Header global
-        (Header, "breaking-exclamation")      => header::BreakingExclamation,
         (Header, "max-length")                => header::MaxLength,
         (Header, "min-length")                => header::MinLength,
         // Body
@@ -40,6 +39,9 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
         (Body, "max-line-length")             => body::MaxLineLength,
         (Body, "max-length")                  => body::MaxLength,
         (Body, "min-length")                  => body::MinLength,
+        // Footer
+        (Footer, "max-length")                => footer::MaxLength,
+        (Footer, "breaking-exclamation")      => footer::BreakingExclamation,
         _ => return None
     })
 }
