@@ -7,4 +7,5 @@ pub struct Settings {
     pub min_length: usize,
     pub title_case: WordCase,
     pub value_case: TextCase,
+    pub required: Vec<Box<str>>,
 }

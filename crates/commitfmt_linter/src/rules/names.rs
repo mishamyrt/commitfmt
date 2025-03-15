@@ -40,8 +40,11 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
         (Body, "max-length")                  => body::MaxLength,
         (Body, "min-length")                  => body::MinLength,
         // Footer
-        (Footer, "max-length")                => footer::MaxLength,
         (Footer, "breaking-exclamation")      => footer::BreakingExclamation,
+        (Footer, "exists")                    => footer::Exists,
+        (Footer, "max-length")                => footer::MaxLength,
+        (Footer, "max-line-length")           => footer::MaxLineLength,
+        (Footer, "min-length")                => footer::MinLength,
         _ => return None
     })
 }

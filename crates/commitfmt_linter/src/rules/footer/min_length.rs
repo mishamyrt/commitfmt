@@ -5,56 +5,49 @@ use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
-/// Checks for too long footers.
+/// Checks for too short footers.
 ///
 /// ## Why is this bad?
-/// If the footer contains a lot of information, something probably
-/// didn't go according to plan. Maybe it should be in the body?
+/// A footer that is too short can hide the nature of what is happening in it.
 ///
 /// ## Example
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: I had to heavily rework several modules.
-///  Compatibility of TreeView and Card components may be broken
-///  due to the library update.
+/// BREAKING CHANGES: api
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
 /// feat: my feature
 ///
-/// I had to heavily rework several modules. Compatibility
-/// of TreeView and Card components may be broken due
-/// to the library update.
-///
-/// BREAKING CHANGES: TreeView and Card APIs
+/// BREAKING CHANGES: DB API interfaces are changed
 /// ```
 #[derive(ViolationMetadata)]
-pub(crate) struct MaxLength {
+pub(crate) struct MinLength {
     key: String,
     length: usize,
 }
 
-impl Violation for MaxLength {
+impl Violation for MinLength {
     fn group(&self) -> LinterGroup {
         LinterGroup::Footer
     }
 
     fn message(&self) -> String {
-        format!("Footer {} length is longer than {} characters", self.key, self.length)
+        format!("Footer {} length is less than {} characters", self.key, self.length)
     }
 }
 
-/// Checks for long footers
-pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
+/// Checks for short footers
+pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
 
     for footer in &message.footers {
-        if footer.len() > length {
-            let violation = Box::new(MaxLength {
+        if footer.len() < length {
+            let violation = Box::new(MinLength {
                 key: footer.key.clone(),
                 length
             });
@@ -85,11 +78,11 @@ mod tests {
             }],
         };
 
-        max_length(&mut report, &message, 72);
+        min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
 
-        max_length(&mut report, &message, 5);
+        min_length(&mut report, &message, 72);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "MaxLength");
+        assert_eq!(report.violations.borrow()[0].rule_name(), "MinLength");
     }
 }

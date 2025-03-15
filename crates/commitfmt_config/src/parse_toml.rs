@@ -45,6 +45,9 @@ impl TomlParser for Settings {
             Rule::BodyCase => require_text_case(value, &mut self.body.case),
 
             Rule::FooterMaxLength => require_usize(value, &mut self.footer.max_length),
+            Rule::FooterMinLength => require_usize(value, &mut self.footer.min_length),
+            Rule::FooterMaxLineLength => require_usize(value, &mut self.footer.max_line_length),
+            Rule::FooterExists => require_str_vec(value, &mut self.footer.required),
 
             _ => match value.as_bool() {
                 Some(is_enabled) => Ok(is_enabled),
