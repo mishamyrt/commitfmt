@@ -85,7 +85,7 @@ impl Display for Scope {
 }
 
 /// kind(scope1,scope2)!: description
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Header {
     pub description: String,
     pub kind: Option<String>,

@@ -11,7 +11,7 @@ pub enum ParseError {
 }
 
 /// Commit message
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Message {
     pub header: Header,
     pub body: Option<String>,

@@ -9,10 +9,21 @@ use nom::sequence::preceded;
 use nom::{IResult, Parser};
 
 /// Indicates on which side of the separator the space should be
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum SeparatorAlignment {
+    #[default]
     Left,
     Right,
+}
+
+impl SeparatorAlignment {
+    pub fn from(v: &str) -> Option<Self> {
+        match v {
+            "left" => Some(SeparatorAlignment::Left),
+            "right" => Some(SeparatorAlignment::Right),
+            _ => None,
+        }
+    }
 }
 
 /// Footer represents a commit footer
@@ -68,7 +79,9 @@ impl Footer {
     /// Checks if a key is a breaking change.
     pub fn is_breaking_key(key: &str) -> bool {
         let lower_key = key.to_lowercase();
-        key == Self::BREAKING_TAG || lower_key == "breaking-changes" || lower_key == "breakingchanges"
+        key == Self::BREAKING_TAG
+            || lower_key == "breaking-changes"
+            || lower_key == "breakingchanges"
     }
 
     pub fn is_breaking_change(&self) -> bool {
@@ -94,46 +107,42 @@ impl Footer {
             }
         }
 
-        let alignment = if balance > 0 {
-            SeparatorAlignment::Right
-        } else {
-            SeparatorAlignment::Left
-        };
+        let alignment =
+            if balance > 0 { SeparatorAlignment::Right } else { SeparatorAlignment::Left };
 
         Some((separator, alignment))
     }
 
-    /// Takes many footers from the input
+    /// Takes all footers from the input
     /// Returns them and the rest of the input
     pub(crate) fn parse<'input, 'sep: 'input>(
         input: &'input str,
-        separators: &'sep str
+        separators: &'sep str,
     ) -> IResult<&'input str, Vec<Footer>> {
-
-        all_consuming(separated_list1(tag("\n"), Self::take(separators))).parse(input)
+        all_consuming(separated_list1(line_ending, Self::take(separators))).parse(input)
     }
 
     /// Parses one footer (trailer) from the input.
     /// Returns it and the rest of the input.
     fn take(separators: &str) -> impl Parser<&str, Output = Footer, Error = Error<&str>> {
         map(
-            (Self::key_parser, recognize((preceded(space0, one_of(separators)), space0)), Self::value_parser),
+            (
+                Self::key_parser,
+                recognize((preceded(space0, one_of(separators)), space0)),
+                Self::value_parser,
+            ),
             |(key, separator_with_spaces, value)| {
-                let (separator, alignment) = Self::parse_separator(separator_with_spaces).unwrap();
+                let (separator, alignment) =
+                    Self::parse_separator(separator_with_spaces).unwrap();
 
-                Self {
-                    key: key.to_string(),
-                    value,
-                    separator,
-                    alignment,
-                }
+                Self { key: key.to_string(), value, separator, alignment }
             },
         )
     }
 
     /// Checks if a character is a valid key character
     fn is_valid_key_char(c: char) -> bool {
-        c.is_ascii_alphabetic() || c == '-'
+        c.is_ascii_alphabetic() || c.is_ascii_digit() || c == '-'
     }
 
     /// Parse a footer key

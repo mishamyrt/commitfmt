@@ -12,34 +12,116 @@ In git terminology, footers are called trailers.
 
 ## Technical details
 
-### Position and grouping
+### Location
 
-<!-- <DOC_TEST> -->
-Footers can only be at the end of a post and must be in a row. If the end of the post is something like:
+Footers are always placed at the end of the “meaningful part” of the message and are separated from the header or body by two line breaks `\n\n`. commitfmt is kinder in terms of parsing and can recognize the footer on the next line after the header.
 
-```git-commit
-feat: my cool feature
+<!--<test-case id="trailing-junk-breakage">-->
+Footers must be in a row. If the end of the commit message looks like this:
+
+<!--<test-input>-->
+```
+my cool feature
 
 Footer-1: value-1
 Footer-2: value-2
 Not a footer
 ```
 
-Then all footers should be treated as part of the body.
+Then all footers is treated as part of the body.
 
+<!--<test-result>-->
 ```toml
+description = "my cool feature"
 body = """
+
 Footer-1: value-1
-Footer-2: vale-2
-Not a footer"""
+Footer-2: value-2
+Not a footer
+"""
 footers = []
 ```
-<!-- </DOC_TEST> -->
+<!--</test-case>-->
+
+#### Comments
+
+<!--<test-case id="before-comments">-->
+Since comments aren't part of the “meaningful part” of the post, if message has trailing comments right after the footers:
+
+<!--<test-input>-->
+```
+my cool feature
+
+Footer-1: value-1
+# This is a comment
+# This is another comment
+```
+
+they are ignored and footers are treated correctly.
+
+<!--<test-result>-->
+```toml
+description = "my cool feature"
+
+[[footers]]
+key = "Footer-1"
+value = "value-1"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+<!--<test-case id="after-comments">-->
+Same goes for leading comments.
+
+<!--<test-input>-->
+```
+my cool feature
+
+# This is a comment
+# This is another comment
+Footer-1: value-1
+```
+
+<!--<test-result>-->
+```toml
+description = "my cool feature"
+
+[[footers]]
+key = "Footer-1"
+value = "value-1"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+<!--<test-case id="no-newline">-->
+Even if there is no empty line between header and footers. `git interpret-trailers` is discarding this case,
+but commitfmt is treating it as a footer. 
+
+<!--<test-input>-->
+```
+my cool feature
+# This is a comment
+Footer-1: value-1
+```
+
+<!--<test-result>-->
+```toml
+description = "my cool feature"
+
+[[footers]]
+key = "Footer-1"
+value = "value-1"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
 
 ### Key
 
-The key consists of letters and may include a dash `-` as a separator between words.
-The case can be any, but it is recommended to write in Pascal-Kebab-Case.
+The key consists of letters and numbers and may include a dash `-` as a separator between words.
+The case can be any, but it is recommended to write in `Train-Case` and `UPPER-TRAIN-CASE` for `BREAKING-CHANGES`.
 
 ### Separator
 
@@ -51,8 +133,6 @@ git uses the `trailer.separators` config to define the available separators. A s
 ## Cases
 
 ### Single
-
-<!-- <DOC_TEST> -->
 
 ```git-commit
 my cool feature
@@ -66,11 +146,9 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### Multiple 
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -85,11 +163,9 @@ footers = [
   { key = "Reviewed-By", value = "Re Viewer <reviewer@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### Multiline 
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -106,11 +182,9 @@ footers = [
   { key = "Multiline-Details", value = "First\nSecond\nThird" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### After comments
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -127,11 +201,9 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### Before comments
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -147,11 +219,9 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### Right before comments
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -166,11 +236,9 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### With body after comments
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -189,11 +257,9 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
 
 ### With body before comments
 
-<!-- <DOC_TEST> -->
 ```git-commit
 my cool feature
 
@@ -212,4 +278,3 @@ footers = [
   { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
 ]
 ```
-<!-- </DOC_TEST> -->
