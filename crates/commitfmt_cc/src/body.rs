@@ -28,7 +28,7 @@ impl MeaninglessTrimmer for str {
         for line in self.lines() {
             let offset = unsafe { line_offset(self, line) };
             if !(line.is_empty() || line.starts_with(COMMENT_CHAR)) {
-                return &self[offset..].trim_start();
+                return self[offset..].trim_start();
             }
         }
 
