@@ -14,7 +14,7 @@ impl LinterGroup {
             "header" => LinterGroup::Header,
             "body" => LinterGroup::Body,
             "footer" => LinterGroup::Footer,
-            _ => return  None,
+            _ => return None,
         })
     }
 

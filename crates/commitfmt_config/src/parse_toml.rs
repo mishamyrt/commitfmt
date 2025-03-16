@@ -1,4 +1,4 @@
-use commitfmt_linter::case::{WordCase, TextCase};
+use commitfmt_linter::case::{TextCase, WordCase};
 use toml::{map::Map, Table, Value};
 
 use commitfmt_linter::rule_set::RuleSet;
@@ -13,7 +13,11 @@ use crate::ConfigError;
 trait TomlParser {
     fn parse_rule(&mut self, rule: Rule, value: &Value) -> Result<bool, ConfigError>;
 
-    fn parse(&mut self, linter: LinterGroup, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError>;
+    fn parse(
+        &mut self,
+        linter: LinterGroup,
+        config: &Map<String, Value>,
+    ) -> Result<(RuleSet, RuleSet), ConfigError>;
 }
 
 impl TomlParser for Settings {
@@ -24,19 +28,33 @@ impl TomlParser for Settings {
     /// There is the place where we should handle custom settings for rules.
     fn parse_rule(&mut self, rule: Rule, value: &Value) -> Result<bool, ConfigError> {
         match rule {
-            Rule::HeaderDescriptionMaxLength => require_usize(value, &mut self.header.description_max_length),
-            Rule::HeaderDescriptionMinLength => require_usize(value, &mut self.header.description_min_length),
-            Rule::HeaderDescriptionCase => require_text_case(value, &mut self.header.description_case),
+            Rule::HeaderDescriptionMaxLength => {
+                require_usize(value, &mut self.header.description_max_length)
+            }
+            Rule::HeaderDescriptionMinLength => {
+                require_usize(value, &mut self.header.description_min_length)
+            }
+            Rule::HeaderDescriptionCase => {
+                require_text_case(value, &mut self.header.description_case)
+            }
             Rule::HeaderScopeEnum => require_str_vec(value, &mut self.header.scope_enum),
             Rule::HeaderScopeCase => require_word_case(value, &mut self.header.scope_case),
             Rule::HeaderMaxLength => require_usize(value, &mut self.header.max_length),
             Rule::HeaderMinLength => require_usize(value, &mut self.header.min_length),
-            Rule::HeaderScopeMaxLength => require_usize(value, &mut self.header.scope_max_length),
-            Rule::HeaderScopeMinLength => require_usize(value, &mut self.header.scope_min_length),
+            Rule::HeaderScopeMaxLength => {
+                require_usize(value, &mut self.header.scope_max_length)
+            }
+            Rule::HeaderScopeMinLength => {
+                require_usize(value, &mut self.header.scope_min_length)
+            }
             Rule::HeaderTypeCase => require_word_case(value, &mut self.header.type_case),
 
-            Rule::HeaderTypeMaxLength => require_usize(value, &mut self.header.type_max_length),
-            Rule::HeaderTypeMinLength => require_usize(value, &mut self.header.type_min_length),
+            Rule::HeaderTypeMaxLength => {
+                require_usize(value, &mut self.header.type_max_length)
+            }
+            Rule::HeaderTypeMinLength => {
+                require_usize(value, &mut self.header.type_min_length)
+            }
             Rule::HeaderTypeEnum => require_str_vec(value, &mut self.header.type_enum),
 
             Rule::BodyMaxLineLength => require_usize(value, &mut self.body.max_line_length),
@@ -46,24 +64,36 @@ impl TomlParser for Settings {
 
             Rule::FooterMaxLength => require_usize(value, &mut self.footer.max_length),
             Rule::FooterMinLength => require_usize(value, &mut self.footer.min_length),
-            Rule::FooterMaxLineLength => require_usize(value, &mut self.footer.max_line_length),
+            Rule::FooterMaxLineLength => {
+                require_usize(value, &mut self.footer.max_line_length)
+            }
             Rule::FooterExists => require_str_vec(value, &mut self.footer.required),
 
             _ => match value.as_bool() {
                 Some(is_enabled) => Ok(is_enabled),
-                None => Err(ConfigError::UnexpectedFieldType(rule.as_display().to_owned(), "bool".to_owned())),
+                None => Err(ConfigError::UnexpectedFieldType(
+                    rule.as_display().to_owned(),
+                    "bool".to_owned(),
+                )),
             },
         }
     }
 
     /// Parse the rule configuration for the given linter
     /// and return the enabled and disabled rules
-    fn parse(&mut self, linter: LinterGroup, config: &Map<String, Value>) -> Result<(RuleSet, RuleSet), ConfigError> {
+    fn parse(
+        &mut self,
+        linter: LinterGroup,
+        config: &Map<String, Value>,
+    ) -> Result<(RuleSet, RuleSet), ConfigError> {
         let Some(linter_config) = config.get(linter.as_display()) else {
             return Ok((RuleSet::empty(), RuleSet::empty()));
         };
         let Some(linter_table) = linter_config.as_table() else {
-            return Err(ConfigError::UnexpectedFieldType(linter.as_display().to_owned(), "table".to_owned()));
+            return Err(ConfigError::UnexpectedFieldType(
+                linter.as_display().to_owned(),
+                "table".to_owned(),
+            ));
         };
 
         let mut enabled_rules = RuleSet::empty();
@@ -87,7 +117,10 @@ impl TomlParser for Settings {
 
 fn require_text_case(value: &Value, target: &mut TextCase) -> Result<bool, ConfigError> {
     let Some(parsed) = value.as_str() else {
-        return Err(ConfigError::UnexpectedFieldType("case".to_string(), "string".to_string()));
+        return Err(ConfigError::UnexpectedFieldType(
+            "case".to_string(),
+            "string".to_string(),
+        ));
     };
 
     let Some(parsed) = TextCase::from_name(parsed) else {
@@ -100,7 +133,10 @@ fn require_text_case(value: &Value, target: &mut TextCase) -> Result<bool, Confi
 
 fn require_str_vec(value: &Value, target: &mut Vec<Box<str>>) -> Result<bool, ConfigError> {
     let Some(parsed) = value.as_array() else {
-        return Err(ConfigError::UnexpectedFieldType("case".to_string(), "string".to_string()));
+        return Err(ConfigError::UnexpectedFieldType(
+            "case".to_string(),
+            "string".to_string(),
+        ));
     };
 
     let mut result: Vec<Box<str>> = Vec::new();
@@ -118,7 +154,10 @@ fn require_str_vec(value: &Value, target: &mut Vec<Box<str>>) -> Result<bool, Co
 
 fn require_word_case(value: &Value, target: &mut WordCase) -> Result<bool, ConfigError> {
     let Some(parsed) = value.as_str() else {
-        return Err(ConfigError::UnexpectedFieldType("case".to_string(), "string".to_string()));
+        return Err(ConfigError::UnexpectedFieldType(
+            "case".to_string(),
+            "string".to_string(),
+        ));
     };
 
     let Some(parsed) = WordCase::from_name(parsed) else {
@@ -131,10 +170,15 @@ fn require_word_case(value: &Value, target: &mut WordCase) -> Result<bool, Confi
 
 fn require_usize(value: &Value, target: &mut usize) -> Result<bool, ConfigError> {
     let Some(parsed) = value.as_integer() else {
-        return Err(ConfigError::UnexpectedFieldType("max-line-length".to_string(), "integer".to_string()));
+        return Err(ConfigError::UnexpectedFieldType(
+            "max-line-length".to_string(),
+            "integer".to_string(),
+        ));
     };
     if parsed < 0 {
-        return Err(ConfigError::ParseError("Max line length must be greater or equal to 0".to_string()));
+        return Err(ConfigError::ParseError(
+            "Max line length must be greater or equal to 0".to_string(),
+        ));
     }
 
     let parsed = match usize::try_from(parsed) {
@@ -165,13 +209,10 @@ pub(crate) fn parse_toml(data: &str) -> Result<CommitSettings, ConfigError> {
         rules = rules.union(enabled_rules);
     }
 
-    let config: FormattingConfig = toml::from_str(data).map_err(|err| ConfigError::TomlError(err.to_string()))?;
+    let config: FormattingConfig =
+        toml::from_str(data).map_err(|err| ConfigError::TomlError(err.to_string()))?;
 
-    Ok(CommitSettings {
-        formatting: config.to_settings(),
-        rules,
-        settings,
-    })
+    Ok(CommitSettings { formatting: config.to_settings(), rules, settings })
 }
 
 #[cfg(test)]

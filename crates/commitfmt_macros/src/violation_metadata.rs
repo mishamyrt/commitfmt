@@ -46,16 +46,10 @@ fn parse_attr<'a, const LEN: usize>(
     attr: &'a Attribute,
 ) -> Option<&'a LitStr> {
     if let Meta::NameValue(name_value) = &attr.meta {
-        let path_idents = name_value
-            .path
-            .segments
-            .iter()
-            .map(|segment| &segment.ident);
+        let path_idents = name_value.path.segments.iter().map(|segment| &segment.ident);
 
         if itertools::equal(path_idents, path) {
-            if let syn::Expr::Lit(syn::ExprLit {
-                lit: Lit::Str(lit), ..
-            }) = &name_value.value
+            if let syn::Expr::Lit(syn::ExprLit { lit: Lit::Str(lit), .. }) = &name_value.value
             {
                 return Some(lit);
             }

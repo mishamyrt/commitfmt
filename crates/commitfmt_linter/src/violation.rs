@@ -1,4 +1,3 @@
-
 use commitfmt_cc::Message;
 use thiserror::Error;
 
@@ -51,4 +50,3 @@ pub trait Violation: ViolationMetadata {
         Err(ViolationError::Unfixable())
     }
 }
-

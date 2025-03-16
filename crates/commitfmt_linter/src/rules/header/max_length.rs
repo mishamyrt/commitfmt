@@ -44,9 +44,7 @@ pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
     }
 
     if message.header.len() > length {
-        let violation = Box::new(MaxLength {
-            max_length: length,
-        });
+        let violation = Box::new(MaxLength { max_length: length });
         report.add_violation(violation);
     }
 }
@@ -61,11 +59,8 @@ mod tests {
     fn test_max_length() {
         let mut report = Report::default();
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 0);

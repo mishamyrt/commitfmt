@@ -43,9 +43,7 @@ pub(crate) fn type_case(report: &Report, message: &Message, case: WordCase) {
     };
 
     if !case.is_match(kind) {
-        report.add_violation(Box::new(TypeCase {
-            case,
-        }));
+        report.add_violation(Box::new(TypeCase { case }));
     }
 }
 
@@ -59,20 +57,14 @@ mod tests {
     fn test_type_case() {
         let mut report = Report::default();
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         type_case(&mut report, &message, WordCase::Lower);
         assert_eq!(report.len(), 0);
 
-        let message: Message = Message {
-            header: Header::from("Feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("Feat: my feature"), body: None, footers: vec![] };
 
         type_case(&mut report, &message, WordCase::Lower);
         assert_eq!(report.len(), 1);

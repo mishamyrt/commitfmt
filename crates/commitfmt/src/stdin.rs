@@ -1,11 +1,11 @@
-use std::process;
 use colored::Colorize;
 use commitfmt_cc::Message;
-use commitfmt_config::settings::CommitSettings;
 use commitfmt_config::parse::CommitSettingsParser;
+use commitfmt_config::settings::CommitSettings;
 use commitfmt_linter::check::Check;
 use commitfmt_linter::rules::Rule;
 use log::info;
+use std::process;
 
 pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::ExitCode {
     let commit_settings = match CommitSettings::load(dir_path) {

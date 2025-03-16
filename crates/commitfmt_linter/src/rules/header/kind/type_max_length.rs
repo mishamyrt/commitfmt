@@ -42,9 +42,7 @@ pub(crate) fn type_max_length(report: &Report, message: &Message, length: usize)
     };
 
     if kind.len() > length {
-        report.add_violation(Box::new(TypeMaxLength {
-            length,
-        }));
+        report.add_violation(Box::new(TypeMaxLength { length }));
     }
 }
 

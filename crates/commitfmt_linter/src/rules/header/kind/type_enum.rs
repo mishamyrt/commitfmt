@@ -60,11 +60,8 @@ mod tests {
         let allowed_str = ["fix", "feat"];
         let allowed: Vec<Box<str>> = allowed_str.iter().map(|s| Box::from(*s)).collect();
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         type_enum(&mut report, &message, &allowed);
         assert_eq!(report.len(), 0);

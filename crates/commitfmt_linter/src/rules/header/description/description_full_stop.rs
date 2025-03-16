@@ -52,11 +52,8 @@ mod tests {
     fn test_full_stop() {
         let mut report = Report::default();
 
-        let mut message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let mut message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         description_full_stop(&mut report, &message);
         assert_eq!(report.len(), 0);

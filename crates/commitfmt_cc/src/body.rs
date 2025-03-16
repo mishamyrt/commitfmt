@@ -64,7 +64,10 @@ impl MeaninglessTrimmer for str {
 }
 
 /// Parse body and footer
-pub(crate) fn parse_body(input: &str, footer_separators: &str) -> (Option<String>, Option<Vec<Footer>>) {
+pub(crate) fn parse_body(
+    input: &str,
+    footer_separators: &str,
+) -> (Option<String>, Option<Vec<Footer>>) {
     if input.is_empty() {
         return (None, None);
     }
@@ -110,7 +113,10 @@ mod tests {
         assert_eq!(input.trim_meaningless_end(), "my body");
 
         let input = "my body\n# some comment\n# another comment\nAnd body again\n";
-        assert_eq!(input.trim_meaningless_end(), "my body\n# some comment\n# another comment\nAnd body again");
+        assert_eq!(
+            input.trim_meaningless_end(),
+            "my body\n# some comment\n# another comment\nAnd body again"
+        );
 
         let input = "my body\nConflicts:\n\tfile1\n\tfile2\n# some comment";
         assert_eq!(input.trim_meaningless_end(), "my body");

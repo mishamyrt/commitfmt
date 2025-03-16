@@ -54,10 +54,7 @@ pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
 
     for footer in &message.footers {
         if footer.len() > length {
-            let violation = Box::new(MaxLength {
-                key: footer.key.clone(),
-                length
-            });
+            let violation = Box::new(MaxLength { key: footer.key.clone(), length });
             report.add_violation(violation);
             break;
         }

@@ -50,20 +50,14 @@ mod tests {
     fn test_type_required() {
         let mut report = Report::default();
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         type_required(&mut report, &message);
         assert_eq!(report.len(), 0);
 
-        let message: Message = Message {
-            header: Header::from("my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("my feature"), body: None, footers: vec![] };
 
         type_required(&mut report, &message);
         assert_eq!(report.len(), 1);

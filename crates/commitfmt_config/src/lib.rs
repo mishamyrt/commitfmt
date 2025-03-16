@@ -1,8 +1,8 @@
-pub mod settings;
 pub mod parse;
+pub mod settings;
 
-pub(crate) mod parse_toml;
 pub(crate) mod config;
+pub(crate) mod parse_toml;
 
 use commitfmt_linter::rules::LinterGroup;
 use thiserror::Error;

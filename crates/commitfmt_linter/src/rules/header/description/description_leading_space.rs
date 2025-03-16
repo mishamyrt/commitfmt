@@ -1,6 +1,6 @@
+use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
-use crate::report::Report;
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
 

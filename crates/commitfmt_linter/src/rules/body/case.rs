@@ -47,9 +47,7 @@ pub(crate) fn case(report: &Report, message: &Message, case: TextCase) {
     };
 
     if !case.is_match(body) {
-        let violation = Box::new(Case {
-            case,
-        });
+        let violation = Box::new(Case { case });
         report.add_violation(violation);
     }
 }

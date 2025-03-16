@@ -39,9 +39,7 @@ impl Violation for ScopeEnum {
 pub(crate) fn scope_enum(report: &Report, message: &Message, allowed: &[Box<str>]) {
     for scope in message.header.scope.iter() {
         if !allowed.contains(scope) {
-            report.add_violation(Box::new(ScopeEnum {
-                miss: scope.to_string(),
-            }));
+            report.add_violation(Box::new(ScopeEnum { miss: scope.to_string() }));
             return;
         }
     }

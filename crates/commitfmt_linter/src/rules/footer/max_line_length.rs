@@ -53,10 +53,7 @@ pub(crate) fn max_line_length(report: &Report, message: &Message, length: usize)
     for footer in &message.footers {
         for line in footer.value.lines() {
             if line.len() > length {
-                let violation = Box::new(MaxLineLength {
-                    key: footer.key.clone(),
-                    length
-                });
+                let violation = Box::new(MaxLineLength { key: footer.key.clone(), length });
                 report.add_violation(violation);
                 break;
             }

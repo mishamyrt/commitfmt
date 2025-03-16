@@ -54,7 +54,11 @@ fn main() -> process::ExitCode {
         true => log::LevelFilter::Debug,
         false => log::LevelFilter::Info,
     };
-    Dispatch::new().level(log_level).chain(std::io::stdout()).apply().expect("Unable to set up logger");
+    Dispatch::new()
+        .level(log_level)
+        .chain(std::io::stdout())
+        .apply()
+        .expect("Unable to set up logger");
     if cli.no_color {
         colored::control::set_override(false);
     }
@@ -66,19 +70,15 @@ fn main() -> process::ExitCode {
         let mut buffer = String::with_capacity(1024);
         std::io::stdin().read_to_string(&mut buffer).expect("Failed to read stdin");
 
-        return run_stdin(&buffer, &cwd)
+        return run_stdin(&buffer, &cwd);
     }
 
     match &cli.command {
         Some(Commands::Apply {}) => {
             unimplemented!();
         }
-        Some(Commands::Install {
-            force: _,
-        }) => unimplemented!(),
-        Some(Commands::Uninstall {
-            force: _,
-        }) => unimplemented!(),
+        Some(Commands::Install { force: _ }) => unimplemented!(),
+        Some(Commands::Uninstall { force: _ }) => unimplemented!(),
         None => {
             // print!("No command specified");
             process::ExitCode::FAILURE

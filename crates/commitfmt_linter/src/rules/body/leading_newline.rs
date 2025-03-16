@@ -68,7 +68,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nbody".to_string()),
-            footers: vec![]
+            footers: vec![],
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -80,7 +80,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("body".to_string()),
-            footers: vec![]
+            footers: vec![],
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -89,11 +89,8 @@ mod tests {
 
     #[test]
     fn test_leading_nl_empty_body() {
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![]
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 0);

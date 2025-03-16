@@ -2,9 +2,8 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use syn::parse::{Parse, ParseStream};
 use syn::{
-    parenthesized,
-    spanned::Spanned,
-    Error, Expr, ExprCall, ExprMatch, Ident, ItemFn, LitStr, Pat, Path, Stmt, Token,
+    parenthesized, spanned::Spanned, Error, Expr, ExprCall, ExprMatch, Ident, ItemFn, LitStr,
+    Pat, Path, Stmt, Token,
 };
 
 struct Rule {
@@ -37,12 +36,7 @@ impl Parse for Rule {
         let last_seg = &path.segments.last().unwrap().ident;
         let variant_name = format_ident!("{}{}", linter, last_seg);
 
-        Ok(Self {
-            variant_name,
-            linter,
-            name,
-            struct_name: last_seg.clone(),
-        })
+        Ok(Self { variant_name, linter, name, struct_name: last_seg.clone() })
     }
 }
 
@@ -50,26 +44,20 @@ pub(crate) fn map_names(func: &ItemFn) -> syn::Result<TokenStream> {
     let Some(last_stmt) = func.block.stmts.last() else {
         return Err(Error::new(func.block.span(), "expected body to end in an expression"));
     };
-    let Stmt::Expr(
-        Expr::Call(ExprCall {
-            args: some_args,
-            ..
-        }),
-        _,
-    ) = last_stmt
-    else {
-        return Err(Error::new(last_stmt.span(), "expected last expression to be `Some(match (..) { .. })`"));
+    let Stmt::Expr(Expr::Call(ExprCall { args: some_args, .. }), _) = last_stmt else {
+        return Err(Error::new(
+            last_stmt.span(),
+            "expected last expression to be `Some(match (..) { .. })`",
+        ));
     };
     let mut some_args = some_args.into_iter();
-    let (
-        Some(Expr::Match(ExprMatch {
-            arms,
-            ..
-        })),
-        None,
-    ) = (some_args.next(), some_args.next())
+    let (Some(Expr::Match(ExprMatch { arms, .. })), None) =
+        (some_args.next(), some_args.next())
     else {
-        return Err(Error::new(last_stmt.span(), "expected last expression to be `Some(match (..) { .. })`"));
+        return Err(Error::new(
+            last_stmt.span(),
+            "expected last expression to be `Some(match (..) { .. })`",
+        ));
     };
 
     let mut rules: Vec<Rule> = Vec::with_capacity(arms.len());

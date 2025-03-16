@@ -29,12 +29,19 @@ impl Scope {
             preceded(space0, char('(')),
             separated_list1(
                 preceded(space0, char(Self::SEPARATOR_CHAR)),
-                preceded(space0, take_while1(|c: char| !c.is_whitespace() && c != Self::SEPARATOR_CHAR && c != ')')),
+                preceded(
+                    space0,
+                    take_while1(|c: char| {
+                        !c.is_whitespace() && c != Self::SEPARATOR_CHAR && c != ')'
+                    }),
+                ),
             ),
             preceded(space0, char(')')),
         )
         .parse(input)
-        .map(|(next_input, scopes)| (next_input, scopes.into_iter().map(std::convert::Into::into).collect()))
+        .map(|(next_input, scopes)| {
+            (next_input, scopes.into_iter().map(std::convert::Into::into).collect())
+        })
     }
 
     /// Returns the number of scopes
@@ -96,8 +103,13 @@ pub struct Header {
 impl Header {
     /// Parse a commit header
     pub fn from(input: &str) -> Self {
-        let Ok(result) =
-            (Self::parse_kind, opt(Scope::parse), Self::parse_breaking, Self::parse_description).parse(input)
+        let Ok(result) = (
+            Self::parse_kind,
+            opt(Scope::parse),
+            Self::parse_breaking,
+            Self::parse_description,
+        )
+            .parse(input)
         else {
             return Self {
                 kind: None,
@@ -114,12 +126,7 @@ impl Header {
             None => Scope::default(),
         };
 
-        Self {
-            kind: Some(kind.to_string()),
-            scope,
-            breaking,
-            description,
-        }
+        Self { kind: Some(kind.to_string()), scope, breaking, description }
     }
 
     /// Returns the string representation of the header
@@ -177,7 +184,9 @@ impl Header {
 
     /// Parse a breaking change indicator
     fn parse_breaking(input: &str) -> IResult<&str, bool> {
-        opt(preceded(space0, char('!'))).parse(input).map(|(next_input, opt_char)| (next_input, opt_char.is_some()))
+        opt(preceded(space0, char('!')))
+            .parse(input)
+            .map(|(next_input, opt_char)| (next_input, opt_char.is_some()))
     }
 
     /// Parse a commit description

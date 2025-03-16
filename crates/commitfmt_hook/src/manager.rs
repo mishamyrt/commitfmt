@@ -21,16 +21,8 @@ impl Manager {
 }
 
 const MANAGERS: &[Manager] = &[
-    Manager {
-        name: "commitfmt",
-        guide_anchor: None,
-        indicator: "COMMITFMT_BIN",
-    },
-    Manager {
-        name: "Lefthook",
-        guide_anchor: Some("lefthook"),
-        indicator: "LEFTHOOK_BIN",
-    },
+    Manager { name: "commitfmt", guide_anchor: None, indicator: "COMMITFMT_BIN" },
+    Manager { name: "Lefthook", guide_anchor: Some("lefthook"), indicator: "LEFTHOOK_BIN" },
 ];
 
 /// Returns the manager that is used for the given content

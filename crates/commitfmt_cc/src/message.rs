@@ -28,20 +28,12 @@ impl Message {
         let header = Header::from(&input[..header_end]);
 
         if header_end == input.len() {
-            return Ok(Message {
-                header,
-                body: None,
-                footers: vec![],
-            });
+            return Ok(Message { header, body: None, footers: vec![] });
         }
 
         let (body, footers) = parse_body(&input[header_end + 1..], separators);
 
-        Ok(Message {
-            header,
-            body,
-            footers: footers.unwrap_or_default(),
-        })
+        Ok(Message { header, body, footers: footers.unwrap_or_default() })
     }
 }
 

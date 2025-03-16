@@ -19,15 +19,9 @@ pub(crate) struct FormattingConfig {
 impl FormattingConfig {
     pub(crate) fn to_settings(&self) -> FormattingSettings {
         let Some(formatting) = self.formatting.as_ref() else {
-            return FormattingSettings {
-                unsafe_fixes: false,
-                footers: RefCell::new(vec![]),
-            };
+            return FormattingSettings { unsafe_fixes: false, footers: RefCell::new(vec![]) };
         };
         let footers = RefCell::new(formatting.footers.clone().unwrap_or_default());
-        FormattingSettings {
-            unsafe_fixes: formatting.unsafe_fixes.unwrap_or(false),
-            footers,
-        }
+        FormattingSettings { unsafe_fixes: formatting.unsafe_fixes.unwrap_or(false), footers }
     }
 }

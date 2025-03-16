@@ -37,9 +37,7 @@ impl Violation for ScopeMinLength {
 /// Checks for scope minimum length
 pub(crate) fn scope_min_length(report: &Report, message: &Message, length: usize) {
     if message.header.scope.str_len() < length {
-        report.add_violation(Box::new(ScopeMinLength {
-            length,
-        }));
+        report.add_violation(Box::new(ScopeMinLength { length }));
     }
 }
 

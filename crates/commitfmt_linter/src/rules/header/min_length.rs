@@ -41,9 +41,7 @@ pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
     }
 
     if message.header.len() < length {
-        report.add_violation(Box::new(MinLength {
-            length,
-        }));
+        report.add_violation(Box::new(MinLength { length }));
     }
 }
 
@@ -57,11 +55,8 @@ mod tests {
     fn test_min_length() {
         let mut report = Report::default();
 
-        let message: Message = Message {
-            header: Header::from("test"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("test"), body: None, footers: vec![] };
 
         min_length(&mut report, &message, 4);
         assert_eq!(report.len(), 0);

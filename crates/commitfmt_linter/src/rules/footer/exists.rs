@@ -40,9 +40,7 @@ impl Violation for Exists {
 pub(crate) fn exists(report: &Report, message: &Message, required: &Vec<Box<str>>) {
     for key in required {
         if !message.footers.iter().any(|f| f.key == **key) {
-            report.add_violation(Box::new(Exists {
-                key: key.to_string(),
-            }));
+            report.add_violation(Box::new(Exists { key: key.to_string() }));
             return;
         }
     }

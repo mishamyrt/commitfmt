@@ -4,7 +4,7 @@ use commitfmt_cc::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
-use crate::rules::{Rule, Settings, body, footer, header};
+use crate::rules::{body, footer, header, Rule, Settings};
 use crate::violation::Violation;
 
 pub struct Check {

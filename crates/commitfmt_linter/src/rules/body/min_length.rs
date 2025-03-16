@@ -41,9 +41,7 @@ pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
-    let violation = Box::new(MinLength {
-        length,
-    });
+    let violation = Box::new(MinLength { length });
 
     let Some(body) = message.body.as_ref() else {
         report.add_violation(violation);

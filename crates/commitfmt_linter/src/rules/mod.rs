@@ -2,8 +2,8 @@ pub mod linter_group;
 mod names;
 
 pub mod body;
-pub mod header;
 pub mod footer;
+pub mod header;
 
 pub use linter_group::LinterGroup;
 pub use names::Rule;

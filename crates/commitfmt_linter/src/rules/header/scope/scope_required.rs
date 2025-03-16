@@ -58,11 +58,8 @@ mod tests {
         scope_required(&mut report, &message);
         assert_eq!(report.len(), 0);
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers: vec![],
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
 
         scope_required(&mut report, &message);
         assert_eq!(report.len(), 1);

@@ -48,9 +48,7 @@ pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
     };
 
     if body.len() > length {
-        let violation = Box::new(MaxLength {
-            max_length: length,
-        });
+        let violation = Box::new(MaxLength { max_length: length });
         report.add_violation(violation);
     }
 }

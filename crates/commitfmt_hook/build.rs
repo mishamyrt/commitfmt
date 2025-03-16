@@ -38,21 +38,23 @@ fn main() {
 
     // Render template
     let template = env.get_template(HOOK_TPL_PATH).unwrap();
-    let hook_content = template.render(context! {
-        extension => env::consts::EXE_EXTENSION.to_string(),
-        os => get_os(),
-        arch => get_arch(),
-    }).unwrap();
+    let hook_content = template
+        .render(context! {
+            extension => env::consts::EXE_EXTENSION.to_string(),
+            os => get_os(),
+            arch => get_arch(),
+        })
+        .unwrap();
 
     // Write to file
     let dest_path = get_out_path();
     let Ok(mut file) = File::create(&dest_path) else {
         panic!("Unable to create file: {dest_path:?}");
     };
-    writeln!(file, "pub const HOOK_CONTENT: &str = {hook_content:?};").expect("Unable to write to file");
+    writeln!(file, "pub const HOOK_CONTENT: &str = {hook_content:?};")
+        .expect("Unable to write to file");
 
     // Add rerun-if-changed
     println!("cargo:rerun-if-changed={}", dest_path.display());
     println!("cargo:rerun-if-changed=build.rs");
-
 }

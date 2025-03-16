@@ -85,16 +85,21 @@ impl WordCase {
     }
 
     fn kebab_case(input: &str) -> IResult<&str, &str> {
-        recognize(separated_list1(char('-'), take_while1(|c: char| c.is_lowercase()))).parse(input)
-    }
-
-    fn pascal_case(input: &str) -> IResult<&str, &str> {
-        recognize(pair(take_while1(|c: char| c.is_uppercase()), take_while1(|c: char| c.is_alphanumeric())))
+        recognize(separated_list1(char('-'), take_while1(|c: char| c.is_lowercase())))
             .parse(input)
     }
 
+    fn pascal_case(input: &str) -> IResult<&str, &str> {
+        recognize(pair(
+            take_while1(|c: char| c.is_uppercase()),
+            take_while1(|c: char| c.is_alphanumeric()),
+        ))
+        .parse(input)
+    }
+
     fn snake_case(input: &str) -> IResult<&str, &str> {
-        recognize(separated_list1(char('_'), take_while1(|c: char| c.is_lowercase()))).parse(input)
+        recognize(separated_list1(char('_'), take_while1(|c: char| c.is_lowercase())))
+            .parse(input)
     }
 }
 

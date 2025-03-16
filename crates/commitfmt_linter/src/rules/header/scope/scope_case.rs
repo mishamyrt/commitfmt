@@ -40,9 +40,7 @@ impl Violation for ScopeCase {
 pub(crate) fn scope_case(report: &Report, message: &Message, case: WordCase) {
     for scope in message.header.scope.iter() {
         if !case.is_match(scope) {
-            report.add_violation(Box::new(ScopeCase {
-                case,
-            }));
+            report.add_violation(Box::new(ScopeCase { case }));
             return;
         }
     }

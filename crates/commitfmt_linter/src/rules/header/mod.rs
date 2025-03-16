@@ -8,29 +8,20 @@ mod settings;
 
 #[allow(unused)]
 pub(crate) use {
-    settings::Settings,
     description::{
-        description_case, DescriptionCase,
-        description_full_stop, DescriptionFullStop,
-        description_leading_space, DescriptionLeadingSpace,
-        description_max_length, DescriptionMaxLength,
-        description_min_length, DescriptionMinLength,
+        description_case, description_full_stop, description_leading_space,
+        description_max_length, description_min_length, DescriptionCase, DescriptionFullStop,
+        DescriptionLeadingSpace, DescriptionMaxLength, DescriptionMinLength,
     },
     kind::{
-        type_case, TypeCase,
-        type_enum, TypeEnum,
-        type_max_length, TypeMaxLength,
-        type_min_length, TypeMinLength,
-        type_required, TypeRequired
-    },
-    scope::{
-        scope_case, ScopeCase,
-        scope_enum, ScopeEnum,
-        scope_max_length, ScopeMaxLength,
-        scope_min_length, ScopeMinLength,
-        scope_required, ScopeRequired
+        type_case, type_enum, type_max_length, type_min_length, type_required, TypeCase,
+        TypeEnum, TypeMaxLength, TypeMinLength, TypeRequired,
     },
     max_length::{max_length, MaxLength},
     min_length::{min_length, MinLength},
+    scope::{
+        scope_case, scope_enum, scope_max_length, scope_min_length, scope_required, ScopeCase,
+        ScopeEnum, ScopeMaxLength, ScopeMinLength, ScopeRequired,
+    },
+    settings::Settings,
 };
-

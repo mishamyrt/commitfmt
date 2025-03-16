@@ -49,9 +49,7 @@ pub(crate) fn max_line_length(report: &Report, message: &Message, max_length: us
     };
     for line in body.lines() {
         if line.len() > max_length {
-            let violation = Box::new(MaxLineLength {
-                max_length,
-            });
+            let violation = Box::new(MaxLineLength { max_length });
             report.add_violation(violation);
             return;
         }

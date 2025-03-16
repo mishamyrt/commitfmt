@@ -25,7 +25,6 @@ pub fn git_directory(path: &Path) -> PathBuf {
     path.join(".git")
 }
 
-
 /// Finds the root directory of a git repository.
 /// It traverses up the tree until it finds the .git directory.
 pub fn find_root(start_path: &Path) -> Result<PathBuf, PathError> {
@@ -77,9 +76,9 @@ pub fn hooks_dir(repo_path: &Path) -> Result<PathBuf, CmdError> {
 
 #[allow(unused_imports)]
 mod tests {
+    use crate::path::hooks_dir;
     use std::{fs::create_dir_all, process::Command};
     use tempfile::tempdir;
-    use crate::path::hooks_dir;
 
     use super::find_root;
 
@@ -126,7 +125,13 @@ mod tests {
         let dir = tempdir().unwrap();
         let dir_path = dir.path();
         Command::new("git").arg("init").current_dir(dir_path).output().unwrap();
-        Command::new("git").arg("config").arg("core.hooksPath").arg("hooks").current_dir(dir_path).output().unwrap();
+        Command::new("git")
+            .arg("config")
+            .arg("core.hooksPath")
+            .arg("hooks")
+            .current_dir(dir_path)
+            .output()
+            .unwrap();
 
         let result = hooks_dir(dir_path);
         assert!(result.is_ok());

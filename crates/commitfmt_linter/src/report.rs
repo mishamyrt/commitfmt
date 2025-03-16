@@ -8,9 +8,7 @@ pub struct Report {
 
 impl Default for Report {
     fn default() -> Self {
-        Self {
-            violations: RefCell::new(Vec::new()),
-        }
+        Self { violations: RefCell::new(Vec::new()) }
     }
 }
 

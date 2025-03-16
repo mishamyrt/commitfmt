@@ -15,9 +15,7 @@ pub struct Repository {
 impl Repository {
     /// Creates a new repository from the root directory
     pub fn from_root(root: &Path) -> Repository {
-        Repository {
-            git_dir: git_directory(root),
-        }
+        Repository { git_dir: git_directory(root) }
     }
 
     /// Opens a repository at the given path
@@ -56,9 +54,7 @@ impl Repository {
 
     pub fn hook_path(&self, hook: &HookType) -> Result<PathBuf, CmdError> {
         match hooks_dir(&self.get_root()) {
-            Ok(hooks_path) => {
-                Ok(hooks_path.join(hook.as_str()))
-            },
+            Ok(hooks_path) => Ok(hooks_path.join(hook.as_str())),
             Err(err) => Err(err),
         }
     }

@@ -57,7 +57,9 @@ impl CommitSettingsParser for CommitSettings {
             return Err(ConfigError::UnsupportedFileType("unknown".to_owned()));
         };
         let Some(format) = Format::from_extension(extension) else {
-            return Err(ConfigError::UnsupportedFileType(extension.to_str().unwrap_or("unknown").to_owned()));
+            return Err(ConfigError::UnsupportedFileType(
+                extension.to_str().unwrap_or("unknown").to_owned(),
+            ));
         };
         let data = std::fs::read_to_string(path).map_err(ConfigError::IOError)?;
 
@@ -105,10 +107,7 @@ unsafe-fixes = true";
             settings,
         };
 
-        let result = CommitSettings::from_str(
-            Format::Toml,
-            config
-        ).unwrap();
+        let result = CommitSettings::from_str(Format::Toml, config).unwrap();
         assert_eq!(result, expected);
     }
 }

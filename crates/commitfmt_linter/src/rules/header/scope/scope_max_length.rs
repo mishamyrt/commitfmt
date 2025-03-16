@@ -38,9 +38,7 @@ impl Violation for ScopeMaxLength {
 /// Checks for scope maximum length
 pub(crate) fn scope_max_length(report: &Report, message: &Message, length: usize) {
     if message.header.scope.str_len() > length {
-        report.add_violation(Box::new(ScopeMaxLength {
-            length,
-        }));
+        report.add_violation(Box::new(ScopeMaxLength { length }));
     }
 }
 

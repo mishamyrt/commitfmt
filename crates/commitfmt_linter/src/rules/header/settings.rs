@@ -1,4 +1,4 @@
-use crate::case::{WordCase, TextCase};
+use crate::case::{TextCase, WordCase};
 
 #[derive(Debug, PartialEq, Default)]
 pub struct Settings {

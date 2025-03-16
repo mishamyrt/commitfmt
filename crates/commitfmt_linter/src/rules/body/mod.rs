@@ -9,12 +9,11 @@ mod settings;
 
 #[allow(unused)]
 pub(crate) use {
+    case::{case, Case},
+    full_stop::{full_stop, FullStop},
+    leading_newline::{leading_nl, LeadingNewLine},
+    max_length::{max_length, MaxLength},
+    max_line_length::{max_line_length, MaxLineLength},
+    min_length::{min_length, MinLength},
     settings::Settings,
-    case::{Case,case},
-    full_stop::{FullStop,full_stop},
-    leading_newline::{LeadingNewLine,leading_nl},
-    max_length::{MaxLength,max_length},
-    max_line_length::{MaxLineLength,max_line_length},
-    min_length::{MinLength,min_length},
 };
-
