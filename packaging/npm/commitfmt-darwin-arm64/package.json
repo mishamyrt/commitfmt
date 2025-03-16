@@ -1,0 +1,22 @@
+{
+  "name": "commitfmt-darwin-arm64",
+  "version": "0.0.1-alpha.5",
+  "description": "The macOS arm64 binary for commitfmt, commit message formatter.",
+  "preferUnplugged": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mishamyrt/commitfmt.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mishamyrt/commitfmt/issues",
+    "email": "misha@myrt.co"
+  },
+  "homepage": "https://github.com/mishamyrt/commitfmt#readme",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ]
+}

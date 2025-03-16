@@ -18,5 +18,11 @@ jobs:
           pattern: artifacts-*
           path: target/distrib/
           merge-multiple: true
+      - name: Unpack artifacts
+        run: |
+          cd target/distrib
+          find . -maxdepth 1 -type f -name "*.tar.xz" -exec tar -xJf {} \;
+          find . -maxdepth 1 -type f -name "*.zip" -exec unzip -o {} \;
+          cd ../..
       - name: Print artifacts
         run: ls target/distrib
