@@ -10,12 +10,10 @@ __pycache__
 *.egg-info
 
 # npm
-packaging/npm/ticketeer-*/ticketeer
-packaging/npm/ticketeer-*/ticketeer.exe
+packaging/npm/commitfmt-*/commitfmt
+packaging/npm/commitfmt-*/commitfmt.exe
 
 # PyPi
-packaging/pypi/*/.version
-packaging/pypi/*/README.md
-packaging/pypi/ticketeer_*/ticketeer_*/ticketeer_*
+packaging/pypi/commitfmt_*/commitfmt_*/commitfmt_*
 packaging/pypi/**/build/
 packaging/pypi/**/dist/

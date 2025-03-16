@@ -1,7 +1,7 @@
 {
   "name": "commitfmt-darwin-arm64",
   "version": "0.0.1-alpha.6",
-  "description": "The macOS arm64 binary for commitfmt, commit message formatter.",
+  "description": "Utility for formatting and verifying the commit message.",
   "preferUnplugged": false,
   "repository": {
     "type": "git",

@@ -1,0 +1,22 @@
+[project]
+name = "commitfmt_windows"
+authors = [
+    {name = "Mikhael Khrustik", email = "misha@myrt.co"},
+]
+description = "Utility for formatting and verifying the commit message."
+readme = "README.md"
+requires-python = ">=3.9"
+version = "0.0.1-alpha.6"
+keywords = ["git", "hook"]
+license = {text = "MIT"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: Microsoft :: Windows",
+]

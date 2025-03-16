@@ -15,6 +15,7 @@ def shell(command: str, cwd: str = None) -> str:
             text=True,
             cwd=cwd)
     except subprocess.CalledProcessError as exc:
+        print(exc.output)
         raise ShellError(
             returncode=exc.returncode,
             cmd=command,
