@@ -150,7 +150,7 @@ dependencies = [
 
 [[package]]
 name = "commitfmt"
-version = "0.0.1-alpha2"
+version = "0.0.1-alpha4"
 dependencies = [
  "atty",
  "clap",

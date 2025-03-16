@@ -278,7 +278,6 @@ jobs:
     needs:
       - plan
       - host
-    if: ${{ !fromJson(needs.plan.outputs.val).announcement_is_prerelease || fromJson(needs.plan.outputs.val).publish_prereleases }}
     uses: ./.github/workflows/npm_publish.yml
     with:
       plan: ${{ needs.plan.outputs.val }}

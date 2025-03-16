@@ -19,3 +19,6 @@ publish-jobs = ["./npm_publish"]
 installers = []
 # Whether to publish prereleases to package managers
 publish-prereleases = true
+# Whether to allow dirty CI release file
+# Should be disabled after merging https://github.com/axodotdev/cargo-dist/pull/1745
+allow-dirty = ["ci"]
