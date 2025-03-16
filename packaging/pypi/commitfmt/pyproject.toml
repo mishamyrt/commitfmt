@@ -1,0 +1,29 @@
+[project]
+name = "commitfmt"
+authors = [
+    {name = "Mikhael Khrustik", email = "misha@myrt.co"},
+]
+description = "Utility for formatting and verifying the commit message."
+version = "0.0.1-alpha.8"
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["git", "hook"]
+license = {text = "MIT"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "commitfmt_windows==0.1.5; sys_platform == 'win32'",
+    "commitfmt_openbsd==0.1.5; sys_platform == 'openbsd'",
+    "commitfmt_freebsd==0.1.5; sys_platform == 'freebsd'",
+    "commitfmt_darwin==0.1.5; sys_platform == 'darwin'",
+    "commitfmt_linux==0.1.5; sys_platform == 'linux'",
+]
+scripts = { "commitfmt"="commitfmt.__main__:main" }

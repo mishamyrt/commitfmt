@@ -1,0 +1,43 @@
+name: PyPi publish
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: artifacts-*
+          path: target/distrib/
+          merge-multiple: true
+      - name: Unpack artifacts
+        run: |
+          cd target/distrib
+          find . -maxdepth 1 -type f -name "*.tar.xz" -exec tar -xJf {} \;
+          find . -maxdepth 1 -type f -name "*.zip" -exec \
+            sh -c 'dir="${1%.zip}"; \
+            mkdir -p "$dir" && unzip -o "$1" -d "$dir"' _ {} \;
+          cd ../..
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - name: Setup deployment environment
+        run: |
+          uv venv .venv
+          source .venv/bin/activate
+          uv pip install build twine
+      - name: Publish
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          source .venv/bin/activate
+          scripts/publish_pypi.py

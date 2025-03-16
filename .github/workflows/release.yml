@@ -274,14 +274,42 @@ jobs:
 
           gh release create "${{ needs.plan.outputs.tag }}" --target "$RELEASE_COMMIT" $PRERELEASE_FLAG --title "$ANNOUNCEMENT_TITLE" --notes-file "$RUNNER_TEMP/notes.txt" artifacts/*
 
+  custom-npm_publish:
+    needs:
+      - plan
+      - host
+    uses: ./.github/workflows/npm_publish.yml
+    with:
+      plan: ${{ needs.plan.outputs.val }}
+    secrets: inherit
+    # publish jobs get escalated permissions
+    permissions:
+      "id-token": "write"
+      "packages": "write"
+
+  custom-pypi_publish:
+    needs:
+      - plan
+      - host
+    uses: ./.github/workflows/pypi_publish.yml
+    with:
+      plan: ${{ needs.plan.outputs.val }}
+    secrets: inherit
+    # publish jobs get escalated permissions
+    permissions:
+      "id-token": "write"
+      "packages": "write"
+
   announce:
     needs:
       - plan
       - host
+      - custom-npm_publish
+      - custom-pypi_publish
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' }}
+    if: ${{ always() && needs.host.result == 'success' && (needs.custom-npm_publish.result == 'skipped' || needs.custom-npm_publish.result == 'success') && (needs.custom-pypi_publish.result == 'skipped' || needs.custom-pypi_publish.result == 'success') }}
     runs-on: "ubuntu-20.04"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

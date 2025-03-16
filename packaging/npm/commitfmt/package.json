@@ -1,0 +1,36 @@
+{
+  "name": "commitfmt",
+  "version": "0.0.1-alpha.8",
+  "description": "Utility for formatting and verifying the commit message.",
+  "main": "bin/index.js",
+  "bin": {
+    "commitfmt": "bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mishamyrt/commitfmt.git"
+  },
+  "keywords": [
+    "git",
+    "hook"
+  ],
+  "author": "mishamyrt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mishamyrt/commitfmt/issues",
+    "email": "misha@myrt.co"
+  },
+  "homepage": "https://github.com/mishamyrt/commitfmt#readme",
+  "optionalDependencies": {
+    "commitfmt-darwin-arm64": "0.0.1-alpha.8",
+    "commitfmt-darwin-x64": "0.0.1-alpha.8",
+    "commitfmt-linux-arm64": "0.0.1-alpha.8",
+    "commitfmt-linux-x64": "0.0.1-alpha.8",
+    "commitfmt-freebsd-arm64": "0.0.1-alpha.8",
+    "commitfmt-freebsd-x64": "0.0.1-alpha.8",
+    "commitfmt-openbsd-arm64": "0.0.1-alpha.8",
+    "commitfmt-openbsd-x64": "0.0.1-alpha.8",
+    "commitfmt-windows-arm64": "0.0.1-alpha.8",
+    "commitfmt-windows-x64": "0.0.1-alpha.8"
+  }
+}
