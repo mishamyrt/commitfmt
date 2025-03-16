@@ -23,7 +23,7 @@ install-path = "CARGO_HOME"
 # Whether to install an updater program
 install-updater = false
 # Publish jobs to run in CI
-publish-jobs = ["./npm_publish"]
+publish-jobs = ["./npm_publish", "./pypi_publish"]
 # The installers to generate for each app
 installers = []
 # Whether to publish prereleases to package managers

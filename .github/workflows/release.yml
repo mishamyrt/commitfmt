@@ -287,11 +287,25 @@ jobs:
       "id-token": "write"
       "packages": "write"
 
+  custom-pypi_publish:
+    needs:
+      - plan
+      - host
+    uses: ./.github/workflows/pypi_publish.yml
+    with:
+      plan: ${{ needs.plan.outputs.val }}
+    secrets: inherit
+    # publish jobs get escalated permissions
+    permissions:
+      "id-token": "write"
+      "packages": "write"
+
   announce:
     needs:
       - plan
       - host
       - custom-npm_publish
+      - custom-pypi_publish
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!

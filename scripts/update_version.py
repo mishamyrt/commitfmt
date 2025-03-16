@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Update version in packages metadata files"""
 
-from pathlib import Path
 import re
 import sys
 import json
@@ -10,12 +9,13 @@ from project_config import NPM_PACKAGES_DIR, PYPI_PACKAGES_DIR
 
 CLI_CRATE_MANIFEST = "crates/commitfmt/Cargo.toml"
 
+TOML_VERSION_RE = r"version = \"(.*)\""
+
 def set_cli_cargo_version(version: str):
     """Update version in CLI Cargo.toml"""
     with open(CLI_CRATE_MANIFEST, "r", encoding="utf-8") as file:
         cargo_toml = file.read()
-    version_re = r"version = \"(.*)\""
-    cargo_toml = re.sub(version_re, f"version = \"{version}\"", cargo_toml)
+    cargo_toml = re.sub(TOML_VERSION_RE, f"version = \"{version}\"", cargo_toml)
     with open(CLI_CRATE_MANIFEST, "w", encoding="utf-8") as file:
         file.write(cargo_toml)
 
@@ -43,8 +43,7 @@ def set_pypi_version(version: str):
         manifest_path = package_dir / "pyproject.toml"
         with manifest_path.open("r", encoding="utf-8") as file:
             pyproject_toml = file.read()
-        version_re = r"version = \"(.*)\""
-        pyproject_toml = re.sub(version_re, f"version = \"{version}\"", pyproject_toml)
+        pyproject_toml = re.sub(TOML_VERSION_RE, f"version = \"{version}\"", pyproject_toml)
         with manifest_path.open("w", encoding="utf-8") as file:
             file.write(pyproject_toml)
 

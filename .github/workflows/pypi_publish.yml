@@ -38,4 +38,6 @@ jobs:
       - name: Publish
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: scripts/publish_pypi.py
+        run: |
+          source .venv/bin/activate
+          scripts/publish_pypi.py

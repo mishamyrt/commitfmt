@@ -13,14 +13,14 @@ SUFFIX_X64   = "amd64"
 PACKAGE_BINARIES = {
     "commitfmt_darwin": [
         (OUT_BINARIES[("darwin", "x64")], SUFFIX_X64),
-        # (OUT_BINARIES[("darwin", "arm64")], SUFFIX_ARM64),
+        (OUT_BINARIES[("darwin", "arm64")], SUFFIX_ARM64),
     ],
     "commitfmt_linux": [
         (OUT_BINARIES[("linux", "x64")], SUFFIX_X64),
-        # (OUT_BINARIES[("linux", "arm64")], SUFFIX_ARM64),
+        (OUT_BINARIES[("linux", "arm64")], SUFFIX_ARM64),
     ],
     "commitfmt_windows": [
-        # (OUT_BINARIES[("windows", "x64")], SUFFIX_X64),
+        (OUT_BINARIES[("windows", "x64")], SUFFIX_X64),
         (OUT_BINARIES[("windows", "arm64")], SUFFIX_ARM64),
     ],
 }
