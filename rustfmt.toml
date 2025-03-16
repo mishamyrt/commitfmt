@@ -1,4 +1,5 @@
 edition = "2021"
-max_width = 120
+style_edition = "2024"
+max_width = 95
 newline_style = "Unix"
-use_small_heuristics = "Off"
+use_small_heuristics = "Max"

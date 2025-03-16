@@ -1,1 +1,21 @@
 /target
+.DS_Store
+
+# Node artifacts
+node_modules
+
+# Python artifacts
+venv
+__pycache__
+*.egg-info
+
+# npm
+packaging/npm/ticketeer-*/ticketeer
+packaging/npm/ticketeer-*/ticketeer.exe
+
+# PyPi
+packaging/pypi/*/.version
+packaging/pypi/*/README.md
+packaging/pypi/ticketeer_*/ticketeer_*/ticketeer_*
+packaging/pypi/**/build/
+packaging/pypi/**/dist/
