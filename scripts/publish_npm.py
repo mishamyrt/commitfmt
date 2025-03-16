@@ -37,9 +37,6 @@ def publish():
 
 def main():
     """Script entry point"""
-    if os.environ.get("NODE_AUTH_TOKEN") is None:
-        raise RuntimeError("NODE_AUTH_TOKEN not set")
-
     print("Copying binaries...")
     copy_binaries()
     print("Publishing packages...")

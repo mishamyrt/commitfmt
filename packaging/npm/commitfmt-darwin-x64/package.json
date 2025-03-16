@@ -1,6 +1,6 @@
 {
   "name": "commitfmt-darwin-x64",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "The macOS 64-bit binary for commitfmt, commit message formatter.",
   "preferUnplugged": false,
   "repository": {

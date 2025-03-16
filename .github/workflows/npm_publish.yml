@@ -26,7 +26,7 @@ jobs:
             sh -c 'dir="${1%.zip}"; \
             mkdir -p "$dir" && unzip -o "$1" -d "$dir"' _ {} \;
           cd ../..
+      - name: Authenticate NPM registry
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: scripts/publish_npm.py

@@ -1,4 +1,4 @@
-VERSION = 0.0.1-alpha.5
+VERSION = 0.0.1-alpha.6
 
 .PHONY: test
 test:
@@ -6,8 +6,10 @@ test:
 
 publish:
 	@python3 ./scripts/update_version.py "$(VERSION)"
+	cargo update -p commitfmt
 	git add \
 		Makefile \
+		Cargo.lock \
 		crates/commitfmt/Cargo.toml \
 		packaging/npm
 	git commit -m "chore: release v$(VERSION) 🔥"
