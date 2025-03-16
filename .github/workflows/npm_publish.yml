@@ -1,0 +1,23 @@
+name: NPM publish
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    name: App
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: artifacts-*
+          path: target/distrib/
+          merge-multiple: true
+      - name: Print artifacts
+        run: ls target/distrib
