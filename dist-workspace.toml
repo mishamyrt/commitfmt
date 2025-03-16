@@ -17,3 +17,5 @@ install-updater = false
 publish-jobs = ["./npm_publish"]
 # The installers to generate for each app
 installers = []
+# Whether to publish prereleases to package managers
+publish-prereleases = true
