@@ -5,7 +5,7 @@ use crate::head::branch_name_from_head;
 use crate::hook::HookType;
 use crate::path::{find_root, git_directory, hooks_dir, CmdError, PathError};
 
-pub const COMMIT_MSG: &str = "COMMIT_EDITMSG";
+const COMMIT_MSG: &str = "COMMIT_EDITMSG";
 
 #[derive(Debug)]
 pub struct Repository {
@@ -52,7 +52,7 @@ impl Repository {
         fs::write(msg_path, msg)
     }
 
-    pub fn hook_path(&self, hook: &HookType) -> Result<PathBuf, CmdError> {
+    pub fn hook_path(&self, hook: HookType) -> Result<PathBuf, CmdError> {
         match hooks_dir(&self.get_root()) {
             Ok(hooks_path) => Ok(hooks_path.join(hook.as_str())),
             Err(err) => Err(err),

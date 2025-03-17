@@ -1,4 +1,7 @@
+mod bin;
 pub mod head;
-pub mod hook;
+mod hook;
 pub mod path;
-pub mod repository;
+mod repository;
+
+pub use {bin::is_git_available, hook::HookType, repository::Repository};
