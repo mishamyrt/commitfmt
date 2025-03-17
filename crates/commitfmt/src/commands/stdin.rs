@@ -1,15 +1,15 @@
 use colored::Colorize;
 use commitfmt_cc::Message;
 use commitfmt_config::parse::CommitSettingsParser;
-use commitfmt_config::settings::CommitSettings;
+use commitfmt_config::settings::CommitParams;
 use commitfmt_linter::check::Check;
 use commitfmt_linter::rules::Rule;
 use log::info;
 use std::process;
 
 pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::ExitCode {
-    let commit_settings = match CommitSettings::load(dir_path) {
-        Ok(settings) => settings,
+    let params = match CommitParams::load(dir_path) {
+        Ok(params) => params.unwrap_or_default(),
         Err(err) => {
             info!("Failed to load settings: {}", err);
             return process::ExitCode::FAILURE;
@@ -21,10 +21,8 @@ pub(crate) fn run_stdin(input: &str, dir_path: &std::path::Path) -> process::Exi
         return process::ExitCode::FAILURE;
     };
 
-    let check = Check::new(commit_settings.settings, commit_settings.rules);
-
+    let check = Check::new(params.settings, params.rules);
     check.run(&message);
-
     for violation_box in check.violations_ref().borrow().iter() {
         let violation = violation_box.as_ref();
         let Some(rule) = Rule::from_violation(violation) else {

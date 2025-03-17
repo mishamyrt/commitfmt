@@ -1,16 +1,13 @@
-mod stdin;
-
-use std::{io::Read, process};
+mod commands;
 
 use atty::Stream;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use fern::Dispatch;
 use log::debug;
-use stdin::run_stdin;
+use std::{io::Read, process};
 
-// use install::run_install;
-// use uninstall::run_uninstall;
+use commands::{run_install, run_stdin, run_uninstall};
 
 /// Utility to add ticket id to commit message
 #[derive(Parser)]
@@ -49,11 +46,7 @@ enum Commands {
 fn main() -> process::ExitCode {
     let cli = Cli::parse();
 
-    #[allow(clippy::pedantic)]
-    let log_level = match cli.verbose {
-        true => log::LevelFilter::Debug,
-        false => log::LevelFilter::Info,
-    };
+    let log_level = if cli.verbose { log::LevelFilter::Debug } else { log::LevelFilter::Info };
     Dispatch::new()
         .level(log_level)
         .chain(std::io::stdout())
@@ -77,8 +70,8 @@ fn main() -> process::ExitCode {
         Some(Commands::Apply {}) => {
             unimplemented!();
         }
-        Some(Commands::Install { force: _ }) => unimplemented!(),
-        Some(Commands::Uninstall { force: _ }) => unimplemented!(),
+        Some(Commands::Install { force }) => run_install(&cwd, *force),
+        Some(Commands::Uninstall { force }) => run_uninstall(&cwd, *force),
         None => {
             // print!("No command specified");
             process::ExitCode::FAILURE

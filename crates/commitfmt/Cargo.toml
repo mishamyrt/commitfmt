@@ -14,6 +14,8 @@ license = { workspace = true }
 commitfmt_cc = { workspace = true }
 commitfmt_linter = { workspace = true }
 commitfmt_config = { workspace = true }
+commitfmt_hook = { workspace = true }
+commitfmt_git = { workspace = true }
 
 thiserror = { workspace = true }
 tempfile = { workspace = true }
