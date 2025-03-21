@@ -193,7 +193,7 @@ impl Header {
     fn parse_description(input: &str) -> IResult<&str, String> {
         preceded(preceded(space0, tag(":")), take_while1(|c: char| !c.is_control()))
             .parse(input)
-            .map(|(next_input, desc)| (next_input, desc.to_string()))
+            .map(|(next_input, desc)| (next_input, desc.trim().to_string()))
     }
 }
 
