@@ -22,8 +22,21 @@ pub struct FormattingSettings {
 
 /// Parsed commit settings
 #[derive(Debug, PartialEq)]
-pub struct CommitSettings {
+pub struct CommitParams {
     pub rules: RuleSet,
     pub settings: rules::Settings,
     pub formatting: FormattingSettings,
+}
+
+impl Default for CommitParams {
+    fn default() -> Self {
+        Self {
+            rules: RuleSet::default(),
+            settings: rules::Settings::default(),
+            formatting: FormattingSettings {
+                unsafe_fixes: false,
+                footers: RefCell::new(vec![]),
+            },
+        }
+    }
 }

@@ -71,9 +71,6 @@ impl Check {
     }
 
     fn lint_header_description(&self, message: &Message) {
-        if self.rules.contains(Rule::HeaderDescriptionLeadingSpace) {
-            header::description_leading_space(&self.report, message);
-        }
         if self.rules.contains(Rule::HeaderDescriptionFullStop) {
             header::description_full_stop(&self.report, message);
         }

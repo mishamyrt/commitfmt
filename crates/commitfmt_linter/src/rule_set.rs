@@ -2,9 +2,8 @@ use crate::rules::Rule;
 
 /// Default set of rules
 const DEFAULT_RULES: RuleSet = RuleSet::from_rules(&[
-    Rule::BodyMaxLineLength,
+    Rule::HeaderDescriptionFullStop,
     Rule::BodyLeadingNewLine,
-    Rule::HeaderDescriptionLeadingSpace,
 ]);
 
 /// Rule Set implements a set of rules using bit sets in a u64.
@@ -167,10 +166,10 @@ mod tests {
 
     #[test]
     fn test_from_rules() {
-        let rules = [Rule::BodyLeadingNewLine, Rule::HeaderDescriptionLeadingSpace];
+        let rules = [Rule::BodyLeadingNewLine, Rule::HeaderDescriptionFullStop];
         let set = RuleSet::from_rules(&rules);
         assert!(set.contains(Rule::BodyLeadingNewLine));
-        assert!(set.contains(Rule::HeaderDescriptionLeadingSpace));
+        assert!(set.contains(Rule::HeaderDescriptionFullStop));
         assert_eq!(set.len(), 2);
     }
 }

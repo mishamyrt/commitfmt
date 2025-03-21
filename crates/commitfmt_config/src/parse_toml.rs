@@ -5,7 +5,7 @@ use commitfmt_linter::rule_set::RuleSet;
 use commitfmt_linter::rules::{LinterGroup, Rule, Settings};
 
 use crate::config::FormattingConfig;
-use crate::settings::CommitSettings;
+use crate::settings::CommitParams;
 use crate::ConfigError;
 
 /// Parse the rule configuration for the given linter
@@ -194,7 +194,7 @@ fn require_usize(value: &Value, target: &mut usize) -> Result<bool, ConfigError>
     Ok(true)
 }
 
-pub(crate) fn parse_toml(data: &str) -> Result<CommitSettings, ConfigError> {
+pub(crate) fn parse_toml(data: &str) -> Result<CommitParams, ConfigError> {
     let Ok(config_map) = data.parse::<Table>() else {
         return Err(ConfigError::TomlError("Unable to parse TOML".to_string()));
     };
@@ -212,7 +212,7 @@ pub(crate) fn parse_toml(data: &str) -> Result<CommitSettings, ConfigError> {
     let config: FormattingConfig =
         toml::from_str(data).map_err(|err| ConfigError::TomlError(err.to_string()))?;
 
-    Ok(CommitSettings { formatting: config.to_settings(), rules, settings })
+    Ok(CommitParams { formatting: config.to_settings(), rules, settings })
 }
 
 #[cfg(test)]
@@ -226,11 +226,11 @@ mod tests {
 max-line-length = 80
 
 [header]
-description-leading-space = true";
+description-full-stop = true";
         let config = parse_toml(config).unwrap();
         assert!(config.settings.body.max_line_length == 80);
         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-        assert!(config.rules.contains(Rule::HeaderDescriptionLeadingSpace));
+        assert!(config.rules.contains(Rule::HeaderDescriptionFullStop));
         assert!(!config.formatting.unsafe_fixes);
     }
 
@@ -241,10 +241,10 @@ description-leading-space = true";
 max-line-length = 80
 
 [header]
-description-leading-space = false";
+description-full-stop = false";
         let config = parse_toml(config).unwrap();
         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-        assert!(!config.rules.contains(Rule::HeaderDescriptionLeadingSpace));
+        assert!(!config.rules.contains(Rule::HeaderDescriptionFullStop));
     }
 
     #[test]

@@ -64,7 +64,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_leading_nl_correct() {
+    fn test_leading_nl() {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nbody".to_string()),
@@ -76,8 +76,8 @@ mod tests {
     }
 
     #[test]
-    fn test_leading_nl_correct_violation() {
-        let message: Message = Message {
+    fn test_leading_nl_fix() {
+        let mut message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("body".to_string()),
             footers: vec![],
@@ -85,6 +85,12 @@ mod tests {
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.borrow().len(), 1);
+
+        let violation_ref = checker.violations.borrow();
+        let violation = violation_ref.get(0).unwrap();
+        violation.fix(&mut message).unwrap();
+
+        assert_eq!(message.body, Some("\nbody".to_string()));
     }
 
     #[test]
