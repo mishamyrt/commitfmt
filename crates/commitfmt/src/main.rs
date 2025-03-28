@@ -28,154 +28,102 @@ fn get_source(repo: Option<&Repository>) -> InputSource {
     }
 
     match repo {
-        Some(repo) => {
-            if repo.is_committing() {
-                InputSource::CommitEditMessage
-            } else {
-                InputSource::None
-            }
-        }
-        None => InputSource::None,
+        Some(repo) if repo.is_committing() => InputSource::CommitEditMessage,
+        _ => InputSource::None,
     }
 }
 
-fn main() -> process::ExitCode {
-    let cli = Cli::parse();
-
-    let log_level = if cli.verbose { log::LevelFilter::Debug } else { log::LevelFilter::Info };
+fn setup_logger(verbose: bool, no_color: bool) {
+    let log_level = if verbose { log::LevelFilter::Debug } else { log::LevelFilter::Info };
     Dispatch::new()
         .level(log_level)
         .chain(std::io::stdout())
         .apply()
         .expect("Unable to set up logger");
-    if cli.no_color {
+
+    if no_color {
         colored::control::set_override(false);
     }
+}
 
-    let Ok(cwd) = std::env::current_dir() else {
-        print_error!("Unable to get current directory");
-
-        return process::ExitCode::FAILURE;
-    };
-
-    let repo = Repository::open(&cwd).ok();
-    let params = match CommitParams::load(&cwd) {
-        Ok(params) => params.unwrap_or_default(),
+fn handle_commit_range(repo: &Repository, from: &str, to: &str, params: &CommitParams) -> process::ExitCode {
+    let commits = match repo.get_commits(from, to) {
+        Ok(commits) => commits,
         Err(err) => {
-            print_error!("Failed to load settings: {}", err);
-
+            print_error!("Failed to get commits: {}", err);
             return process::ExitCode::FAILURE;
         }
     };
 
-    if cli.to.is_some() && cli.from.is_none() {
-        print_error!("--to requires --from");
+    let mut has_problems = false;
+    let mut check = Check::new(&params.settings, params.rules.clone());
 
-        return process::ExitCode::FAILURE;
-    }
-    if cli.from.is_some() {
-        if cli.lint {
-            print_warning!("--lint is ignored when --from is set");
-        }
-
-        let to = match &cli.to {
-            Some(to) => to,
-            None => &String::from("HEAD"),
-        };
-
-        let from = cli.from.as_ref().unwrap();
-
-        let repo = match Repository::open(&cwd) {
-            Ok(repo) => repo,
-            Err(err) => {
-                print_error!("Failed to open repository: {}", err);
-
-                return process::ExitCode::FAILURE;
-            }
-        };
-
-        let commits = match repo.get_commits(from, to) {
-            Ok(commits) => commits,
-            Err(err) => {
-                print_error!("Failed to get commits: {}", err);
-
-                return process::ExitCode::FAILURE;
-            }
-        };
-
-        let mut has_problems = false;
-        let mut check = Check::new(params.settings, params.rules);
-        for commit in commits {
-            let Ok(message) = Message::parse(&commit.message) else {
+    for commit in commits {
+        let message = match Message::parse(&commit.message) {
+            Ok(message) => message,
+            Err(_) => {
                 print_error!("Failed to parse commit message");
-
                 return process::ExitCode::FAILURE;
-            };
-
-            check.run(&message);
-            if !check.report.violations.is_empty() {
-                has_problems = true;
-                let count = report_violations(check.report.violations.iter());
-                print_error!("Commit {} has {} violations", commit.sha, count);
-
-                check.report.violations.clear();
             }
-        }
+        };
 
-        if !has_problems {
-            return process::ExitCode::SUCCESS;
-        } else {
-            return process::ExitCode::FAILURE;
+        check.lint(&message);
+        if !check.report.violations.is_empty() {
+            has_problems = true;
+            let count = report_violations(check.report.violations.iter());
+            print_error!("Commit {} has {} violations", commit.sha, count);
+            check.report.violations.clear();
         }
     }
 
-    let source = get_source(repo.as_ref());
-    print_debug!("Input source: {:#?}", source);
-    if source == InputSource::None {
-        print_error!("Unable to determine input source\n");
-        let mut cmd = Cli::command();
-        cmd.print_help().unwrap();
-
-        return process::ExitCode::FAILURE;
+    if has_problems {
+        process::ExitCode::FAILURE
+    } else {
+        process::ExitCode::SUCCESS
     }
+}
 
+fn handle_single_message(source: InputSource, repo: Option<&Repository>, params: &CommitParams, lint: bool) -> process::ExitCode {
     let mut input = String::new();
+
     match source {
         InputSource::Stdin => {
-            match std::io::stdin().read_to_string(&mut input) {
-                Ok(_) => {}
+            if let Err(err) = std::io::stdin().read_to_string(&mut input) {
+                print_error!("Failed to read stdin: {}", err);
+                return process::ExitCode::FAILURE;
+            }
+        },
+        InputSource::CommitEditMessage => {
+            input = match repo.unwrap().read_commit_message() {
+                Ok(msg) => msg,
                 Err(err) => {
-                    print_error!("Failed to read stdin: {}", err);
-
+                    print_error!("Failed to read commit message: {}", err);
                     return process::ExitCode::FAILURE;
                 }
             };
-        }
-        InputSource::CommitEditMessage => {
-            input = repo.as_ref().unwrap().read_commit_message().unwrap();
-        }
+        },
         InputSource::None => {
             unreachable!();
         }
     };
 
-    let Ok(message) = Message::parse(&input) else {
-        print_error!("Failed to parse commit message");
-
-        return process::ExitCode::FAILURE;
+    let message = match Message::parse(&input) {
+        Ok(message) => message,
+        Err(_) => {
+            print_error!("Failed to parse commit message");
+            return process::ExitCode::FAILURE;
+        }
     };
 
-    let mut check = Check::new(params.settings, params.rules);
-    check.run(&message);
+    let mut check = Check::new(&params.settings, params.rules.clone());
+    check.lint(&message);
 
-    if cli.lint {
+    if lint {
         if check.report.violations.is_empty() {
             return process::ExitCode::SUCCESS;
         }
         let count = report_violations(check.report.violations.iter());
-
         print_error!("\n{}", format!("{} problems found", count));
-
         return process::ExitCode::FAILURE;
     }
 
@@ -195,16 +143,71 @@ fn main() -> process::ExitCode {
 
     if source == InputSource::CommitEditMessage {
         print_debug!("Writing commit message");
-        match repo.as_ref().unwrap().write_commit_message(&message.to_string()) {
-            Ok(_) => {}
-            Err(err) => {
-                print_error!("Failed to write commit message: {}", err);
-                return process::ExitCode::FAILURE;
-            }
-        };
+        if let Err(err) = repo.unwrap().write_commit_message(&message.to_string()) {
+            print_error!("Failed to write commit message: {}", err);
+            return process::ExitCode::FAILURE;
+        }
     } else if source == InputSource::Stdin {
         print!("{}", message);
     }
 
     process::ExitCode::SUCCESS
+}
+
+fn main() -> process::ExitCode {
+    let cli = Cli::parse();
+    setup_logger(cli.verbose, cli.no_color);
+
+    let cwd = match std::env::current_dir() {
+        Ok(cwd) => cwd,
+        Err(_) => {
+            print_error!("Unable to get current directory");
+            return process::ExitCode::FAILURE;
+        }
+    };
+
+    let repo = Repository::open(&cwd).ok();
+    let params = match CommitParams::load(&cwd) {
+        Ok(params) => params.unwrap_or_default(),
+        Err(err) => {
+            print_error!("Failed to load settings: {}", err);
+            return process::ExitCode::FAILURE;
+        }
+    };
+
+    if cli.to.is_some() && cli.from.is_none() {
+        print_error!("--to requires --from");
+        return process::ExitCode::FAILURE;
+    }
+
+    if cli.from.is_some() {
+        if cli.lint {
+            print_warning!("--lint is ignored when --from is set");
+        }
+
+        let to = cli.to.as_deref().unwrap_or("HEAD");
+        let from = cli.from.as_ref().unwrap();
+
+        let repo = match Repository::open(&cwd) {
+            Ok(repo) => repo,
+            Err(err) => {
+                print_error!("Failed to open repository: {}", err);
+                return process::ExitCode::FAILURE;
+            }
+        };
+
+        return handle_commit_range(&repo, from, to, &params);
+    }
+
+    let source = get_source(repo.as_ref());
+    print_debug!("Input source: {:#?}", source);
+
+    if source == InputSource::None {
+        print_error!("Unable to determine input source\n");
+        let mut cmd = Cli::command();
+        cmd.print_help().unwrap();
+        return process::ExitCode::FAILURE;
+    }
+
+    handle_single_message(source, repo.as_ref(), &params, cli.lint)
 }

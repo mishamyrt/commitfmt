@@ -15,6 +15,12 @@ pub struct RuleSet(pub u64);
 
 // TODO: Implement buckets, when we have more than 64 rules
 
+impl Default for RuleSet {
+    fn default() -> Self {
+        DEFAULT_RULES
+    }
+}
+
 impl RuleSet {
     const EMPTY: u64 = 0;
 
@@ -22,12 +28,6 @@ impl RuleSet {
     #[inline]
     pub const fn empty() -> Self {
         Self(Self::EMPTY)
-    }
-
-    /// Returns default set of rules
-    #[inline]
-    pub const fn default() -> Self {
-        DEFAULT_RULES
     }
 
     /// Returns a rule set containing the provided rules

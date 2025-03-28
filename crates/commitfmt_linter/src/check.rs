@@ -4,14 +4,15 @@ use crate::report::Report;
 use crate::rule_set::RuleSet;
 use crate::rules::{body, footer, header, Rule, Settings};
 
-pub struct Check {
+pub struct Check<'a> {
     pub report: Report,
-    pub(crate) settings: Settings,
-    pub(crate) rules: RuleSet,
+
+    settings: &'a Settings,
+    rules: RuleSet,
 }
 
-impl Check {
-    pub fn new(settings: Settings, rules: RuleSet) -> Self {
+impl<'a> Check<'a> {
+    pub fn new(settings: &'a Settings, rules: RuleSet) -> Self {
         Self { report: Report::default(), settings, rules }
     }
 
@@ -151,14 +152,13 @@ impl Check {
         }
     }
 
-    pub fn run(&mut self, message: &Message) {
+    pub fn lint(&mut self, message: &Message) {
         self.lint_header(message);
 
-        if message.body.is_none() {
-            return;
+        if message.body.is_some() {
+            self.lint_body(message);
         }
 
-        self.lint_body(message);
         if !message.footers.is_empty() {
             self.lint_footers(message);
         }
@@ -176,10 +176,10 @@ mod tests {
         let settings = rules::Settings::default();
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
-        let mut check = Check::new(settings, rules);
+        let mut check = Check::new(&settings, rules);
         let message =
             Message::parse("feat: my feature\nbody").expect("Unable to parse commit message");
-        check.run(&message);
+        check.lint(&message);
         assert_eq!(check.report.violations.len(), 1);
     }
 
@@ -188,10 +188,10 @@ mod tests {
         let settings = rules::Settings::default();
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
-        let mut check = Check::new(settings, rules);
+        let mut check = Check::new(&settings, rules);
         let message = Message::parse("feat: my feature\n\nbody")
             .expect("Unable to parse commit message");
-        check.run(&message);
+        check.lint(&message);
         assert_eq!(check.report.violations.len(), 0);
     }
 }
