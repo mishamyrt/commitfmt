@@ -41,7 +41,7 @@ impl Violation for Case {
 }
 
 /// Checks that the character case of the commit body is consistent
-pub(crate) fn case(report: &Report, message: &Message, case: TextCase) {
+pub(crate) fn case(report: &mut Report, message: &Message, case: TextCase) {
     let Some(body) = message.body.as_ref() else {
         return;
     };
@@ -74,6 +74,6 @@ mod tests {
         message.body = Some("FEATURE description".to_string());
         case(&mut report, &message, TextCase::Lower);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "Case");
+        assert_eq!(report.violations[0].rule_name(), "Case");
     }
 }

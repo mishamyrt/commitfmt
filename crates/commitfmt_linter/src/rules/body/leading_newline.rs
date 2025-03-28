@@ -47,7 +47,7 @@ impl Violation for LeadingNewLine {
 }
 
 /// Checks for missing newlines at the start of the body
-pub(crate) fn leading_nl(report: &Report, message: &Message) {
+pub(crate) fn leading_nl(report: &mut Report, message: &Message) {
     let Some(body) = message.body.as_ref() else {
         return;
     };
@@ -72,7 +72,7 @@ mod tests {
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
-        assert_eq!(checker.violations.borrow().len(), 0);
+        assert_eq!(checker.violations.len(), 0);
     }
 
     #[test]
@@ -84,9 +84,9 @@ mod tests {
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
-        assert_eq!(checker.violations.borrow().len(), 1);
+        assert_eq!(checker.violations.len(), 1);
 
-        let violation_ref = checker.violations.borrow();
+        let violation_ref = checker.violations;
         let violation = violation_ref.get(0).unwrap();
         violation.fix(&mut message).unwrap();
 
@@ -99,6 +99,6 @@ mod tests {
             Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
-        assert_eq!(checker.violations.borrow().len(), 0);
+        assert_eq!(checker.violations.len(), 0);
     }
 }

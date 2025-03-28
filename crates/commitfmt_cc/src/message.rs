@@ -37,6 +37,22 @@ impl Message {
     }
 }
 
+impl std::fmt::Display for Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.header)?;
+        if let Some(body) = &self.body {
+            write!(f, "\n{}", body)?;
+        }
+        if !self.footers.is_empty() {
+            write!(f, "\n")?;
+            for footer in &self.footers {
+                write!(f, "\n{}", footer)?;
+            }
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{footer::SeparatorAlignment, header::Scope};
@@ -56,7 +72,7 @@ Authored-By: John Doe";
             header: Header {
                 kind: Some("feat".to_string()),
                 scope: Scope::default(),
-                description: " my feature".to_string(),
+                description: "my feature".to_string(),
                 breaking: false,
             },
             body: Some("\nDescription body".to_string()),
@@ -83,7 +99,7 @@ Authored-By: John Doe";
             header: Header {
                 kind: Some("feat".to_string()),
                 scope: Scope::default(),
-                description: " my feature".to_string(),
+                description: "my feature".to_string(),
                 breaking: false,
             },
             body: None,
@@ -96,5 +112,81 @@ Authored-By: John Doe";
         };
 
         assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn test_display() {
+        let commit_msg = Message {
+            header: Header {
+                kind: Some("feat".to_string()),
+                scope: Scope::default(),
+                description: "my feature".to_string(),
+                breaking: false,
+            },
+            body: Some("\nDescription body".to_string()),
+            footers: vec![Footer {
+                key: "Authored-By".to_string(),
+                value: "John Doe".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            }],
+        };
+
+        assert_eq!(
+            commit_msg.to_string(),
+            "feat: my feature\n\nDescription body\n\nAuthored-By: John Doe"
+        );
+    }
+
+    #[test]
+    fn test_display_without_body() {
+        let commit_msg = Message {
+            header: Header {
+                kind: Some("feat".to_string()),
+                scope: Scope::default(),
+                description: "my feature".to_string(),
+                breaking: false,
+            },
+            body: None,
+            footers: vec![Footer {
+                key: "Authored-By".to_string(),
+                value: "John Doe".to_string(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            }],
+        };
+
+        assert_eq!(commit_msg.to_string(), "feat: my feature\n\nAuthored-By: John Doe");
+    }
+    #[test]
+    fn test_display_without_footers() {
+        let commit_msg = Message {
+            header: Header {
+                kind: Some("feat".to_string()),
+                scope: Scope::default(),
+                description: "my feature".to_string(),
+                breaking: false,
+            },
+            body: None,
+            footers: vec![],
+        };
+
+        assert_eq!(commit_msg.to_string(), "feat: my feature");
+    }
+
+    #[test]
+    fn test_display_without_body_and_footers() {
+        let commit_msg = Message {
+            header: Header {
+                kind: Some("feat".to_string()),
+                scope: Scope::default(),
+                description: "my feature".to_string(),
+                breaking: false,
+            },
+            body: None,
+            footers: vec![],
+        };
+
+        assert_eq!(commit_msg.to_string(), "feat: my feature");
     }
 }

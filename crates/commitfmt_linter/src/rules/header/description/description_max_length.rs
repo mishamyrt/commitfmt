@@ -35,7 +35,7 @@ impl Violation for DescriptionMaxLength {
 }
 
 /// Checks for scope maximum length
-pub(crate) fn description_max_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn description_max_length(report: &mut Report, message: &Message, length: usize) {
     if message.header.description.len() > length {
         report.add_violation(Box::new(DescriptionMaxLength { length }));
     }
@@ -68,6 +68,6 @@ mod tests {
         };
         description_max_length(&mut report, &message, 72);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "DescriptionMaxLength");
+        assert_eq!(report.violations[0].rule_name(), "DescriptionMaxLength");
     }
 }

@@ -70,23 +70,16 @@ impl Scope {
     pub fn iter(&self) -> impl Iterator<Item = &Box<str>> {
         self.0.iter()
     }
-
-    /// Internal method for scope rendering
-    /// Does not add allocates new string, just appends to given `target`
-    fn render_to(&self, target: &mut String) {
-        if !self.0.is_empty() {
-            target.push('(');
-            target.push_str(&self.0.join(Self::SEPARATOR_DISPLAY));
-            target.push(')');
-        }
-    }
 }
 
 impl Display for Scope {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut display = String::with_capacity(self.str_len());
-        self.render_to(&mut display);
-        write!(f, "{display}")?;
+        if !self.0.is_empty() {
+            write!(f, "(")?;
+            write!(f, "{}", self.0.join(Self::SEPARATOR_DISPLAY))?;
+            write!(f, ")")?;
+        }
+
         Ok(())
     }
 }
@@ -129,36 +122,14 @@ impl Header {
         Self { kind: Some(kind.to_string()), scope, breaking, description }
     }
 
-    /// Returns the string representation of the header
-    pub fn as_string(&self) -> String {
-        let mut result = String::with_capacity(self.len());
-
-        if let Some(kind) = &self.kind {
-            result.push_str(kind);
-        }
-
-        if !self.scope.is_empty() {
-            self.scope.render_to(&mut result);
-        }
-
-        if self.breaking {
-            result.push('!');
-        }
-
-        result.push(':');
-        result.push_str(&self.description);
-
-        result
-    }
-
     /// Returns the number of characters in the header
     pub fn len(&self) -> usize {
         // Description
         let mut len: usize = self.description.len();
 
         if let Some(kind) = &self.kind {
-            // Kind + colon
-            len += kind.len() + 1;
+            // Kind + colon + space
+            len += kind.len() + 2;
         }
 
         if !self.scope.is_empty() {
@@ -194,6 +165,28 @@ impl Header {
         preceded(preceded(space0, tag(":")), take_while1(|c: char| !c.is_control()))
             .parse(input)
             .map(|(next_input, desc)| (next_input, desc.trim().to_string()))
+    }
+}
+
+impl std::fmt::Display for Header {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(kind) = &self.kind {
+            write!(f, "{}", kind)?;
+        }
+
+        if !self.scope.is_empty() {
+            write!(f, "{}", self.scope)?;
+        }
+
+        if self.breaking {
+            write!(f, "!")?;
+        }
+
+        if self.kind.is_some() {
+            write!(f, ": ")?;
+        }
+
+        write!(f, "{}", self.description)
     }
 }
 
@@ -249,7 +242,7 @@ mod tests {
         let parsed = Header::from(header);
         assert_eq!(parsed.kind, Some("feat".to_string()));
         assert_eq!(parsed.scope.len(), 0);
-        assert_eq!(parsed.description, " my feature");
+        assert_eq!(parsed.description, "my feature");
     }
 
     #[test]
@@ -259,7 +252,7 @@ mod tests {
         assert_eq!(parsed.kind, Some("feat".to_string()));
         assert_eq!(parsed.scope.len(), 1);
         assert_eq!(parsed.scope.0[0].as_ref(), "my_scope");
-        assert_eq!(parsed.description, " my feature");
+        assert_eq!(parsed.description, "my feature");
     }
 
     #[test]
@@ -268,7 +261,7 @@ mod tests {
         let parsed = Header::from(header);
         assert_eq!(parsed.kind, Some("fix".to_string()));
         assert_eq!(parsed.scope.len(), 0);
-        assert_eq!(parsed.description, " my fix");
+        assert_eq!(parsed.description, "my fix");
         assert_eq!(parsed.breaking, true);
     }
 
@@ -278,31 +271,31 @@ mod tests {
         let parsed = Header::from(header);
         assert_eq!(parsed.kind, Some("refactor".to_string()));
         assert_eq!(parsed.scope.len(), 2);
-        assert_eq!(parsed.description, " my fix");
+        assert_eq!(parsed.description, "my fix");
         assert_eq!(parsed.breaking, true);
     }
 
     #[test]
     fn test_header_as_string() {
         let header = Header::from("feat: my feature");
-        assert_eq!(header.as_string(), "feat: my feature");
+        assert_eq!(header.to_string(), "feat: my feature");
 
         let header = Header::from("feat(my_scope): my feature");
-        assert_eq!(header.as_string(), "feat(my_scope): my feature");
+        assert_eq!(header.to_string(), "feat(my_scope): my feature");
 
         let header = Header::from("fix(scope1, scope2)!: my fix");
-        assert_eq!(header.as_string(), "fix(scope1, scope2)!: my fix");
+        assert_eq!(header.to_string(), "fix(scope1, scope2)!: my fix");
     }
 
     #[test]
     fn test_header_len() {
         let header = Header::from("feat: my feature");
-        assert_eq!(header.len(), header.as_string().len());
+        assert_eq!(header.len(), header.to_string().len());
 
         let header = Header::from("feat(my_scope): my feature");
-        assert_eq!(header.len(), header.as_string().len());
+        assert_eq!(header.len(), header.to_string().len());
 
         let header = Header::from("fix(scope1, scope2)!: my fix");
-        assert_eq!(header.len(), header.as_string().len());
+        assert_eq!(header.len(), header.to_string().len());
     }
 }

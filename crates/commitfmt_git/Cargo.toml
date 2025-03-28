@@ -13,6 +13,7 @@ license = { workspace = true }
 [dependencies]
 thiserror = { workspace = true }
 tempfile = { workspace = true }
+nom = { workspace = true }
 
 [lints]
 workspace = true

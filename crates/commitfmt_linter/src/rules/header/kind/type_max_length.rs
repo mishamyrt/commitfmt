@@ -36,7 +36,7 @@ impl Violation for TypeMaxLength {
 }
 
 /// Checks for scope maximum length
-pub(crate) fn type_max_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn type_max_length(report: &mut Report, message: &Message, length: usize) {
     let Some(kind) = &message.header.kind else {
         return;
     };
@@ -71,6 +71,6 @@ mod tests {
         };
         type_max_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "TypeMaxLength");
+        assert_eq!(report.violations[0].rule_name(), "TypeMaxLength");
     }
 }

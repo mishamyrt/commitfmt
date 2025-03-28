@@ -1,5 +1,6 @@
 use crate::footer::Footer;
 
+// TODO: comment symbol should be obtained from config
 const COMMENT_CHAR: &str = "#";
 const OLD_CONFLICTS_TITLE: &str = "Conflicts:";
 

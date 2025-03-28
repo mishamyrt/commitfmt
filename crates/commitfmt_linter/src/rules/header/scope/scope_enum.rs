@@ -36,7 +36,7 @@ impl Violation for ScopeEnum {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn scope_enum(report: &Report, message: &Message, allowed: &[Box<str>]) {
+pub(crate) fn scope_enum(report: &mut Report, message: &Message, allowed: &[Box<str>]) {
     for scope in message.header.scope.iter() {
         if !allowed.contains(scope) {
             report.add_violation(Box::new(ScopeEnum { miss: scope.to_string() }));
@@ -74,6 +74,6 @@ mod tests {
 
         scope_enum(&mut report, &message, &allowed);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "ScopeEnum");
+        assert_eq!(report.violations[0].rule_name(), "ScopeEnum");
     }
 }

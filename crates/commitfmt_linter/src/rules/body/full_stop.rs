@@ -52,7 +52,7 @@ impl Violation for FullStop {
 }
 
 /// Checks for body ending with full stop
-pub(crate) fn full_stop(report: &Report, message: &Message) {
+pub(crate) fn full_stop(report: &mut Report, message: &Message) {
     let Some(body) = message.body.as_ref() else {
         return;
     };
@@ -85,7 +85,7 @@ mod tests {
         message.body = Some("\nDescription".to_string());
         full_stop(&mut report, &message);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "FullStop");
+        assert_eq!(report.violations[0].rule_name(), "FullStop");
     }
 
     #[test]
@@ -98,7 +98,7 @@ mod tests {
         };
 
         full_stop(&mut report, &message);
-        report.violations.borrow()[0].fix(&mut message).unwrap();
+        report.violations[0].fix(&mut message).unwrap();
 
         assert_eq!(message.body, Some("\nDescription.".to_string()));
     }

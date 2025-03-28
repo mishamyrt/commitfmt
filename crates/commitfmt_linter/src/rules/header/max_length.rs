@@ -38,7 +38,7 @@ impl Violation for MaxLength {
 }
 
 /// Checks for long body
-pub(crate) fn max_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn max_length(report: &mut Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
@@ -67,6 +67,6 @@ mod tests {
 
         max_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "MaxLength");
+        assert_eq!(report.violations[0].rule_name(), "MaxLength");
     }
 }

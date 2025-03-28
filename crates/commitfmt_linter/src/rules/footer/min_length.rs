@@ -40,7 +40,7 @@ impl Violation for MinLength {
 }
 
 /// Checks for short footers
-pub(crate) fn min_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn min_length(report: &mut Report, message: &Message, length: usize) {
     if length == 0 {
         return;
     }
@@ -80,6 +80,6 @@ mod tests {
 
         min_length(&mut report, &message, 72);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "MinLength");
+        assert_eq!(report.violations[0].rule_name(), "MinLength");
     }
 }

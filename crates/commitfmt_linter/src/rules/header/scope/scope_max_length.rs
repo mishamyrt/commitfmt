@@ -36,7 +36,7 @@ impl Violation for ScopeMaxLength {
 }
 
 /// Checks for scope maximum length
-pub(crate) fn scope_max_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn scope_max_length(report: &mut Report, message: &Message, length: usize) {
     if message.header.scope.str_len() > length {
         report.add_violation(Box::new(ScopeMaxLength { length }));
     }
@@ -67,6 +67,6 @@ mod tests {
         };
         scope_max_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "ScopeMaxLength");
+        assert_eq!(report.violations[0].rule_name(), "ScopeMaxLength");
     }
 }

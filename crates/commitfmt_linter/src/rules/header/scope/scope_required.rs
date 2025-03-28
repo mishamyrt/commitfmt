@@ -33,7 +33,7 @@ impl Violation for ScopeRequired {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn scope_required(report: &Report, message: &Message) {
+pub(crate) fn scope_required(report: &mut Report, message: &Message) {
     if message.header.scope.is_empty() {
         report.add_violation(Box::new(ScopeRequired));
     };
@@ -63,6 +63,6 @@ mod tests {
 
         scope_required(&mut report, &message);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "ScopeRequired");
+        assert_eq!(report.violations[0].rule_name(), "ScopeRequired");
     }
 }

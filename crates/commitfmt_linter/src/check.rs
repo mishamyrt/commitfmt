@@ -1,14 +1,11 @@
-use std::cell::RefCell;
-
 use commitfmt_cc::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
 use crate::rules::{body, footer, header, Rule, Settings};
-use crate::violation::Violation;
 
 pub struct Check {
-    pub(crate) report: Report,
+    pub report: Report,
     pub(crate) settings: Settings,
     pub(crate) rules: RuleSet,
 }
@@ -18,143 +15,143 @@ impl Check {
         Self { report: Report::default(), settings, rules }
     }
 
-    fn lint_header_type(&self, message: &Message) {
+    fn lint_header_type(&mut self, message: &Message) {
         if self.rules.contains(Rule::HeaderTypeCase) {
-            header::type_case(&self.report, message, self.settings.header.type_case);
+            header::type_case(&mut self.report, message, self.settings.header.type_case);
         }
         if self.rules.contains(Rule::HeaderTypeMaxLength) {
             header::type_max_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.type_max_length,
             );
         }
         if self.rules.contains(Rule::HeaderTypeMinLength) {
             header::type_min_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.type_min_length,
             );
         }
         if self.rules.contains(Rule::HeaderTypeEnum) {
-            header::type_enum(&self.report, message, &self.settings.header.type_enum);
+            header::type_enum(&mut self.report, message, &self.settings.header.type_enum);
         }
         if self.rules.contains(Rule::HeaderTypeRequired) {
-            header::type_required(&self.report, message);
+            header::type_required(&mut self.report, message);
         }
     }
 
-    fn lint_header_scope(&self, message: &Message) {
+    fn lint_header_scope(&mut self, message: &Message) {
         if self.rules.contains(Rule::HeaderScopeCase) {
-            header::scope_case(&self.report, message, self.settings.header.scope_case);
+            header::scope_case(&mut self.report, message, self.settings.header.scope_case);
         }
         if self.rules.contains(Rule::HeaderScopeMaxLength) {
             header::scope_max_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.scope_max_length,
             );
         }
         if self.rules.contains(Rule::HeaderScopeMinLength) {
             header::scope_min_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.scope_min_length,
             );
         }
         if self.rules.contains(Rule::HeaderScopeEnum) {
-            header::scope_enum(&self.report, message, &self.settings.header.scope_enum);
+            header::scope_enum(&mut self.report, message, &self.settings.header.scope_enum);
         }
         if self.rules.contains(Rule::HeaderScopeRequired) {
-            header::scope_required(&self.report, message);
+            header::scope_required(&mut self.report, message);
         }
     }
 
-    fn lint_header_description(&self, message: &Message) {
+    fn lint_header_description(&mut self, message: &Message) {
         if self.rules.contains(Rule::HeaderDescriptionFullStop) {
-            header::description_full_stop(&self.report, message);
+            header::description_full_stop(&mut self.report, message);
         }
         if self.rules.contains(Rule::HeaderDescriptionCase) {
             header::description_case(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.description_case,
             );
         }
         if self.rules.contains(Rule::HeaderDescriptionMaxLength) {
             header::description_max_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.description_max_length,
             );
         }
         if self.rules.contains(Rule::HeaderDescriptionMinLength) {
             header::description_min_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.header.description_min_length,
             );
         }
     }
 
-    fn lint_header(&self, message: &Message) {
+    fn lint_header(&mut self, message: &Message) {
         self.lint_header_type(message);
         self.lint_header_scope(message);
         self.lint_header_description(message);
 
         // Common rules
         if self.rules.contains(Rule::HeaderMaxLength) {
-            header::max_length(&self.report, message, self.settings.header.max_length);
+            header::max_length(&mut self.report, message, self.settings.header.max_length);
         }
         if self.rules.contains(Rule::HeaderMinLength) {
-            header::min_length(&self.report, message, self.settings.header.min_length);
+            header::min_length(&mut self.report, message, self.settings.header.min_length);
         }
     }
 
-    fn lint_body(&self, message: &Message) {
+    fn lint_body(&mut self, message: &Message) {
         if self.rules.contains(Rule::BodyLeadingNewLine) {
-            body::leading_nl(&self.report, message);
+            body::leading_nl(&mut self.report, message);
         }
         if self.rules.contains(Rule::BodyMaxLineLength) {
-            body::max_line_length(&self.report, message, self.settings.body.max_line_length);
+            body::max_line_length(&mut self.report, message, self.settings.body.max_line_length);
         }
         if self.rules.contains(Rule::BodyMaxLength) {
-            body::max_length(&self.report, message, self.settings.body.max_length);
+            body::max_length(&mut self.report, message, self.settings.body.max_length);
         }
         if self.rules.contains(Rule::BodyMinLength) {
-            body::min_length(&self.report, message, self.settings.body.min_length);
+            body::min_length(&mut self.report, message, self.settings.body.min_length);
         }
         if self.rules.contains(Rule::BodyFullStop) {
-            body::full_stop(&self.report, message);
+            body::full_stop(&mut self.report, message);
         }
         if self.rules.contains(Rule::BodyCase) {
-            body::case(&self.report, message, self.settings.body.case);
+            body::case(&mut self.report, message, self.settings.body.case);
         }
     }
 
-    fn lint_footers(&self, message: &Message) {
+    fn lint_footers(&mut self, message: &Message) {
         if self.rules.contains(Rule::FooterMaxLength) {
-            footer::max_length(&self.report, message, self.settings.footer.max_length);
+            footer::max_length(&mut self.report, message, self.settings.footer.max_length);
         }
         if self.rules.contains(Rule::FooterBreakingExclamation) {
-            footer::breaking_exclamation(&self.report, message);
+            footer::breaking_exclamation(&mut self.report, message);
         }
         if self.rules.contains(Rule::FooterMaxLineLength) {
             footer::max_line_length(
-                &self.report,
+                &mut self.report,
                 message,
                 self.settings.footer.max_line_length,
             );
         }
         if self.rules.contains(Rule::FooterMinLength) {
-            footer::min_length(&self.report, message, self.settings.footer.min_length);
+            footer::min_length(&mut self.report, message, self.settings.footer.min_length);
         }
         if self.rules.contains(Rule::FooterExists) {
-            footer::exists(&self.report, message, &self.settings.footer.required);
+            footer::exists(&mut self.report, message, &self.settings.footer.required);
         }
     }
 
-    pub fn run(&self, message: &Message) {
+    pub fn run(&mut self, message: &Message) {
         self.lint_header(message);
 
         if message.body.is_none() {
@@ -165,10 +162,6 @@ impl Check {
         if !message.footers.is_empty() {
             self.lint_footers(message);
         }
-    }
-
-    pub fn violations_ref(&self) -> &RefCell<Vec<Box<dyn Violation>>> {
-        &self.report.violations
     }
 }
 
@@ -183,11 +176,11 @@ mod tests {
         let settings = rules::Settings::default();
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
-        let check = Check::new(settings, rules);
+        let mut check = Check::new(settings, rules);
         let message =
             Message::parse("feat: my feature\nbody").expect("Unable to parse commit message");
         check.run(&message);
-        assert_eq!(check.report.violations.borrow().len(), 1);
+        assert_eq!(check.report.violations.len(), 1);
     }
 
     #[test]
@@ -195,10 +188,10 @@ mod tests {
         let settings = rules::Settings::default();
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
-        let check = Check::new(settings, rules);
+        let mut check = Check::new(settings, rules);
         let message = Message::parse("feat: my feature\n\nbody")
             .expect("Unable to parse commit message");
         check.run(&message);
-        assert_eq!(check.report.violations.borrow().len(), 0);
+        assert_eq!(check.report.violations.len(), 0);
     }
 }

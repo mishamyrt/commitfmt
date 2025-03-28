@@ -1,46 +1,42 @@
-mod commands;
+mod cli;
+mod logging;
+mod report;
+mod stdin;
 
-use atty::Stream;
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser};
+use cli::Cli;
 use colored::Colorize;
 use fern::Dispatch;
-use log::debug;
 use std::{io::Read, process};
 
-use commands::{run_install, run_stdin, run_uninstall};
+use commitfmt_cc::Message;
+use commitfmt_config::{parse::CommitSettingsParser, settings::CommitParams};
+use commitfmt_git::Repository;
+use commitfmt_linter::{check::Check, violation::FixMode};
+use report::report_violations;
 
-/// Utility to add ticket id to commit message
-#[derive(Parser)]
-#[command(version, about, long_about = None)]
-struct Cli {
-    /// Turn debugging information on
-    #[arg(short, long)]
-    verbose: bool,
-
-    /// Disable colored output
-    #[arg(long)]
-    no_color: bool,
-
-    #[command(subcommand)]
-    command: Option<Commands>,
+#[derive(Debug, PartialEq, Eq)]
+enum InputSource {
+    Stdin,
+    CommitEditMessage,
+    None,
 }
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Append ticket id to commit message (must be run on commit)
-    Apply {},
-    /// Install git hook
-    Install {
-        /// force installation, overwrite existing hook
-        #[arg(short, long)]
-        force: bool,
-    },
-    /// Uninstall git hook
-    Uninstall {
-        /// force uninstallation, even if not commitfmt hook is installed
-        #[arg(short, long)]
-        force: bool,
-    },
+fn get_source(repo: Option<&Repository>) -> InputSource {
+    if stdin::is_readable() {
+        return InputSource::Stdin;
+    }
+
+    match repo {
+        Some(repo) => {
+            if repo.is_committing() {
+                InputSource::CommitEditMessage
+            } else {
+                InputSource::None
+            }
+        }
+        None => InputSource::None,
+    }
 }
 
 fn main() -> process::ExitCode {
@@ -56,25 +52,159 @@ fn main() -> process::ExitCode {
         colored::control::set_override(false);
     }
 
-    debug!("Debug: {}", "start".bright_cyan());
+    let Ok(cwd) = std::env::current_dir() else {
+        print_error!("Unable to get current directory");
 
-    let cwd = std::env::current_dir().unwrap();
-    if atty::isnt(Stream::Stdin) {
-        let mut buffer = String::with_capacity(1024);
-        std::io::stdin().read_to_string(&mut buffer).expect("Failed to read stdin");
+        return process::ExitCode::FAILURE;
+    };
 
-        return run_stdin(&buffer, &cwd);
+    let repo = Repository::open(&cwd).ok();
+    let params = match CommitParams::load(&cwd) {
+        Ok(params) => params.unwrap_or_default(),
+        Err(err) => {
+            print_error!("Failed to load settings: {}", err);
+
+            return process::ExitCode::FAILURE;
+        }
+    };
+
+    if cli.to.is_some() && cli.from.is_none() {
+        print_error!("--to requires --from");
+
+        return process::ExitCode::FAILURE;
+    }
+    if cli.from.is_some() {
+        if cli.lint {
+            print_warning!("--lint is ignored when --from is set");
+        }
+
+        let to = match &cli.to {
+            Some(to) => to,
+            None => &String::from("HEAD"),
+        };
+
+        let from = cli.from.as_ref().unwrap();
+
+        let repo = match Repository::open(&cwd) {
+            Ok(repo) => repo,
+            Err(err) => {
+                print_error!("Failed to open repository: {}", err);
+
+                return process::ExitCode::FAILURE;
+            }
+        };
+
+        let commits = match repo.get_commits(from, to) {
+            Ok(commits) => commits,
+            Err(err) => {
+                print_error!("Failed to get commits: {}", err);
+
+                return process::ExitCode::FAILURE;
+            }
+        };
+
+        let mut has_problems = false;
+        let mut check = Check::new(params.settings, params.rules);
+        for commit in commits {
+            let Ok(message) = Message::parse(&commit.message) else {
+                print_error!("Failed to parse commit message");
+
+                return process::ExitCode::FAILURE;
+            };
+
+            check.run(&message);
+            if !check.report.violations.is_empty() {
+                has_problems = true;
+                let count = report_violations(check.report.violations.iter());
+                print_error!("Commit {} has {} violations", commit.sha, count);
+
+                check.report.violations.clear();
+            }
+        }
+
+        if !has_problems {
+            return process::ExitCode::SUCCESS;
+        } else {
+            return process::ExitCode::FAILURE;
+        }
     }
 
-    match &cli.command {
-        Some(Commands::Apply {}) => {
-            unimplemented!();
-        }
-        Some(Commands::Install { force }) => run_install(&cwd, *force),
-        Some(Commands::Uninstall { force }) => run_uninstall(&cwd, *force),
-        None => {
-            // print!("No command specified");
-            process::ExitCode::FAILURE
-        }
+    let source = get_source(repo.as_ref());
+    print_debug!("Input source: {:#?}", source);
+    if source == InputSource::None {
+        print_error!("Unable to determine input source\n");
+        let mut cmd = Cli::command();
+        cmd.print_help().unwrap();
+
+        return process::ExitCode::FAILURE;
     }
+
+    let mut input = String::new();
+    match source {
+        InputSource::Stdin => {
+            match std::io::stdin().read_to_string(&mut input) {
+                Ok(_) => {}
+                Err(err) => {
+                    print_error!("Failed to read stdin: {}", err);
+
+                    return process::ExitCode::FAILURE;
+                }
+            };
+        }
+        InputSource::CommitEditMessage => {
+            input = repo.as_ref().unwrap().read_commit_message().unwrap();
+        }
+        InputSource::None => {
+            unreachable!();
+        }
+    };
+
+    let Ok(message) = Message::parse(&input) else {
+        print_error!("Failed to parse commit message");
+
+        return process::ExitCode::FAILURE;
+    };
+
+    let mut check = Check::new(params.settings, params.rules);
+    check.run(&message);
+
+    if cli.lint {
+        if check.report.violations.is_empty() {
+            return process::ExitCode::SUCCESS;
+        }
+        let count = report_violations(check.report.violations.iter());
+
+        print_error!("\n{}", format!("{} problems found", count));
+
+        return process::ExitCode::FAILURE;
+    }
+
+    let unfixable = check.report.violations.iter().filter(|violation_box| {
+        let violation = violation_box.as_ref();
+        // TODO: add FixMode::Unsafe handling
+        violation.fix_mode() == FixMode::Unfixable
+    });
+
+    let unfixable_count: usize = report_violations(unfixable);
+
+    if unfixable_count > 0 {
+        // TODO: pluralize
+        print_error!("\n{}", format!("{} unfixable problems found", unfixable_count));
+        return process::ExitCode::FAILURE;
+    }
+
+    if source == InputSource::CommitEditMessage {
+        print_debug!("Writing commit message");
+        match repo.as_ref().unwrap().write_commit_message(&message.to_string()) {
+            Ok(_) => {}
+            Err(err) => {
+                print_error!("Failed to write commit message: {}", err);
+                return process::ExitCode::FAILURE;
+            }
+        };
+    } else if source == InputSource::Stdin {
+        print!("{}", message);
+    }
+
+    process::ExitCode::SUCCESS
 }

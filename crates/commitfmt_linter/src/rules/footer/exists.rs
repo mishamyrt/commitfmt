@@ -37,7 +37,7 @@ impl Violation for Exists {
 }
 
 /// Checks that footer exists
-pub(crate) fn exists(report: &Report, message: &Message, required: &Vec<Box<str>>) {
+pub(crate) fn exists(report: &mut Report, message: &Message, required: &Vec<Box<str>>) {
     for key in required {
         if !message.footers.iter().any(|f| f.key == **key) {
             report.add_violation(Box::new(Exists { key: key.to_string() }));
@@ -72,6 +72,6 @@ mod tests {
 
         exists(&mut report, &message, &vec!["Commited-by".into()]);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "Exists");
+        assert_eq!(report.violations[0].rule_name(), "Exists");
     }
 }

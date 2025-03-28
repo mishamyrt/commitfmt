@@ -35,7 +35,7 @@ impl Violation for DescriptionFullStop {
 }
 
 /// Checks for body ending with full stop
-pub(crate) fn description_full_stop(report: &Report, message: &Message) {
+pub(crate) fn description_full_stop(report: &mut Report, message: &Message) {
     if message.header.description.ends_with('.') {
         let violation = Box::new(DescriptionFullStop);
         report.add_violation(violation);
@@ -61,6 +61,6 @@ mod tests {
         message.header.description = " my feature.".to_string();
         description_full_stop(&mut report, &message);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "DescriptionFullStop");
+        assert_eq!(report.violations[0].rule_name(), "DescriptionFullStop");
     }
 }

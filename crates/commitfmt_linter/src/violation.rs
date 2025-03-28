@@ -17,7 +17,7 @@ pub enum ViolationError {
 }
 
 /// The fix mode of a violation
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FixMode {
     Safe,
     Unsafe,

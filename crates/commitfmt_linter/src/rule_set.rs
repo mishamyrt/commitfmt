@@ -4,6 +4,7 @@ use crate::rules::Rule;
 const DEFAULT_RULES: RuleSet = RuleSet::from_rules(&[
     Rule::HeaderDescriptionFullStop,
     Rule::BodyLeadingNewLine,
+    Rule::FooterBreakingExclamation,
 ]);
 
 /// Rule Set implements a set of rules using bit sets in a u64.

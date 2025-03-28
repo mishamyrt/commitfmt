@@ -1,5 +1,6 @@
 /target
 .DS_Store
+.vscode
 
 # Node artifacts
 node_modules
@@ -17,3 +18,4 @@ packaging/npm/commitfmt-*/commitfmt.exe
 packaging/pypi/commitfmt_*/commitfmt_*/commitfmt_*
 packaging/pypi/**/build/
 packaging/pypi/**/dist/
+

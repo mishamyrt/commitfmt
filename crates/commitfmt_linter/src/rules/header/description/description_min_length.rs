@@ -30,12 +30,12 @@ impl Violation for DescriptionMinLength {
     }
 
     fn message(&self) -> String {
-        format!("Scope is shorter than {} characters", self.length)
+        format!("Description is shorter than {} characters", self.length)
     }
 }
 
 /// Checks for scope maximum length
-pub(crate) fn description_min_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn description_min_length(report: &mut Report, message: &Message, length: usize) {
     if message.header.description.len() < length {
         report.add_violation(Box::new(DescriptionMinLength { length }));
     }
@@ -63,6 +63,6 @@ mod tests {
             Message { header: Header::from("test: add"), body: None, footers: vec![] };
         description_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "DescriptionMinLength");
+        assert_eq!(report.violations[0].rule_name(), "DescriptionMinLength");
     }
 }

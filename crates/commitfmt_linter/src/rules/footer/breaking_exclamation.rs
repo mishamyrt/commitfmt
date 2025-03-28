@@ -1,6 +1,6 @@
 use crate::report::Report;
 use crate::rules::LinterGroup;
-use crate::violation::{Violation, ViolationMetadata};
+use crate::violation::{FixMode, Violation, ViolationMetadata};
 use commitfmt_cc::{Footer, Message};
 use commitfmt_macros::ViolationMetadata;
 
@@ -33,13 +33,22 @@ impl Violation for BreakingExclamation {
         LinterGroup::Footer
     }
 
+    fn fix_mode(&self) -> FixMode {
+        FixMode::Safe
+    }
+
+    fn fix(&self, message: &mut Message) -> Result<(), crate::violation::ViolationError> {
+        message.header.breaking = true;
+        Ok(())
+    }
+
     fn message(&self) -> String {
         "Message contains breaking changes footer but no exclamation mark".to_string()
     }
 }
 
 /// Checks for exclamation mark in a message containing `BREAKING CHANGES`.
-pub(crate) fn breaking_exclamation(report: &Report, message: &Message) {
+pub(crate) fn breaking_exclamation(report: &mut Report, message: &Message) {
     if message.footers.is_empty() || message.header.breaking {
         return;
     }
@@ -83,6 +92,6 @@ mod tests {
 
         breaking_exclamation(&mut report, &message);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "BreakingExclamation");
+        assert_eq!(report.violations[0].rule_name(), "BreakingExclamation");
     }
 }

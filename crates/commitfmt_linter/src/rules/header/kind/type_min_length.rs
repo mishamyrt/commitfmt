@@ -35,7 +35,7 @@ impl Violation for TypeMinLength {
 }
 
 /// Checks for scope maximum length
-pub(crate) fn type_min_length(report: &Report, message: &Message, length: usize) {
+pub(crate) fn type_min_length(report: &mut Report, message: &Message, length: usize) {
     let Some(kind) = &message.header.kind else {
         report.add_violation(Box::new(TypeMinLength { length }));
         return;
@@ -68,6 +68,6 @@ mod tests {
             Message { header: Header::from("tests"), body: None, footers: vec![] };
         type_min_length(&mut report, &message, 1);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "TypeMinLength");
+        assert_eq!(report.violations[0].rule_name(), "TypeMinLength");
     }
 }

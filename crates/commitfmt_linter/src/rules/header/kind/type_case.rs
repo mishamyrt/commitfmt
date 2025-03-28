@@ -37,7 +37,7 @@ impl Violation for TypeCase {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn type_case(report: &Report, message: &Message, case: WordCase) {
+pub(crate) fn type_case(report: &mut Report, message: &Message, case: WordCase) {
     let Some(kind) = &message.header.kind else {
         return;
     };
@@ -68,6 +68,6 @@ mod tests {
 
         type_case(&mut report, &message, WordCase::Lower);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "TypeCase");
+        assert_eq!(report.violations[0].rule_name(), "TypeCase");
     }
 }

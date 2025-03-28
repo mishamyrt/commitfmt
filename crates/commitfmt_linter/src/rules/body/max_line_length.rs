@@ -40,7 +40,7 @@ impl Violation for MaxLineLength {
 }
 
 /// Checks for long body lines
-pub(crate) fn max_line_length(report: &Report, message: &Message, max_length: usize) {
+pub(crate) fn max_line_length(report: &mut Report, message: &Message, max_length: usize) {
     if max_length == 0 {
         return;
     }
@@ -77,6 +77,6 @@ mod tests {
 
         max_line_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "MaxLineLength");
+        assert_eq!(report.violations[0].rule_name(), "MaxLineLength");
     }
 }

@@ -37,7 +37,7 @@ impl Violation for ScopeCase {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn scope_case(report: &Report, message: &Message, case: WordCase) {
+pub(crate) fn scope_case(report: &mut Report, message: &Message, case: WordCase) {
     for scope in message.header.scope.iter() {
         if !case.is_match(scope) {
             report.add_violation(Box::new(ScopeCase { case }));
@@ -73,6 +73,6 @@ mod tests {
 
         scope_case(&mut report, &message, WordCase::Kebab);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "ScopeCase");
+        assert_eq!(report.violations[0].rule_name(), "ScopeCase");
     }
 }

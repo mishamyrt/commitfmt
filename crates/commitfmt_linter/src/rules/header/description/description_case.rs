@@ -37,7 +37,7 @@ impl Violation for DescriptionCase {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn description_case(report: &Report, message: &Message, case: TextCase) {
+pub(crate) fn description_case(report: &mut Report, message: &Message, case: TextCase) {
     if !case.is_match(&message.header.description) {
         report.add_violation(Box::new(DescriptionCase { case }));
     }
@@ -65,8 +65,8 @@ mod tests {
         let message: Message =
             Message { header: Header::from("feat: My feature"), body: None, footers: vec![] };
 
-        description_case(&report, &message, TextCase::Lower);
+        description_case(&mut report, &message, TextCase::Lower);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "DescriptionCase");
+        assert_eq!(report.violations[0].rule_name(), "DescriptionCase");
     }
 }

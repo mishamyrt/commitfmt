@@ -115,7 +115,8 @@ unsafe-fixes = true";
                 unsafe_fixes: true,
                 footers: RefCell::new(vec![]),
             },
-            rules: RuleSet::default(),
+            rules: RuleSet::default()
+                .union(RuleSet::from_rules(&[rules::Rule::BodyMaxLineLength])),
             settings,
         };
 

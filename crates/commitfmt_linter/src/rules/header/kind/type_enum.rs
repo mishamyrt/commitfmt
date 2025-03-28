@@ -34,7 +34,7 @@ impl Violation for TypeEnum {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn type_enum(report: &Report, message: &Message, allowed: &Vec<Box<str>>) {
+pub(crate) fn type_enum(report: &mut Report, message: &Message, allowed: &Vec<Box<str>>) {
     let Some(kind) = &message.header.kind else {
         return;
     };
@@ -74,6 +74,6 @@ mod tests {
 
         type_enum(&mut report, &message, &allowed);
         assert_eq!(report.len(), 1);
-        assert_eq!(report.violations.borrow()[0].rule_name(), "TypeEnum");
+        assert_eq!(report.violations[0].rule_name(), "TypeEnum");
     }
 }
