@@ -3,7 +3,7 @@ use commitfmt_macros::ViolationMetadata;
 
 use crate::report::Report;
 use crate::rules::LinterGroup;
-use crate::violation::{Violation, ViolationMetadata};
+use crate::violation::{FixMode, Violation, ViolationMetadata};
 
 /// ## What it does
 /// Checks for header not ending with full stop
@@ -27,6 +27,15 @@ pub(crate) struct DescriptionFullStop;
 impl Violation for DescriptionFullStop {
     fn group(&self) -> LinterGroup {
         LinterGroup::Header
+    }
+
+    fn fix_mode(&self) -> FixMode {
+        FixMode::Safe
+    }
+
+    fn fix(&self, message: &mut Message) -> Result<(), crate::violation::ViolationError> {
+        message.header.description = message.header.description.trim_end_matches('.').to_string();
+        Ok(())
     }
 
     fn message(&self) -> String {
