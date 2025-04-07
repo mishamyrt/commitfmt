@@ -23,6 +23,8 @@ def shell(command: str, cwd: str = None) -> str:
             stderr=exc.stderr
         ) from exc
     if process.returncode != 0:
+        print(process.stdout)
+        print(process.stderr)
         raise ShellError(
             returncode=process.returncode,
             cmd=command,
