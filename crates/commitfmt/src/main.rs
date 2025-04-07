@@ -113,7 +113,7 @@ fn handle_single_message(
         InputSource::None => {
             unreachable!();
         }
-    };
+    }
 
     let Ok(mut message) = Message::parse(&input) else {
         print_error!("Failed to parse commit message");

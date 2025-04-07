@@ -9,9 +9,9 @@ mod settings;
 #[allow(unused)]
 pub(crate) use {
     description::{
-        description_case, description_full_stop,
-        description_max_length, description_min_length, DescriptionCase, DescriptionFullStop,
-        DescriptionMaxLength, DescriptionMinLength,
+        description_case, description_full_stop, description_max_length,
+        description_min_length, DescriptionCase, DescriptionFullStop, DescriptionMaxLength,
+        DescriptionMinLength,
     },
     kind::{
         type_case, type_enum, type_max_length, type_min_length, type_required, TypeCase,

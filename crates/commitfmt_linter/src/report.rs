@@ -5,7 +5,6 @@ pub struct Report {
     pub violations: Vec<Box<dyn Violation>>,
 }
 
-
 impl Report {
     /// Adds a violation
     pub fn add_violation(&mut self, violation: Box<dyn Violation>) {

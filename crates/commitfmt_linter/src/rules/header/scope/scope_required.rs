@@ -36,7 +36,7 @@ impl Violation for ScopeRequired {
 pub(crate) fn scope_required(report: &mut Report, message: &Message) {
     if message.header.scope.is_empty() {
         report.add_violation(Box::new(ScopeRequired));
-    };
+    }
 }
 
 #[cfg(test)]

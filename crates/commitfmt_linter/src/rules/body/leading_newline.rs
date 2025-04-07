@@ -40,7 +40,7 @@ impl Violation for LeadingNewLine {
                 body.insert(0, '\n');
             }
             None => return Err(ViolationError::EmptyBody()),
-        };
+        }
 
         Ok(())
     }

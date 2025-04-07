@@ -37,7 +37,7 @@ impl Violation for TypeRequired {
 pub(crate) fn type_required(report: &mut Report, message: &Message) {
     if message.header.kind.is_none() {
         report.add_violation(Box::new(TypeRequired));
-    };
+    }
 }
 
 #[cfg(test)]

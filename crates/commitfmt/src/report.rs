@@ -1,6 +1,6 @@
-use log::info;
 use colored::Colorize;
 use commitfmt_linter::{rules::Rule, violation::Violation};
+use log::info;
 
 /// Reports all violations to the logger and returns the total count.
 ///
@@ -18,8 +18,9 @@ use commitfmt_linter::{rules::Rule, violation::Violation};
 /// # Panics
 ///
 /// Panics if a rule cannot be obtained from a violation
-pub(crate) fn report_violations<'a>(violations: impl Iterator<Item = &'a Box<dyn Violation>>) -> usize
-{
+pub(crate) fn report_violations<'a>(
+    violations: impl Iterator<Item = &'a Box<dyn Violation>>,
+) -> usize {
     let mut count: usize = 0;
     for violation_box in violations {
         count += 1;

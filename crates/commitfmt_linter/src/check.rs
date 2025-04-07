@@ -114,7 +114,11 @@ impl<'a> Check<'a> {
             body::leading_nl(&mut self.report, message);
         }
         if self.rules.contains(Rule::BodyMaxLineLength) {
-            body::max_line_length(&mut self.report, message, self.settings.body.max_line_length);
+            body::max_line_length(
+                &mut self.report,
+                message,
+                self.settings.body.max_line_length,
+            );
         }
         if self.rules.contains(Rule::BodyMaxLength) {
             body::max_length(&mut self.report, message, self.settings.body.max_length);
