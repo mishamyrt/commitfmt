@@ -34,7 +34,8 @@ impl Violation for DescriptionFullStop {
     }
 
     fn fix(&self, message: &mut Message) -> Result<(), crate::violation::ViolationError> {
-        message.header.description = message.header.description.trim_end_matches('.').to_string();
+        message.header.description =
+            message.header.description.trim_end_matches('.').to_string();
         Ok(())
     }
 

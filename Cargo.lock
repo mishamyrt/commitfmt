@@ -164,6 +164,7 @@ dependencies = [
  "same-file",
  "tempfile",
  "thiserror",
+ "winapi-util",
 ]
 
 [[package]]
