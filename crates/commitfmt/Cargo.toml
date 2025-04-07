@@ -1,6 +1,6 @@
 [package]
 name = "commitfmt"
-version = "0.0.1-alpha.8"
+version = "0.0.1"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
