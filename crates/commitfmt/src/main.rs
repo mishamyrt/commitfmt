@@ -7,6 +7,7 @@ use clap::{CommandFactory, Parser};
 use cli::Cli;
 use colored::Colorize;
 use fern::Dispatch;
+use log::info;
 use std::{io::Read, process};
 
 use commitfmt_cc::Message;
@@ -15,7 +16,7 @@ use commitfmt_git::Repository;
 use commitfmt_linter::{check::Check, violation::FixMode};
 use report::{print_violation, report_violations};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum InputSource {
     Stdin,
     CommitEditMessage,
@@ -61,15 +62,12 @@ fn handle_commit_range(
     };
 
     let mut has_problems = false;
-    let mut check = Check::new(&params.settings, params.rules.clone());
+    let mut check = Check::new(&params.settings, params.rules);
 
     for commit in commits {
-        let message = match Message::parse(&commit.message) {
-            Ok(message) => message,
-            Err(_) => {
-                print_error!("Failed to parse commit message");
-                return process::ExitCode::FAILURE;
-            }
+        let Ok(message) = Message::parse(&commit.message) else {
+            print_error!("Failed to parse commit message");
+            return process::ExitCode::FAILURE;
         };
 
         check.lint(&message);
@@ -117,15 +115,12 @@ fn handle_single_message(
         }
     };
 
-    let mut message = match Message::parse(&input) {
-        Ok(message) => message,
-        Err(_) => {
-            print_error!("Failed to parse commit message");
-            return process::ExitCode::FAILURE;
-        }
+    let Ok(mut message) = Message::parse(&input) else {
+        print_error!("Failed to parse commit message");
+        return process::ExitCode::FAILURE;
     };
 
-    let mut check = Check::new(&params.settings, params.rules.clone());
+    let mut check = Check::new(&params.settings, params.rules);
     check.lint(&message);
 
     if lint {
@@ -150,10 +145,10 @@ fn handle_single_message(
                     print_violation(violation);
                     unfixable_count += 1;
                 }
-            },
+            }
             FixMode::Safe => {
                 violation.fix(message_ptr).expect("Failed to fix violation");
-            },
+            }
             FixMode::Unfixable => {
                 print_violation(violation);
                 unfixable_count += 1;
@@ -174,7 +169,7 @@ fn handle_single_message(
             return process::ExitCode::FAILURE;
         }
     } else if source == InputSource::Stdin {
-        print!("{}", message);
+        info!("{}", message);
     }
 
     process::ExitCode::SUCCESS
@@ -184,12 +179,9 @@ fn main() -> process::ExitCode {
     let cli = Cli::parse();
     setup_logger(cli.verbose, cli.no_color);
 
-    let cwd = match std::env::current_dir() {
-        Ok(cwd) => cwd,
-        Err(_) => {
-            print_error!("Unable to get current directory");
-            return process::ExitCode::FAILURE;
-        }
+    let Ok(cwd) = std::env::current_dir() else {
+        print_error!("Unable to get current directory");
+        return process::ExitCode::FAILURE;
     };
 
     let repo = Repository::open(&cwd).ok();

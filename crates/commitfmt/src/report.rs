@@ -18,9 +18,7 @@ use commitfmt_linter::{rules::Rule, violation::Violation};
 /// # Panics
 ///
 /// Panics if a rule cannot be obtained from a violation
-pub(crate) fn report_violations<'a, T: Iterator>(violations: T) -> usize
-where
-    T: Iterator<Item = &'a Box<dyn Violation>>,
+pub(crate) fn report_violations<'a>(violations: impl Iterator<Item = &'a Box<dyn Violation>>) -> usize
 {
     let mut count: usize = 0;
     for violation_box in violations {

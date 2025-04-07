@@ -1,13 +1,10 @@
-pub fn get_trailer_separators<'c>() -> Option<String> {
-    let Some(output) = std::process::Command::new("git")
+pub fn get_trailer_separators() -> Option<String> {
+    let output = std::process::Command::new("git")
         .arg("--config")
         .arg("trailer.separators")
         .output()
-        .ok()
-    else {
-        return None;
-    };
+        .ok()?;
     let content = String::from_utf8_lossy(&output.stdout);
 
-    return Some(content.to_string());
+    Some(content.to_string())
 }

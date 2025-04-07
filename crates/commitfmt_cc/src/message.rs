@@ -41,12 +41,12 @@ impl std::fmt::Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.header)?;
         if let Some(body) = &self.body {
-            write!(f, "\n{}", body)?;
+            write!(f, "\n{body}")?;
         }
         if !self.footers.is_empty() {
-            write!(f, "\n")?;
+            writeln!(f)?;
             for footer in &self.footers {
-                write!(f, "\n{}", footer)?;
+                write!(f, "\n{footer}")?;
             }
         }
         Ok(())
