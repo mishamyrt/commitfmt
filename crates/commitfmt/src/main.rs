@@ -13,7 +13,7 @@ use commitfmt_cc::Message;
 use commitfmt_config::{parse::CommitSettingsParser, settings::CommitParams};
 use commitfmt_git::Repository;
 use commitfmt_linter::{check::Check, violation::FixMode};
-use report::report_violations;
+use report::{print_violation, report_violations};
 
 #[derive(Debug, PartialEq, Eq)]
 enum InputSource {
@@ -46,7 +46,12 @@ fn setup_logger(verbose: bool, no_color: bool) {
     }
 }
 
-fn handle_commit_range(repo: &Repository, from: &str, to: &str, params: &CommitParams) -> process::ExitCode {
+fn handle_commit_range(
+    repo: &Repository,
+    from: &str,
+    to: &str,
+    params: &CommitParams,
+) -> process::ExitCode {
     let commits = match repo.get_commits(from, to) {
         Ok(commits) => commits,
         Err(err) => {
@@ -83,7 +88,12 @@ fn handle_commit_range(repo: &Repository, from: &str, to: &str, params: &CommitP
     }
 }
 
-fn handle_single_message(source: InputSource, repo: Option<&Repository>, params: &CommitParams, lint: bool) -> process::ExitCode {
+fn handle_single_message(
+    source: InputSource,
+    repo: Option<&Repository>,
+    params: &CommitParams,
+    lint: bool,
+) -> process::ExitCode {
     let mut input = String::new();
 
     match source {
@@ -92,7 +102,7 @@ fn handle_single_message(source: InputSource, repo: Option<&Repository>, params:
                 print_error!("Failed to read stdin: {}", err);
                 return process::ExitCode::FAILURE;
             }
-        },
+        }
         InputSource::CommitEditMessage => {
             input = match repo.unwrap().read_commit_message() {
                 Ok(msg) => msg,
@@ -101,13 +111,13 @@ fn handle_single_message(source: InputSource, repo: Option<&Repository>, params:
                     return process::ExitCode::FAILURE;
                 }
             };
-        },
+        }
         InputSource::None => {
             unreachable!();
         }
     };
 
-    let message = match Message::parse(&input) {
+    let mut message = match Message::parse(&input) {
         Ok(message) => message,
         Err(_) => {
             print_error!("Failed to parse commit message");
@@ -127,13 +137,29 @@ fn handle_single_message(source: InputSource, repo: Option<&Repository>, params:
         return process::ExitCode::FAILURE;
     }
 
-    let unfixable = check.report.violations.iter().filter(|violation_box| {
+    let mut unfixable_count: usize = 0;
+    let message_ptr = &mut message;
+    for violation_box in &check.report.violations {
         let violation = violation_box.as_ref();
-        // TODO: add FixMode::Unsafe handling
-        violation.fix_mode() == FixMode::Unfixable
-    });
-
-    let unfixable_count: usize = report_violations(unfixable);
+        match violation.fix_mode() {
+            FixMode::Unsafe => {
+                if params.formatting.unsafe_fixes {
+                    violation.fix(message_ptr).expect("Failed to fix violation");
+                } else {
+                    // TODO: add available fixes report
+                    print_violation(violation);
+                    unfixable_count += 1;
+                }
+            },
+            FixMode::Safe => {
+                violation.fix(message_ptr).expect("Failed to fix violation");
+            },
+            FixMode::Unfixable => {
+                print_violation(violation);
+                unfixable_count += 1;
+            }
+        }
+    }
 
     if unfixable_count > 0 {
         // TODO: pluralize

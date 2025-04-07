@@ -25,14 +25,17 @@ where
     let mut count: usize = 0;
     for violation_box in violations {
         count += 1;
-        let violation = violation_box.as_ref();
-        let Some(rule) = Rule::from_violation(violation) else {
-            panic!("Failed to get rule from violation");
-        };
-
-        let line = format!("- {} {}", violation.message(), rule.as_display().dimmed());
-        info!("{}", line);
+        print_violation(violation_box.as_ref());
     }
 
     count
+}
+
+/// Prints a single violation to the logger
+pub(crate) fn print_violation(violation: &dyn Violation) {
+    let Some(rule) = Rule::from_violation(violation) else {
+        panic!("Failed to get rule from violation");
+    };
+    let line = format!("- {} {}", violation.message(), rule.as_display().dimmed());
+    info!("{}", line);
 }
