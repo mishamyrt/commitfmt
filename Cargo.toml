@@ -18,6 +18,7 @@ commitfmt_cc = { path = "crates/commitfmt_cc" }
 commitfmt_linter = { path = "crates/commitfmt_linter" }
 commitfmt = { path = "crates/commitfmt" }
 commitfmt_config = { path = "crates/commitfmt_config" }
+commitfmt_tpl_exec = { path = "crates/commitfmt_tpl_exec" }
 
 once_cell = "1.20.3"
 thiserror = "2.0.11"
@@ -98,3 +99,4 @@ debug = 1
 [profile.dist]
 inherits = "release"
 lto = "thin"
+

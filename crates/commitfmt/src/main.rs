@@ -1,4 +1,5 @@
 mod cli;
+mod footers;
 mod logging;
 mod report;
 mod stdin;
@@ -7,6 +8,7 @@ use clap::{CommandFactory, Parser};
 use cli::Cli;
 use colored::Colorize;
 use fern::Dispatch;
+use footers::FooterAdder;
 use log::info;
 use std::{io::Read, process};
 
@@ -14,6 +16,7 @@ use commitfmt_cc::Message;
 use commitfmt_config::{parse::CommitSettingsParser, settings::CommitParams};
 use commitfmt_git::Repository;
 use commitfmt_linter::{check::Check, violation::FixMode};
+
 use report::{print_violation, report_violations};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -160,6 +163,18 @@ fn handle_single_message(
         // TODO: pluralize
         print_error!("\n{}", format!("{} unfixable problems found", unfixable_count));
         return process::ExitCode::FAILURE;
+    }
+
+    let footers = params.formatting.footers.borrow();
+    if !footers.is_empty() {
+        print_debug!("Adding additional footers");
+        let mut message_footers = FooterAdder(&mut message.footers);
+        for footer in footers.iter() {
+            if let Err(err) = message_footers.append(footer) {
+                print_error!("Failed to add footer: {}", err);
+                return process::ExitCode::FAILURE;
+            }
+        }
     }
 
     if source == InputSource::CommitEditMessage {
