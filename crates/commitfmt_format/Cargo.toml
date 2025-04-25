@@ -1,6 +1,6 @@
 [package]
-name = "commitfmt_tpl_exec"
-version = "0.0.0"
+name = "commitfmt_format"
+version = "0.0.1"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -11,8 +11,9 @@ repository = { workspace = true }
 license = { workspace = true }
 
 [dependencies]
+commitfmt_cc = { workspace = true }
+commitfmt_config = { workspace = true }
+commitfmt_git = { workspace = true }
 thiserror = { workspace = true }
 nom = { workspace = true }
-
-[lints]
-workspace = true
+regex = { workspace = true }

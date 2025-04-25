@@ -13,9 +13,7 @@ pub(crate) struct AdditionalFooterConfig {
     pub on_conflict: Option<String>,
     #[serde(alias = "value-template")]
     pub template: Option<String>,
-    #[serde(alias = "value-pattern")]
-    pub pattern: Option<String>,
-    #[serde(alias = "branch-pattern")]
+    #[serde(alias = "branch-value-pattern")]
     pub branch_pattern: Option<String>,
 }
 
@@ -50,20 +48,17 @@ impl AdditionalFooterConfig {
         }
 
         let mut branch_pattern: Option<&String> = None;
-        if let Some(pattern) = &self.pattern {
+        if let Some(pattern) = &self.branch_pattern {
             branch_pattern = Some(pattern);
         }
 
         if branch_pattern.is_none() && value_template.is_none() {
             return Err(ConfigError::FooterValueNotFound(self.key.clone()));
         }
-        if branch_pattern.is_some() && value_template.is_some() {
-            return Err(ConfigError::MultipleFooterValues(self.key.clone()));
-        }
 
         let mut on_conflict = OnConflictAction::default();
         if let Some(on_conflict_str) = &self.on_conflict {
-            match OnConflictAction::from_str(on_conflict_str) {
+            match OnConflictAction::from_config(on_conflict_str) {
                 Some(action) => on_conflict = action,
                 None => {
                     return Err(ConfigError::InvalidOnConflictAction(

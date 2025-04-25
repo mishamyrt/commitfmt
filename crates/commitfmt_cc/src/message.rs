@@ -90,7 +90,7 @@ Authored-By: John Doe";
 
     #[test]
     fn test_parse_without_body() {
-        let commit_msg = "feat: my feature\n\nAuthored-By: John Doe\n";
+        let commit_msg = "feat: my feature\n\nAuthored-By: John Doe";
 
         let parsed = Message::parse(commit_msg).unwrap();
         let expected = Message {

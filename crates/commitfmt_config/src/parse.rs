@@ -93,7 +93,10 @@ impl CommitSettingsParser for CommitParams {
 mod tests {
     use std::cell::RefCell;
 
-    use commitfmt_linter::{rule_set::RuleSet, rules};
+    use commitfmt_linter::{
+        rule_set::RuleSet,
+        rules::{self, Rule},
+    };
 
     use crate::params::{LintParams, RulesParams};
 
@@ -114,7 +117,10 @@ max-line-length = 80
         let expected = CommitParams {
             lint: LintParams { unsafe_fixes: true },
             footers: RefCell::new(vec![]),
-            rules: RulesParams { set: RuleSet::default(), settings },
+            rules: RulesParams {
+                set: RuleSet::default().add(Rule::BodyMaxLineLength),
+                settings,
+            },
         };
 
         let result = CommitParams::from_str(Format::Toml, config).unwrap();

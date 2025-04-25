@@ -6,7 +6,7 @@ use toml::{map::Map, Table, Value};
 use commitfmt_linter::rule_set::RuleSet;
 use commitfmt_linter::rules::{LinterGroup, Rule, Settings};
 
-use crate::config::{AdditionalFooterConfig, CommitConfig, LintConfig};
+use crate::config::{AdditionalFooterConfig, CommitConfig};
 use crate::params::{CommitParams, LintParams, RulesParams};
 use crate::{AdditionalFooter, ConfigError};
 
@@ -204,10 +204,7 @@ pub(crate) fn parse_toml(data: &str) -> Result<CommitParams, ConfigError> {
     let config: CommitConfig =
         toml::from_str(data).map_err(|err| ConfigError::TomlError(err.to_string()))?;
 
-    let lint_config = match config.lint {
-        Some(lint) => lint,
-        None => LintConfig::default(),
-    };
+    let lint_config = config.lint.unwrap_or_default();
     let unsafe_fixes = lint_config.unsafe_fixes.unwrap_or(false);
     let footers = match config.footers {
         Some(footers) => footers
@@ -242,7 +239,7 @@ pub(crate) fn parse_toml(data: &str) -> Result<CommitParams, ConfigError> {
         return Ok(settings);
     }
 
-    return Ok(settings);
+    Ok(settings)
 }
 
 #[cfg(test)]
@@ -252,54 +249,54 @@ mod tests {
     #[test]
     fn test_parse_toml() {
         let config = "
-[body]
+[lint.body]
 max-line-length = 80
 
-[header]
+[lint.header]
 description-full-stop = true";
         let params = parse_toml(config).unwrap();
-        assert!(params.rules.settings.body.max_line_length == 80);
+        assert_eq!(params.rules.settings.body.max_line_length, 80);
         assert!(params.rules.set.contains(Rule::BodyMaxLineLength));
         assert!(params.rules.set.contains(Rule::HeaderDescriptionFullStop));
         assert!(!params.lint.unsafe_fixes);
     }
 
-    //     #[test]
-    //     fn test_parse_toml_with_disabled() {
-    //         let config = "
-    // [body]
-    // max-line-length = 80
+    #[test]
+    fn test_parse_toml_with_disabled() {
+        let config = "
+    [lint.body]
+    max-line-length = 80
 
-    // [header]
-    // description-full-stop = false";
-    //         let config = parse_toml(config).unwrap();
-    //         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-    //         assert!(!config.rules.contains(Rule::HeaderDescriptionFullStop));
-    //     }
+    [lint.header]
+    description-full-stop = false";
+        let config = parse_toml(config).unwrap();
+        assert!(config.rules.set.contains(Rule::BodyMaxLineLength));
+        assert!(!config.rules.set.contains(Rule::HeaderDescriptionFullStop));
+    }
 
-    //     #[test]
-    //     fn test_parse_toml_with_format() {
-    //         let config = "
-    // [body]
-    // max-line-length = 80
+    #[test]
+    fn test_parse_toml_with_format() {
+        let config = "
+    [lint.body]
+    max-line-length = 80
 
-    // [formatting]
-    // unsafe-fixes = true";
-    //         let config = parse_toml(config).unwrap();
-    //         assert!(config.rules.contains(Rule::BodyMaxLineLength));
-    //         assert!(config.formatting.unsafe_fixes);
-    //     }
+    [lint]
+    unsafe-fixes = true";
+        let config = parse_toml(config).unwrap();
+        assert!(config.rules.set.contains(Rule::BodyMaxLineLength));
+        assert!(config.lint.unsafe_fixes);
+    }
 
-    //     #[test]
-    //     fn test_parse_toml_with_text_case() {
-    //         let config = "
-    // [body]
-    // case = \"upper\"
+    #[test]
+    fn test_parse_toml_with_text_case() {
+        let config = "
+    [lint.body]
+    case = \"upper\"
 
-    // [formatting]
-    // unsafe-fixes = true";
-    //         let config = parse_toml(config).unwrap();
-    //         assert!(config.rules.contains(Rule::BodyCase));
-    //         assert!(config.settings.body.case == TextCase::Upper);
-    //     }
+    [lint]
+    unsafe-fixes = true";
+        let config = parse_toml(config).unwrap();
+        assert!(config.rules.set.contains(Rule::BodyCase));
+        assert_eq!(config.rules.settings.body.case, TextCase::Upper);
+    }
 }

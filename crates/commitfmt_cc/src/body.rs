@@ -1,4 +1,4 @@
-use crate::footer::{Footer, Footers};
+use crate::footer::Footers;
 
 // TODO: comment symbol should be obtained from config
 const COMMENT_CHAR: &str = "#";
@@ -98,10 +98,7 @@ pub(crate) fn parse_body(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        footer::{Footer, SeparatorAlignment},
-        footer_vec,
-    };
+    use crate::{footer::SeparatorAlignment, footer_vec};
 
     use super::*;
 

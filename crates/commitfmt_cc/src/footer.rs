@@ -189,18 +189,6 @@ impl Footers {
         Self { values, keys }
     }
 
-    pub fn from_iter<T: IntoIterator<Item = Footer>>(iter: T) -> Self {
-        let mut keys = HashSet::new();
-        let values = iter
-            .into_iter()
-            .map(|f| {
-                keys.insert(f.key.clone());
-                f
-            })
-            .collect();
-        Self { values, keys }
-    }
-
     pub fn contains_key(&self, key: &str) -> bool {
         self.keys.contains(key)
     }
@@ -254,6 +242,19 @@ impl Footers {
     }
 }
 
+impl FromIterator<Footer> for Footers {
+    fn from_iter<T: IntoIterator<Item = Footer>>(iter: T) -> Self {
+        let mut keys = HashSet::new();
+        let values = iter
+            .into_iter()
+            .inspect(|f| {
+                keys.insert(f.key.clone());
+            })
+            .collect();
+        Self { values, keys }
+    }
+}
+
 #[macro_export]
 macro_rules! footer_vec {
     ( $( { $($field:tt)+ } ),* $(,)? ) => {
@@ -270,8 +271,12 @@ macro_rules! footer_vec {
 
 impl std::fmt::Display for Footers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for footer in &self.values {
-            write!(f, "{}\n", footer)?;
+        let len = self.values.len();
+        for (i, footer) in self.values.iter().enumerate() {
+            write!(f, "{footer}")?;
+            if i + 1 != len {
+                writeln!(f)?;
+            }
         }
         Ok(())
     }
@@ -364,5 +369,37 @@ mod tests {
         ]);
 
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_format_single() {
+        let footer = Footer {
+            key: "foo".into(),
+            value: "bar".into(),
+            separator: ':',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert_eq!(footer.to_string(), "foo: bar");
+    }
+
+    #[test]
+    fn test_format_multiple() {
+        let footers = Footers::from_iter(vec![
+            Footer {
+                key: "foo".into(),
+                value: "bar".into(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            },
+            Footer {
+                key: "baz".into(),
+                value: "qux".into(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            },
+        ]);
+
+        assert_eq!(footers.to_string(), "foo: bar\nbaz: qux");
     }
 }

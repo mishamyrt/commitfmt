@@ -244,9 +244,9 @@ dependencies = [
  "colored",
  "commitfmt_cc",
  "commitfmt_config",
+ "commitfmt_format",
  "commitfmt_git",
  "commitfmt_linter",
- "commitfmt_tpl_exec",
  "criterion",
  "fern",
  "lazy_static",
@@ -292,6 +292,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "commitfmt_format"
+version = "0.0.1"
+dependencies = [
+ "commitfmt_cc",
+ "commitfmt_config",
+ "commitfmt_git",
+ "nom",
+ "regex",
+ "thiserror",
+]
+
+[[package]]
 name = "commitfmt_git"
 version = "0.0.0"
 dependencies = [
@@ -324,14 +336,6 @@ dependencies = [
  "proc-macro2 1.0.93",
  "quote 1.0.38",
  "syn 2.0.98",
-]
-
-[[package]]
-name = "commitfmt_tpl_exec"
-version = "0.0.0"
-dependencies = [
- "nom",
- "thiserror",
 ]
 
 [[package]]

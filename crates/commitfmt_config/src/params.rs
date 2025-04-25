@@ -6,16 +6,14 @@ use commitfmt_linter::{rule_set::RuleSet, rules};
 pub enum OnConflictAction {
     #[default]
     Skip,
-    Replace,
     Append,
     Error,
 }
 
 impl OnConflictAction {
-    pub fn from_str(s: &str) -> Option<OnConflictAction> {
+    pub fn from_config(s: &str) -> Option<OnConflictAction> {
         match s {
             "skip" => Some(OnConflictAction::Skip),
-            "replace" => Some(OnConflictAction::Replace),
             "append" => Some(OnConflictAction::Append),
             "error" => Some(OnConflictAction::Error),
             _ => None,
@@ -28,8 +26,7 @@ impl OnConflictAction {
 pub struct AdditionalFooter {
     pub key: String,
     pub value_template: Option<String>,
-    pub value_pattern: Option<String>,
-    pub branch_pattern: Option<String>,
+    pub branch_value_pattern: Option<String>,
     pub on_conflict: OnConflictAction,
     // TODO: add custom separator
 }
@@ -43,8 +40,7 @@ impl AdditionalFooter {
         Self {
             key,
             value_template: Some(value_template.to_string()),
-            value_pattern: None,
-            branch_pattern: None,
+            branch_value_pattern: None,
             on_conflict,
         }
     }
@@ -57,8 +53,7 @@ impl AdditionalFooter {
         Self {
             key,
             value_template: None,
-            value_pattern: None,
-            branch_pattern: Some(branch_pattern.to_string()),
+            branch_value_pattern: Some(branch_pattern.to_string()),
             on_conflict,
         }
     }

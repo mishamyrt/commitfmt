@@ -1,5 +1,4 @@
 mod cli;
-mod footers;
 mod logging;
 mod report;
 mod stdin;
@@ -7,8 +6,8 @@ mod stdin;
 use clap::{CommandFactory, Parser};
 use cli::Cli;
 use colored::Colorize;
+use commitfmt_format::append_footers;
 use fern::Dispatch;
-use footers::{append_footers, FooterAdder};
 use log::info;
 use std::{io::Read, process};
 
@@ -26,15 +25,16 @@ enum InputSource {
     None,
 }
 
-fn get_source(repo: Option<&Repository>) -> InputSource {
+fn get_source(repo: &Repository) -> InputSource {
     if stdin::is_readable() {
         return InputSource::Stdin;
     }
 
-    match repo {
-        Some(repo) if repo.is_committing() => InputSource::CommitEditMessage,
-        _ => InputSource::None,
+    if repo.is_committing() {
+        return InputSource::CommitEditMessage;
     }
+
+    InputSource::None
 }
 
 fn setup_logger(verbose: bool, no_color: bool) {
@@ -91,7 +91,7 @@ fn handle_commit_range(
 
 fn handle_single_message(
     source: InputSource,
-    repo: Option<&Repository>,
+    repo: &Repository,
     params: &CommitParams,
     lint: bool,
 ) -> process::ExitCode {
@@ -105,7 +105,7 @@ fn handle_single_message(
             }
         }
         InputSource::CommitEditMessage => {
-            input = match repo.unwrap().read_commit_message() {
+            input = match repo.read_commit_message() {
                 Ok(msg) => msg,
                 Err(err) => {
                     print_error!("Failed to read commit message: {}", err);
@@ -165,14 +165,19 @@ fn handle_single_message(
         return process::ExitCode::FAILURE;
     }
 
-    if let Err(err) = append_footers(&mut message, &params.footers.borrow(), repo.unwrap()) {
-        print_error!("Failed to append footers: {}", err);
-        return process::ExitCode::FAILURE;
+    if let Some(branch) = repo.get_branch_name() {
+        match append_footers(&mut message, &params.footers.borrow(), &branch) {
+            Ok(()) => {}
+            Err(err) => {
+                print_error!("Failed to append footers: {}", err);
+                return process::ExitCode::FAILURE;
+            }
+        }
     }
 
     if source == InputSource::CommitEditMessage {
         print_debug!("Writing commit message");
-        if let Err(err) = repo.unwrap().write_commit_message(&message.to_string()) {
+        if let Err(err) = repo.write_commit_message(&message.to_string()) {
             print_error!("Failed to write commit message: {}", err);
             return process::ExitCode::FAILURE;
         }
@@ -192,7 +197,14 @@ fn main() -> process::ExitCode {
         return process::ExitCode::FAILURE;
     };
 
-    let repo = Repository::open(&cwd).ok();
+    let repo = match Repository::open(&cwd) {
+        Ok(repo) => repo,
+        Err(err) => {
+            print_error!("Failed to open repository: {}", err);
+            return process::ExitCode::FAILURE;
+        }
+    };
+
     let params = match CommitParams::load(&cwd) {
         Ok(params) => params.unwrap_or_default(),
         Err(err) => {
@@ -216,18 +228,10 @@ fn main() -> process::ExitCode {
         let to = cli.to.as_deref().unwrap_or("HEAD");
         let from = cli.from.as_ref().unwrap();
 
-        let repo = match Repository::open(&cwd) {
-            Ok(repo) => repo,
-            Err(err) => {
-                print_error!("Failed to open repository: {}", err);
-                return process::ExitCode::FAILURE;
-            }
-        };
-
         return handle_commit_range(&repo, from, to, &params);
     }
 
-    let source = get_source(repo.as_ref());
+    let source = get_source(&repo);
     print_debug!("Input source: {:#?}", source);
 
     if source == InputSource::None {
@@ -237,5 +241,5 @@ fn main() -> process::ExitCode {
         return process::ExitCode::FAILURE;
     }
 
-    handle_single_message(source, repo.as_ref(), &params, cli.lint)
+    handle_single_message(source, &repo, &params, cli.lint)
 }
