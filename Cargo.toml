@@ -28,7 +28,7 @@ serde_yaml_ng = "0.10"
 serde_derive = "1.0.218"
 regex = "1.11.1"
 
-tempfile = "3.17"
+tempfile = "3.19.1"
 
 # Parsing
 nom = "8.0.0"
@@ -41,6 +41,19 @@ log = "0.4.26"
 fern = "0.7.1"
 colored = "3.0.0"
 enum-map = "2.7.3"
+
+lazy_static = "1.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+tokio = { version = "1.0", features = ["full"] }
+atty = "0.2.14"
+same-file = "1.0.6"
+winapi-util = "0.1.9"
+proc-macro2 = "1.0.93"
+quote = "1.0.38"
+syn = { version = "2.0.98", features = ["derive", "parsing", "extra-traits", "full"] }
+itertools = "0.14.0"
+paste = "1.0.15"
+test-generator = { git = "https://github.com/JamesGuthrie/test-generator.git", rev = "82e799979980962aec1aa324ec6e0e4cad781f41" }
 
 [workspace.lints.rust]
 unreachable_pub = "warn"

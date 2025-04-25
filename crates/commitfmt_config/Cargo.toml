@@ -15,7 +15,6 @@ thiserror = { workspace = true }
 tempfile = { workspace = true }
 commitfmt_cc = { workspace = true }
 commitfmt_linter = { workspace = true }
-atty = "0.2.14"
 fern = { workspace = true }
 log = { workspace = true }
 toml = { workspace = true }

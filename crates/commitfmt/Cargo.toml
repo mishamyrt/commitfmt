@@ -1,6 +1,6 @@
 [package]
 name = "commitfmt"
-version = "0.0.2-alpha.1"
+version = "0.1.0"
 publish = false
 authors = { workspace = true }
 edition = { workspace = true }
@@ -21,18 +21,18 @@ thiserror = { workspace = true }
 tempfile = { workspace = true }
 clap = { workspace = true }
 colored = { workspace = true }
-atty = "0.2.14"
+atty = { workspace = true }
 fern = { workspace = true }
 log = { workspace = true }
-same-file = "1.0.6"
-winapi-util = "0.1.9"
+same-file = { workspace = true }
+winapi-util = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]
-tempfile = "3.3"
-lazy_static = "1.4"
-criterion = { version = "0.5", features = ["html_reports"] }
-tokio = { version = "1.0", features = ["full"] }
+tempfile = { workspace = true }
+lazy_static = { workspace = true }
+criterion = { workspace = true, features = ["html_reports"] }
+tokio = { workspace = true, features = ["full"] }
 
 # [[bench]]
 # name = "compare"

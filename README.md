@@ -4,7 +4,7 @@ Utility for formatting and verifying the commit message.
 
 It's not a linter. At least not a complete replacement for [commitlint](https://commitlint.js.org), because commitfmt can't prevent you from writing a body or force you to write a description in uppercase (I don't know why you might want to do that), but it will help keep the story high quality.
 
-By design, commitfmt runs on the prepare-commit-msg hook and formats the message according to git standards and [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in particular.
+By design, commitfmt runs on the `prepare-commit-msg` hook and formats the message according to git standards and [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in particular.
 
 A message like this:
 
@@ -56,10 +56,10 @@ pip install commitfmt
 Create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project.
 
 ```toml
-[body]
+[lint.body]
 full-stop = false
 
-[header]
+[lint.header]
 scope-case = "lower"
 scope-enum = ["cc", "config", "git", "linter"]
 type-enum = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]
