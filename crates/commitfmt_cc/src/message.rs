@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::body::parse_body;
-use crate::footer::Footer;
+use crate::footer::{Footer, Footers};
 use crate::header::Header;
 
 #[derive(Debug, Error)]
@@ -15,7 +15,7 @@ pub enum ParseError {
 pub struct Message {
     pub header: Header,
     pub body: Option<String>,
-    pub footers: Vec<Footer>,
+    pub footers: Footers,
 }
 
 impl Message {
@@ -28,7 +28,7 @@ impl Message {
         let header = Header::from(&input[..header_end]);
 
         if header_end == input.len() {
-            return Ok(Message { header, body: None, footers: vec![] });
+            return Ok(Message { header, body: None, footers: Footers::default() });
         }
 
         let (body, footers) = parse_body(&input[header_end + 1..], separators);
@@ -45,9 +45,7 @@ impl std::fmt::Display for Message {
         }
         if !self.footers.is_empty() {
             writeln!(f)?;
-            for footer in &self.footers {
-                write!(f, "\n{footer}")?;
-            }
+            write!(f, "\n{}", self.footers)?;
         }
         Ok(())
     }
@@ -55,7 +53,7 @@ impl std::fmt::Display for Message {
 
 #[cfg(test)]
 mod tests {
-    use crate::{footer::SeparatorAlignment, header::Scope};
+    use crate::{footer::SeparatorAlignment, footer_vec, header::Scope};
 
     use super::*;
 
@@ -76,7 +74,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: Some("\nDescription body".to_string()),
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',
@@ -103,7 +101,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',
@@ -124,7 +122,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: Some("\nDescription body".to_string()),
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',
@@ -148,7 +146,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',
@@ -168,7 +166,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: vec![],
+            footers: footer_vec![],
         };
 
         assert_eq!(commit_msg.to_string(), "feat: my feature");
@@ -184,7 +182,7 @@ Authored-By: John Doe";
                 breaking: false,
             },
             body: None,
-            footers: vec![],
+            footers: footer_vec![],
         };
 
         assert_eq!(commit_msg.to_string(), "feat: my feature");

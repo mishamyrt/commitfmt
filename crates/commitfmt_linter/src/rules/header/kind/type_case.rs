@@ -49,7 +49,7 @@ pub(crate) fn type_case(report: &mut Report, message: &Message, case: WordCase) 
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -57,14 +57,20 @@ mod tests {
     fn test_type_case() {
         let mut report = Report::default();
 
-        let message: Message =
-            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
+        let message: Message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
 
         type_case(&mut report, &message, WordCase::Lower);
         assert_eq!(report.len(), 0);
 
-        let message: Message =
-            Message { header: Header::from("Feat: my feature"), body: None, footers: vec![] };
+        let message: Message = Message {
+            header: Header::from("Feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
 
         type_case(&mut report, &message, WordCase::Lower);
         assert_eq!(report.len(), 1);

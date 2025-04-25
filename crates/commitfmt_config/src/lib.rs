@@ -1,8 +1,10 @@
+pub mod params;
 pub mod parse;
-pub mod settings;
 
 pub(crate) mod config;
 pub(crate) mod parse_toml;
+
+pub use params::AdditionalFooter;
 
 use commitfmt_linter::rules::LinterGroup;
 use thiserror::Error;
@@ -38,4 +40,16 @@ pub enum ConfigError {
 
     #[error("Config file is missing")]
     MissingConfigFile,
+
+    #[error("Additional footer value has problem: {0}")]
+    BadFooterValue(String),
+
+    #[error("Footer '{0}' value is not found")]
+    FooterValueNotFound(String),
+
+    #[error("Footer '{0}' has multiple values")]
+    MultipleFooterValues(String),
+
+    #[error("Footer '{0}' has Invalid on conflict action: {1}")]
+    InvalidOnConflictAction(String, String),
 }

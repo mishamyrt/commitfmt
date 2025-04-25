@@ -42,7 +42,7 @@ pub(crate) fn type_required(report: &mut Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -50,14 +50,17 @@ mod tests {
     fn test_type_required() {
         let mut report = Report::default();
 
-        let message: Message =
-            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
+        let message: Message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
 
         type_required(&mut report, &message);
         assert_eq!(report.len(), 0);
 
         let message: Message =
-            Message { header: Header::from("my feature"), body: None, footers: vec![] };
+            Message { header: Header::from("my feature"), body: None, footers: footer_vec![] };
 
         type_required(&mut report, &message);
         assert_eq!(report.len(), 1);

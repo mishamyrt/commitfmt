@@ -54,7 +54,7 @@ pub(crate) fn description_full_stop(report: &mut Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -62,8 +62,11 @@ mod tests {
     fn test_full_stop() {
         let mut report = Report::default();
 
-        let mut message: Message =
-            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
+        let mut message: Message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
 
         description_full_stop(&mut report, &message);
         assert_eq!(report.len(), 0);

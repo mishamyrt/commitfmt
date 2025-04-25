@@ -43,7 +43,7 @@ pub(crate) fn scope_min_length(report: &mut Report, message: &Message, length: u
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -54,7 +54,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db-core, ui-core): my feature"),
             body: None,
-            footers: vec![],
+            footers: footer_vec![],
         };
         scope_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
@@ -62,7 +62,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
-            footers: vec![],
+            footers: footer_vec![],
         };
         scope_min_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);

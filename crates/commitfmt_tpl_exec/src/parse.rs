@@ -16,8 +16,8 @@ pub(crate) enum Segment<'a> {
     Command(&'a str),
 }
 
-const TAG_CMD_START : &str = "{{";
-const TAG_CMD_END : &str = "}}";
+const TAG_CMD_START: &str = "{{";
+const TAG_CMD_END: &str = "}}";
 
 /// Parser for text NOT containing TAG_CMD_START up to the end or next TAG_CMD_END
 fn parse_literal<'a>(input: &'a str) -> IResult<&'a str, Segment<'a>, NomError<&'a str>> {

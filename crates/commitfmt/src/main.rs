@@ -8,12 +8,12 @@ use clap::{CommandFactory, Parser};
 use cli::Cli;
 use colored::Colorize;
 use fern::Dispatch;
-use footers::FooterAdder;
+use footers::{append_footers, FooterAdder};
 use log::info;
 use std::{io::Read, process};
 
 use commitfmt_cc::Message;
-use commitfmt_config::{parse::CommitSettingsParser, settings::CommitParams};
+use commitfmt_config::{params::CommitParams, parse::CommitSettingsParser};
 use commitfmt_git::Repository;
 use commitfmt_linter::{check::Check, violation::FixMode};
 
@@ -65,7 +65,7 @@ fn handle_commit_range(
     };
 
     let mut has_problems = false;
-    let mut check = Check::new(&params.settings, params.rules);
+    let mut check = Check::new(&params.rules.settings, params.rules.set);
 
     for commit in commits {
         let Ok(message) = Message::parse(&commit.message) else {
@@ -123,7 +123,7 @@ fn handle_single_message(
         return process::ExitCode::FAILURE;
     };
 
-    let mut check = Check::new(&params.settings, params.rules);
+    let mut check = Check::new(&params.rules.settings, params.rules.set);
     check.lint(&message);
 
     if lint {
@@ -141,7 +141,7 @@ fn handle_single_message(
         let violation = violation_box.as_ref();
         match violation.fix_mode() {
             FixMode::Unsafe => {
-                if params.formatting.unsafe_fixes {
+                if params.lint.unsafe_fixes {
                     violation.fix(message_ptr).expect("Failed to fix violation");
                 } else {
                     // TODO: add available fixes report
@@ -165,16 +165,9 @@ fn handle_single_message(
         return process::ExitCode::FAILURE;
     }
 
-    let footers = params.formatting.footers.borrow();
-    if !footers.is_empty() {
-        print_debug!("Adding additional footers");
-        let mut message_footers = FooterAdder(&mut message.footers);
-        for footer in footers.iter() {
-            if let Err(err) = message_footers.append(footer) {
-                print_error!("Failed to add footer: {}", err);
-                return process::ExitCode::FAILURE;
-            }
-        }
+    if let Err(err) = append_footers(&mut message, &params.footers.borrow(), repo.unwrap()) {
+        print_error!("Failed to append footers: {}", err);
+        return process::ExitCode::FAILURE;
     }
 
     if source == InputSource::CommitEditMessage {
@@ -207,6 +200,8 @@ fn main() -> process::ExitCode {
             return process::ExitCode::FAILURE;
         }
     };
+
+    print_debug!("Params: {:#?}", params);
 
     if cli.to.is_some() && cli.from.is_none() {
         print_error!("--to requires --from");

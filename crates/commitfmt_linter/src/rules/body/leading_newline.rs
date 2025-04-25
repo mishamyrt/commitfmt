@@ -59,7 +59,7 @@ pub(crate) fn leading_nl(report: &mut Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{Header, Message};
+    use commitfmt_cc::{footer_vec, Header, Message};
 
     use super::*;
 
@@ -68,7 +68,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nbody".to_string()),
-            footers: vec![],
+            footers: footer_vec![],
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -80,7 +80,7 @@ mod tests {
         let mut message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("body".to_string()),
-            footers: vec![],
+            footers: footer_vec![],
         };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
@@ -95,8 +95,11 @@ mod tests {
 
     #[test]
     fn test_leading_nl_empty_body() {
-        let message: Message =
-            Message { header: Header::from("feat: my feature"), body: None, footers: vec![] };
+        let message: Message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
         let mut checker = Report::default();
         leading_nl(&mut checker, &message);
         assert_eq!(checker.violations.len(), 0);

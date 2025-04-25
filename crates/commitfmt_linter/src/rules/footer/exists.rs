@@ -48,7 +48,7 @@ pub(crate) fn exists(report: &mut Report, message: &Message, required: &Vec<Box<
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{Footer, Header, SeparatorAlignment};
+    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
 
     use super::*;
 
@@ -59,7 +59,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "Authored-by".to_string(),
                 value: "John Doe".to_string(),
                 separator: ':',

@@ -4,6 +4,7 @@ extern crate test_generator;
 use core::str;
 use std::path::PathBuf;
 
+use commitfmt_cc::footer::Footers;
 use commitfmt_cc::{Footer, Message, Scope, SeparatorAlignment};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
@@ -131,8 +132,9 @@ impl Case {
                         .iter()
                         .map(|f| f.as_table().unwrap().clone())
                         .collect();
-                    result.footers =
-                        footers.iter().map(|f| Self::parse_footer(f).unwrap()).collect();
+                    result.footers = Footers::from_iter(
+                        footers.iter().map(|f| Self::parse_footer(f).unwrap()),
+                    );
                 }
                 _ => (),
             }

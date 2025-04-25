@@ -60,7 +60,7 @@ pub(crate) fn breaking_exclamation(report: &mut Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{Footer, Header, SeparatorAlignment};
+    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
 
     use super::*;
 
@@ -68,7 +68,7 @@ mod tests {
     fn test_max_length() {
         let mut report = Report::default();
 
-        let footers = vec![Footer {
+        let footers = footer_vec![{
             key: "BREAKING CHANGES".to_string(),
             value: "some breaking changes".to_string(),
             separator: ':',

@@ -1,4 +1,4 @@
-use crate::{parse_toml::parse_toml, settings::CommitParams, ConfigError};
+use crate::{params::CommitParams, parse_toml::parse_toml, ConfigError};
 
 /// List of known config file names
 const KNOWN_PATHS: &[&str] = &[
@@ -95,29 +95,26 @@ mod tests {
 
     use commitfmt_linter::{rule_set::RuleSet, rules};
 
-    use crate::settings::FormattingSettings;
+    use crate::params::{LintParams, RulesParams};
 
     use super::*;
 
     #[test]
     fn test_from_str() {
         let config = "
-[body]
-max-line-length = 80
+[lint]
+unsafe-fixes = true
 
-[formatting]
-unsafe-fixes = true";
+[lint.body]
+max-line-length = 80
+";
         let mut settings = rules::Settings::default();
         settings.body.max_line_length = 80;
 
         let expected = CommitParams {
-            formatting: FormattingSettings {
-                unsafe_fixes: true,
-                footers: RefCell::new(vec![]),
-            },
-            rules: RuleSet::default()
-                .union(RuleSet::from_rules(&[rules::Rule::BodyMaxLineLength])),
-            settings,
+            lint: LintParams { unsafe_fixes: true },
+            footers: RefCell::new(vec![]),
+            rules: RulesParams { set: RuleSet::default(), settings },
         };
 
         let result = CommitParams::from_str(Format::Toml, config).unwrap();

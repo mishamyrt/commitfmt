@@ -58,7 +58,7 @@ pub(crate) fn max_line_length(report: &mut Report, message: &Message, max_length
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -69,7 +69,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nBody\nWith some text".to_string()),
-            footers: vec![],
+            footers: footer_vec![],
         };
 
         max_line_length(&mut report, &message, 72);

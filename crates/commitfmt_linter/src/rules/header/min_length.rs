@@ -47,7 +47,7 @@ pub(crate) fn min_length(report: &mut Report, message: &Message, length: usize) 
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -56,7 +56,7 @@ mod tests {
         let mut report = Report::default();
 
         let message: Message =
-            Message { header: Header::from("test"), body: None, footers: vec![] };
+            Message { header: Header::from("test"), body: None, footers: footer_vec![] };
 
         min_length(&mut report, &message, 4);
         assert_eq!(report.len(), 0);

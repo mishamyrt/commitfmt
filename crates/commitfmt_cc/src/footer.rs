@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::{line_ending, space0, space1};
@@ -56,6 +58,7 @@ impl Footer {
         self.key.len() + value_len + 2
     }
 
+    /// Returns `true` if the footer is empty.
     pub fn is_empty(&self) -> bool {
         self.key.is_empty() && self.value.is_empty()
     }
@@ -111,15 +114,6 @@ impl Footer {
             if balance > 0 { SeparatorAlignment::Right } else { SeparatorAlignment::Left };
 
         Some((separator, alignment))
-    }
-
-    /// Takes all footers from the input
-    /// Returns them and the rest of the input
-    pub(crate) fn parse<'input, 'sep: 'input>(
-        input: &'input str,
-        separators: &'sep str,
-    ) -> IResult<&'input str, Vec<Footer>> {
-        all_consuming(separated_list1(line_ending, Self::take(separators))).parse(input)
     }
 
     /// Parses one footer (trailer) from the input.
@@ -184,6 +178,105 @@ impl std::fmt::Display for Footer {
     }
 }
 
+#[derive(Debug, Default, PartialEq, Clone)]
+pub struct Footers {
+    values: Vec<Footer>,
+    keys: HashSet<String>,
+}
+
+impl Footers {
+    pub fn new(values: Vec<Footer>, keys: HashSet<String>) -> Self {
+        Self { values, keys }
+    }
+
+    pub fn from_iter<T: IntoIterator<Item = Footer>>(iter: T) -> Self {
+        let mut keys = HashSet::new();
+        let values = iter
+            .into_iter()
+            .map(|f| {
+                keys.insert(f.key.clone());
+                f
+            })
+            .collect();
+        Self { values, keys }
+    }
+
+    pub fn contains_key(&self, key: &str) -> bool {
+        self.keys.contains(key)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Footer> {
+        self.values.iter()
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+
+    pub fn get_by_key(&self, key: &str) -> Option<&Footer> {
+        self.values.iter().find(|f| f.key == key)
+    }
+
+    pub fn get(&self, index: usize) -> Option<&Footer> {
+        self.values.get(index)
+    }
+
+    pub fn push(&mut self, footer: Footer) {
+        self.keys.insert(footer.key.clone());
+        self.values.push(footer);
+    }
+
+    pub fn remove(&mut self, key: &str) -> Option<Footer> {
+        if let Some(index) = self.keys.iter().position(|k| k == key) {
+            let removed = self.values.remove(index);
+            self.keys.remove(&removed.key);
+            Some(removed)
+        } else {
+            None
+        }
+    }
+
+    /// Takes all footers from the input
+    /// Returns them and the rest of the input
+    pub(crate) fn parse<'input, 'sep: 'input>(
+        input: &'input str,
+        separators: &'sep str,
+    ) -> IResult<&'input str, Self> {
+        let (rest, values) =
+            all_consuming(separated_list1(line_ending, Footer::take(separators)))
+                .parse(input)?;
+
+        Ok((rest, Self::from_iter(values)))
+    }
+}
+
+#[macro_export]
+macro_rules! footer_vec {
+    ( $( { $($field:tt)+ } ),* $(,)? ) => {
+        $crate::footer::Footers::from_iter(vec![
+            $(
+                $crate::Footer { $($field)+ }
+            ),*
+        ])
+    };
+    () => {
+        $crate::footer::Footers::default()
+    };
+}
+
+impl std::fmt::Display for Footers {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for footer in &self.values {
+            write!(f, "{}\n", footer)?;
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -244,21 +337,32 @@ mod tests {
 
     #[test]
     fn test_parse_single() {
-        let footer = Footer::parse("foo: bar", Footer::DEFAULT_SEPARATOR).unwrap().1;
+        let footer = Footers::parse("foo: bar", Footer::DEFAULT_SEPARATOR).unwrap().1;
 
         assert_eq!(footer.len(), 1);
-        assert_eq!(footer[0].key, "foo");
-        assert_eq!(footer[0].value, "bar");
+        assert_eq!(footer.get(0).unwrap().key, "foo");
+        assert_eq!(footer.get(0).unwrap().value, "bar");
     }
 
     #[test]
     fn test_parse_multiple() {
-        let result = Footer::parse("foo: bar\nbaz: qux", Footer::DEFAULT_SEPARATOR).unwrap().1;
+        let result =
+            Footers::parse("foo: bar\nbaz: qux", Footer::DEFAULT_SEPARATOR).unwrap().1;
+        let expected = Footers::from_iter(vec![
+            Footer {
+                key: "foo".into(),
+                value: "bar".into(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            },
+            Footer {
+                key: "baz".into(),
+                value: "qux".into(),
+                separator: ':',
+                alignment: SeparatorAlignment::Left,
+            },
+        ]);
 
-        assert_eq!(result.len(), 2);
-        assert_eq!(result[0].key, "foo");
-        assert_eq!(result[0].value, "bar");
-        assert_eq!(result[1].key, "baz");
-        assert_eq!(result[1].value, "qux");
+        assert_eq!(result, expected);
     }
 }

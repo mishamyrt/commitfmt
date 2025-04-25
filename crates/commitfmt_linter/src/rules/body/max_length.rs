@@ -55,7 +55,7 @@ pub(crate) fn max_length(report: &mut Report, message: &Message, length: usize) 
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::Header;
+    use commitfmt_cc::{footer_vec, Header};
 
     use super::*;
 
@@ -66,7 +66,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: Some("\nBody with some text".to_string()),
-            footers: vec![],
+            footers: footer_vec![],
         };
 
         max_length(&mut report, &message, 72);

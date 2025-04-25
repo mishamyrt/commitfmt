@@ -1,4 +1,4 @@
-use crate::footer::Footer;
+use crate::footer::{Footer, Footers};
 
 // TODO: comment symbol should be obtained from config
 const COMMENT_CHAR: &str = "#";
@@ -68,7 +68,7 @@ impl MeaninglessTrimmer for str {
 pub(crate) fn parse_body(
     input: &str,
     footer_separators: &str,
-) -> (Option<String>, Option<Vec<Footer>>) {
+) -> (Option<String>, Option<Footers>) {
     if input.is_empty() {
         return (None, None);
     }
@@ -79,7 +79,7 @@ pub(crate) fn parse_body(
     // If no block is found, than input is single block.
     let last_block_index: usize = meaningful_input.rfind("\n\n").unwrap_or(0);
     if last_block_index == 0 {
-        match Footer::parse(meaningful_input.trim_meaningless_start(), footer_separators) {
+        match Footers::parse(meaningful_input.trim_meaningless_start(), footer_separators) {
             Ok((_rest, footers)) => return (None, Some(footers)),
             Err(_) => return (Some(input.to_string()), None),
         }
@@ -87,7 +87,7 @@ pub(crate) fn parse_body(
 
     let last_block = &meaningful_input[last_block_index + 2..];
 
-    match Footer::parse(last_block.trim_meaningless_start(), footer_separators) {
+    match Footers::parse(last_block.trim_meaningless_start(), footer_separators) {
         Ok((_rest, footers)) => {
             let body = Some(meaningful_input[..last_block_index].to_string());
             (body, Some(footers))
@@ -98,7 +98,10 @@ pub(crate) fn parse_body(
 
 #[cfg(test)]
 mod tests {
-    use crate::footer::{Footer, SeparatorAlignment};
+    use crate::{
+        footer::{Footer, SeparatorAlignment},
+        footer_vec,
+    };
 
     use super::*;
 
@@ -146,7 +149,7 @@ mod tests {
         let input = "my body\n\nmyfooter: my value";
         let expected = (
             Some("my body".to_string()),
-            Some(vec![Footer {
+            Some(footer_vec![{
                 key: "myfooter".to_string(),
                 value: "my value".to_string(),
                 separator: ':',
@@ -166,7 +169,7 @@ Authored-By: Co Mitter <comitter@example.com>
 # This is another comment";
         let expected = (
             Some("my cool feature".to_string()),
-            Some(vec![Footer {
+            Some(footer_vec![ {
                 key: "Authored-By".to_string(),
                 value: "Co Mitter <comitter@example.com>".to_string(),
                 separator: ':',
@@ -181,7 +184,7 @@ Authored-By: Co Mitter <comitter@example.com>
         let input = "\nmyfooter: my value\n# some comment\n# another comment\n";
         let expected = (
             None,
-            Some(vec![Footer {
+            Some(footer_vec![{
                 key: "myfooter".to_string(),
                 value: "my value".to_string(),
                 separator: ':',

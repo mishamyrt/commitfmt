@@ -52,7 +52,7 @@ pub(crate) fn max_length(report: &mut Report, message: &Message, length: usize) 
         return;
     }
 
-    for footer in &message.footers {
+    for footer in message.footers.iter() {
         if footer.len() > length {
             let violation = Box::new(MaxLength { key: footer.key.clone(), length });
             report.add_violation(violation);
@@ -63,7 +63,7 @@ pub(crate) fn max_length(report: &mut Report, message: &Message, length: usize) 
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{Footer, Header, SeparatorAlignment};
+    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
 
     use super::*;
 
@@ -74,7 +74,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: vec![Footer {
+            footers: footer_vec![{
                 key: "BREAKING CHANGES".to_string(),
                 value: "some breaking changes".to_string(),
                 separator: ':',
