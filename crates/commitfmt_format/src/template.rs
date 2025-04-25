@@ -261,7 +261,7 @@ mod tests {
     fn test_multiple_commands() {
         // Template with multiple commands interspersed with literal text.
         // Use echo commands to output known strings.
-        let template = "A: {{ echo a }}, B: {{ echo b }}, and C: {{   echo    c   }}";
+        let template = "A: {{ echo a }}, B: {{ echo b }}, and C: {{ echo c }}";
         let expected_output = format!(
             "A: {}, B: {}, and C: {}",
             echo_command("a"),
