@@ -6,7 +6,7 @@ authors = [
 description = "Utility for formatting and verifying the commit message."
 readme = "README.md"
 requires-python = ">=3.9"
-version = "0.1.1"
+version = "0.1.2-rc.1"
 keywords = ["git", "hook"]
 license = {text = "MIT"}
 classifiers = [
