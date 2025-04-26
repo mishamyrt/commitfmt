@@ -1,4 +1,4 @@
-VERSION = 0.1.2-rc.2
+VERSION = 0.1.2-rc.3
 
 .PHONY: test
 test:

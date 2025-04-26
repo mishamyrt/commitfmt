@@ -13,9 +13,11 @@ __pycache__
 # npm
 packaging/npm/commitfmt-*/commitfmt
 packaging/npm/commitfmt-*/commitfmt.exe
+packaging/npm/commitfmt-*/README.md
 
 # PyPi
 packaging/pypi/commitfmt_*/commitfmt_*/commitfmt_*
 packaging/pypi/**/build/
 packaging/pypi/**/dist/
+packaging/pypi/commitfmt_*/README.md
 

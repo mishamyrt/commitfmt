@@ -25,6 +25,16 @@ PACKAGE_BINARIES = {
     ],
 }
 
+def copy_readme():
+    """Copy README.md from root to each PyPI package"""
+    readme_path = "README.md"
+    for package in PYPI_PACKAGES_DIR.iterdir():
+        if package.name.startswith("."):
+            continue
+        destination = package / "README.md"
+        print(f"{readme_path} → {destination}")
+        shutil.copy2(readme_path, destination)
+
 def copy_binaries():
     """Copy binaries to npm packages"""
     for package in PYPI_PACKAGES_DIR.iterdir():
@@ -59,6 +69,8 @@ def main():
     if pypi_token is None:
         print("PYPI_TOKEN is not set")
         sys.exit(1)
+    print("Copying READMEs...")
+    copy_readme()
     print("Copying binaries...")
     copy_binaries()
     print("Publishing packages...")

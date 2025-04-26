@@ -14,6 +14,16 @@ PACKAGE_BINARIES = {
     "commitfmt-windows-x64": OUT_BINARIES[("windows", "x64")],
 }
 
+def copy_readme():
+    """Copy README.md from root to each npm package"""
+    readme_path = "README.md"
+    for package in NPM_PACKAGES_DIR.iterdir():
+        if package.name.startswith("."):
+            continue
+        destination = package / "README.md"
+        print(f"{readme_path} → {destination}")
+        shutil.copy2(readme_path, destination)
+
 def copy_binaries():
     """Copy binaries to npm packages"""
     for package in NPM_PACKAGES_DIR.iterdir():
@@ -37,6 +47,8 @@ def publish():
 
 def main():
     """Script entry point"""
+    print("Copying READMEs...")
+    copy_readme()
     print("Copying binaries...")
     copy_binaries()
     print("Publishing packages...")

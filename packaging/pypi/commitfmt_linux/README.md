@@ -1,1 +1,0 @@
-# commitfmt python wrapper
