@@ -84,11 +84,8 @@ mod tests {
         breaking_exclamation(&mut report, &message);
         assert_eq!(report.len(), 0);
 
-        let message: Message = Message {
-            header: Header::from("feat: my feature"),
-            body: None,
-            footers,
-        };
+        let message: Message =
+            Message { header: Header::from("feat: my feature"), body: None, footers };
 
         breaking_exclamation(&mut report, &message);
         assert_eq!(report.len(), 1);
