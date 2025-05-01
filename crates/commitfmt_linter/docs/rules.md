@@ -2,11 +2,8 @@
 
 ## `body`
 
-
 | Rule | Message | Fix Mode |
-
 |------|---------|----------|
-
 | [`case`](body/case.md) | Body case is inconsistent. Expected: `{case}` | Unfixable |
 | [`full-stop`](body/full-stop.md) | Body is not ended with a full stop | Unsafe |
 | [`leading-new-line`](body/leading-new-line.md) | Body must start with a newline | Unfixable |
@@ -16,11 +13,8 @@
 
 ## `footer`
 
-
 | Rule | Message | Fix Mode |
-
 |------|---------|----------|
-
 | [`breaking-exclamation`](footer/breaking-exclamation.md) | Message contains breaking changes footer but no exclamation mark | Safe |
 | [`exists`](footer/exists.md) | Footer `{key}` is required but not found | Unfixable |
 | [`max-length`](footer/max-length.md) | Footer `{key}` length is longer than `{length}` characters | Unfixable |
@@ -29,11 +23,8 @@
 
 ## `header`
 
-
 | Rule | Message | Fix Mode |
-
 |------|---------|----------|
-
 | [`description-case`](header/description-case.md) | Description case is inconsistent. Expected: `{case}` | Unfixable |
 | [`description-full-stop`](header/description-full-stop.md) | Header description is ended with a full stop | Safe |
 | [`description-max-length`](header/description-max-length.md) | Description is longer than `{length}` characters | Unfixable |

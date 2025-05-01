@@ -211,11 +211,11 @@ fn generate_index_file(docs_dir: &Path, rules_by_group: &HashMap<String, Vec<Rul
 
     for group in groups {
         // Add group header
-        writeln!(content, "## `{group}`\n\n").unwrap();
+        writeln!(content, "## `{group}`\n").unwrap();
 
         // Add table header
-        writeln!(content, "| Rule | Message | Fix Mode |\n").unwrap();
-        writeln!(content, "|------|---------|----------|\n").unwrap();
+        writeln!(content, "| Rule | Message | Fix Mode |").unwrap();
+        writeln!(content, "|------|---------|----------|").unwrap();
 
         // Sort rules alphabetically within group
         let mut rules = rules_by_group[group].clone();
