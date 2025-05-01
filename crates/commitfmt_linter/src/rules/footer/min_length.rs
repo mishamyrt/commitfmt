@@ -35,7 +35,9 @@ impl Violation for MinLength {
     }
 
     fn message(&self) -> String {
-        format!("Footer {} length is less than {} characters", self.key, self.length)
+        let key = &self.key;
+        let length = self.length;
+        format!("Footer {key} length is less than {length} characters")
     }
 }
 

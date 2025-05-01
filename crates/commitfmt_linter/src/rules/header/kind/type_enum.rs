@@ -28,8 +28,9 @@ impl Violation for TypeEnum {
         LinterGroup::Header
     }
 
+    #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        "Type value is not allowed by enum".to_string()
+        format!("Type value is not allowed by enum")
     }
 }
 

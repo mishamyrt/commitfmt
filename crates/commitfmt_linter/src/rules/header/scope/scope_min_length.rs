@@ -30,7 +30,8 @@ impl Violation for ScopeMinLength {
     }
 
     fn message(&self) -> String {
-        format!("Scope is shorter than {} characters", self.length)
+        let length = self.length;
+        format!("Scope is shorter than {length} characters")
     }
 }
 

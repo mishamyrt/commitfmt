@@ -31,7 +31,8 @@ impl Violation for ScopeMaxLength {
     }
 
     fn message(&self) -> String {
-        format!("Scope is longer than {} characters", self.length)
+        let length = self.length;
+        format!("Scope is longer than {length} characters")
     }
 }
 

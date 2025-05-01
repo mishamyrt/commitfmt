@@ -33,7 +33,8 @@ impl Violation for MaxLength {
     }
 
     fn message(&self) -> String {
-        format!("Header is longer than {} characters", self.max_length)
+        let max_length = self.max_length;
+        format!("Header is longer than {max_length} characters")
     }
 }
 

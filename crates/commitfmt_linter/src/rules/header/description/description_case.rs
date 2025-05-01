@@ -32,7 +32,8 @@ impl Violation for DescriptionCase {
     }
 
     fn message(&self) -> String {
-        format!("Description case is inconsistent. Expected: {}", self.case)
+        let case = self.case;
+        format!("Description case is inconsistent. Expected: {case}")
     }
 }
 

@@ -30,7 +30,8 @@ impl Violation for MinLength {
     }
 
     fn message(&self) -> String {
-        format!("Header is shorter than {} characters", self.length)
+        let length = self.length;
+        format!("Header is shorter than {length} characters")
     }
 }
 

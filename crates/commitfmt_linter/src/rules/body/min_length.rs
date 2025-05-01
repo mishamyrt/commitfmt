@@ -32,7 +32,8 @@ impl Violation for MinLength {
     }
 
     fn message(&self) -> String {
-        format!("Body is shorter than {} characters", self.length)
+        let length = self.length;
+        format!("Body is shorter than {length} characters")
     }
 }
 

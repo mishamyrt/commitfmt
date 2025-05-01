@@ -30,7 +30,8 @@ impl Violation for DescriptionMaxLength {
     }
 
     fn message(&self) -> String {
-        format!("Scope is longer than {} characters", self.length)
+        let length = self.length;
+        format!("Description is longer than {length} characters")
     }
 }
 

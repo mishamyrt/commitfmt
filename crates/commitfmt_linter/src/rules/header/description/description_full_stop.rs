@@ -39,8 +39,9 @@ impl Violation for DescriptionFullStop {
         Ok(())
     }
 
+    #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        "Header description is ended with a full stop".to_string()
+        format!("Header description is ended with a full stop")
     }
 }
 

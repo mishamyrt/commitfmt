@@ -87,7 +87,7 @@ mod tests {
         assert_eq!(checker.violations.len(), 1);
 
         let violation_ref = checker.violations;
-        let violation = violation_ref.get(0).unwrap();
+        let violation = violation_ref.first().unwrap();
         violation.fix(&mut message).unwrap();
 
         assert_eq!(message.body, Some("\nbody".to_string()));

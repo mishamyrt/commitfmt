@@ -28,8 +28,9 @@ impl Violation for TypeRequired {
         LinterGroup::Header
     }
 
+    #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        "Commit type is required".to_string()
+        format!("Commit type is required")
     }
 }
 

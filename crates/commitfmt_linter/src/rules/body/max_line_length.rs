@@ -35,7 +35,8 @@ impl Violation for MaxLineLength {
     }
 
     fn message(&self) -> String {
-        format!("Body line is longer than {} characters", self.max_length)
+        let max_length = self.max_length;
+        format!("Body line is longer than {max_length} characters")
     }
 }
 

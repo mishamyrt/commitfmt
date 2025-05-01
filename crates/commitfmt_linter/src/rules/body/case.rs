@@ -16,7 +16,7 @@ use crate::violation::{Violation, ViolationMetadata};
 /// ```git-commit
 /// feat: my feature
 ///
-/// My Feature IS SO COOL
+/// my Feature IS SO COOL
 /// ```
 ///
 /// Use instead:
@@ -36,7 +36,8 @@ impl Violation for Case {
     }
 
     fn message(&self) -> String {
-        format!("Body case is inconsistent. Expected: {}", self.case)
+        let case = self.case;
+        format!("Body case is inconsistent. Expected: {case}")
     }
 }
 

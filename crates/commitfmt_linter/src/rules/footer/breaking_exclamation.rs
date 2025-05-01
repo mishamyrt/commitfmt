@@ -78,7 +78,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat!: my feature"),
             body: None,
-            footers: footers.to_owned(),
+            footers: footers.clone(),
         };
 
         breaking_exclamation(&mut report, &message);
@@ -87,7 +87,7 @@ mod tests {
         let message: Message = Message {
             header: Header::from("feat: my feature"),
             body: None,
-            footers: footers.to_owned(),
+            footers,
         };
 
         breaking_exclamation(&mut report, &message);

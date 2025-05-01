@@ -46,8 +46,9 @@ impl Violation for FullStop {
         Ok(())
     }
 
+    #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        "Body is not ended with a full stop".to_string()
+        format!("Body is not ended with a full stop")
     }
 }
 

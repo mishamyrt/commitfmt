@@ -32,7 +32,8 @@ impl Violation for ScopeCase {
     }
 
     fn message(&self) -> String {
-        format!("Scope case is inconsistent. Expected: {}", self.case)
+        let case = self.case;
+        format!("Scope case is inconsistent. Expected: {case}")
     }
 }
 

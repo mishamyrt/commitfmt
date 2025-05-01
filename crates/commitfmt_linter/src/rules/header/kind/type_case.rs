@@ -32,7 +32,8 @@ impl Violation for TypeCase {
     }
 
     fn message(&self) -> String {
-        format!("Type case is inconsistent. Expected: {}", self.case)
+        let case = self.case;
+        format!("Type case is inconsistent. Expected: {case}")
     }
 }
 

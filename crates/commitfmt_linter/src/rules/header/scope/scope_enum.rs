@@ -31,7 +31,8 @@ impl Violation for ScopeEnum {
     }
 
     fn message(&self) -> String {
-        format!("Scope contains incorrect case: {}", self.miss)
+        let miss = &self.miss;
+        format!("Scope contains incorrect case: {miss}")
     }
 }
 

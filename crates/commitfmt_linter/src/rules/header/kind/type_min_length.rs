@@ -30,7 +30,8 @@ impl Violation for TypeMinLength {
     }
 
     fn message(&self) -> String {
-        format!("Type is shorter than {} characters", self.length)
+        let length = self.length;
+        format!("Type is shorter than {length} characters")
     }
 }
 

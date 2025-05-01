@@ -27,8 +27,9 @@ impl Violation for ScopeRequired {
         LinterGroup::Header
     }
 
+    #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        "Scope is required".to_string()
+        format!("Scope is required")
     }
 }
 

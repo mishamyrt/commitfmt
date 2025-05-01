@@ -31,7 +31,8 @@ impl Violation for TypeMaxLength {
     }
 
     fn message(&self) -> String {
-        format!("Type is longer than {} characters", self.length)
+        let length = self.length;
+        format!("Type is longer than {length} characters")
     }
 }
 

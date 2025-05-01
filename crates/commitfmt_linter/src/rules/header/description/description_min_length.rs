@@ -30,7 +30,8 @@ impl Violation for DescriptionMinLength {
     }
 
     fn message(&self) -> String {
-        format!("Description is shorter than {} characters", self.length)
+        let length = self.length;
+        format!("Description is shorter than {length} characters")
     }
 }
 

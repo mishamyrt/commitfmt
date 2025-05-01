@@ -318,7 +318,11 @@ dependencies = [
  "commitfmt_cc",
  "commitfmt_macros",
  "nom",
+ "proc-macro2 1.0.93",
+ "quote 1.0.38",
+ "syn 2.0.98",
  "thiserror",
+ "walkdir",
 ]
 
 [[package]]

@@ -55,6 +55,8 @@ pip install commitfmt
 
 Create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project.
 
+[List of Rules](https://github.com/mishamyrt/commitfmt/tree/main/crates/commitfmt_linter/docs/rules.md)
+
 ```toml
 [lint.body]
 full-stop = false
