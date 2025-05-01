@@ -1,6 +1,17 @@
-# commitfmt [![Quality Assurance](https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml/badge.svg)](https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml)
+<p align="center">
+  <img width="350" src="./docs/assets/logo.svg" alt="commitfmt logo" />
+  <br />
+  <br />
+  Utility for formatting and verifying the commit message.
+</p>
 
-Utility for formatting and verifying the commit message.
+---
+
+<p align="center">
+  <a href="https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml">
+    <img src="https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml/badge.svg" alt="Quality Assurance" />
+  </a>
+</p>
 
 It's not a linter. At least not a complete replacement for [commitlint](https://commitlint.js.org), because commitfmt can't prevent you from writing a body or force you to write a description in uppercase (I don't know why you might want to do that), but it will help keep the story high quality.
 
