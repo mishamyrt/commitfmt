@@ -105,6 +105,6 @@ mod tests {
         };
         let input: DeriveInput = syn::parse2(input).unwrap();
         let docs = violation_metadata(input).unwrap();
-        assert!(docs.to_string().find("fn rule_name").is_some());
+        assert!(docs.to_string().contains("fn rule_name"));
     }
 }

@@ -133,7 +133,7 @@ mod tests {
 
         let result = append_footers(&mut message, &footers, "feature/ABC-123");
         if let Err(err) = &result {
-            println!("Error: {:?}", err);
+            println!("Error: {err:?}");
         }
         assert!(result.is_ok());
         assert_eq!(message.footers.len(), 1);

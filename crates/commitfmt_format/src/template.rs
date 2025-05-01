@@ -217,7 +217,7 @@ mod tests {
         // Use Command to capture output. Note: this is only for test expectation.
         if is_windows() {
             Command::new("cmd")
-                .args(&["/C", "echo", input])
+                .args(["/C", "echo", input])
                 .output()
                 .map(|o| {
                     // echo on windows typically appends a newline, so trim it.
@@ -229,7 +229,7 @@ mod tests {
                 .unwrap_or_else(|_| "".to_string())
         } else {
             Command::new("sh")
-                .args(&["-c", &format!("echo {}", input)])
+                .args(["-c", &format!("echo {input}")])
                 .output()
                 .map(|o| {
                     // echo on unix appends a newline, so trim it.
@@ -295,10 +295,10 @@ mod tests {
                 assert!(!err_msg.is_empty(), "Error message should not be empty");
             }
             Err(e) => {
-                panic!("Expected CommandFailed error, got: {:?}", e);
+                panic!("Expected CommandFailed error, got: {e:?}");
             }
             Ok(output) => {
-                panic!("Expected failure, but got output: {}", output);
+                panic!("Expected failure, but got output: {output}");
             }
         }
     }

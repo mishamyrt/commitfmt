@@ -262,7 +262,7 @@ mod tests {
         assert_eq!(parsed.kind, Some("fix".to_string()));
         assert_eq!(parsed.scope.len(), 0);
         assert_eq!(parsed.description, "my fix");
-        assert_eq!(parsed.breaking, true);
+        assert!(parsed.breaking);
     }
 
     #[test]
@@ -272,7 +272,7 @@ mod tests {
         assert_eq!(parsed.kind, Some("refactor".to_string()));
         assert_eq!(parsed.scope.len(), 2);
         assert_eq!(parsed.description, "my fix");
-        assert_eq!(parsed.breaking, true);
+        assert!(parsed.breaking);
     }
 
     #[test]

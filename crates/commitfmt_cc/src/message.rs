@@ -84,7 +84,7 @@ Authored-By: John Doe";
 
         match parsed {
             Ok(parsed) => assert_eq!(parsed, expected),
-            Err(e) => panic!("Unable to parse commit message: {}", e),
+            Err(e) => panic!("Unable to parse commit message: {e}"),
         }
     }
 

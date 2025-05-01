@@ -1,10 +1,8 @@
 #![cfg(test)]
 extern crate test_generator;
 
-use core::str;
 use std::path::PathBuf;
 
-use commitfmt_cc::footer::Footers;
 use commitfmt_cc::{Footer, Message, Scope, SeparatorAlignment};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
@@ -53,8 +51,7 @@ impl Case {
         let (input, id) = take_until(TAG_START_SUFFIX).parse(input)?;
         let (input, _) = (tag(TAG_START_SUFFIX), char('\n')).parse(input)?;
 
-        let mut case = Case::default();
-        case.id = id.to_string();
+        let mut case = Case { id: id.to_string(), ..Default::default() };
 
         let mut rest: &str = input;
         loop {
@@ -74,7 +71,7 @@ impl Case {
                 TAG_RESULT => {
                     let (input, result_text) = Self::take_code_block(rest)?;
                     let result = toml::from_str::<Table>(result_text).unwrap();
-                    case.expected = Self::parse_expected(result);
+                    case.expected = Self::parse_expected(&result);
                     input
                 }
                 TAG_OPTIONS => {
@@ -101,7 +98,7 @@ impl Case {
         }
     }
 
-    fn parse_expected(input: Map<String, Value>) -> Message {
+    fn parse_expected(input: &Map<String, Value>) -> Message {
         let mut result = Message::default();
         for key in input.keys() {
             match key.as_str() {
@@ -132,9 +129,8 @@ impl Case {
                         .iter()
                         .map(|f| f.as_table().unwrap().clone())
                         .collect();
-                    result.footers = Footers::from_iter(
-                        footers.iter().map(|f| Self::parse_footer(f).unwrap()),
-                    );
+                    result.footers =
+                        footers.iter().map(|f| Self::parse_footer(f).unwrap()).collect();
                 }
                 _ => (),
             }
@@ -190,6 +186,7 @@ impl Case {
     }
 }
 
+#[allow(clippy::print_stdout)]
 #[test_resources("resources/test_docs/*.md")]
 fn verify_resource(resource: &str) {
     let md_path = PathBuf::from(resource);
@@ -198,28 +195,26 @@ fn verify_resource(resource: &str) {
 
     let stem = md_path.file_stem().unwrap().to_str().unwrap();
 
-    print!("testcases___: {}\n", cases.len());
+    println!("testcases___: {}", cases.len());
 
     for case in cases {
         let case_path = format!("{}/{}", stem, case.id);
 
-        print!("Case: {}\n", case.id);
+        println!("Case: {}", case.id);
         let expected = case.expected;
         let actual = Message::parse(&case.input).unwrap();
 
-        assert_eq!(actual.header.kind, expected.header.kind, "kind at {}", case_path);
-        assert_eq!(actual.header.scope, expected.header.scope, "scope at {}", case_path);
+        assert_eq!(actual.header.kind, expected.header.kind, "kind at {case_path}");
+        assert_eq!(actual.header.scope, expected.header.scope, "scope at {case_path}");
         assert_eq!(
             actual.header.breaking, expected.header.breaking,
-            "breaking at {}",
-            case_path
+            "breaking at {case_path}"
         );
         assert_eq!(
             actual.header.description, expected.header.description,
-            "description at {}",
-            case_path
+            "description at {case_path}"
         );
-        assert_eq!(actual.body, expected.body, "body at {}", case_path);
-        assert_eq!(actual.footers, expected.footers, "footers at {}", case_path);
+        assert_eq!(actual.body, expected.body, "body at {case_path}");
+        assert_eq!(actual.footers, expected.footers, "footers at {case_path}");
     }
 }
