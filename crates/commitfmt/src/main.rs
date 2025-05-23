@@ -9,6 +9,7 @@ use colored::Colorize;
 use commitfmt_format::append_footers;
 use fern::Dispatch;
 use log::info;
+use logging::pluralize;
 use std::{io::Read, process};
 
 use commitfmt_cc::Message;
@@ -160,8 +161,8 @@ fn handle_single_message(
     }
 
     if unfixable_count > 0 {
-        // TODO: pluralize
-        print_error!("\n{}", format!("{} unfixable problems found", unfixable_count));
+        let pluralized = pluralize(unfixable_count, "problem", "problems");
+        print_error!("\n{}", format!("{unfixable_count} unfixable {pluralized} found"));
         return process::ExitCode::FAILURE;
     }
 

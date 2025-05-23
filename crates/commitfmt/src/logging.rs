@@ -27,3 +27,11 @@ macro_rules! print_warning {
         log::info!("{}", format!($($arg)*).bright_yellow());
     }
 }
+
+pub(crate) fn pluralize(count: usize, singular: &str, plural: &str) -> String {
+    if count == 1 {
+        singular.to_string()
+    } else {
+        plural.to_string()
+    }
+}
