@@ -2,7 +2,7 @@
   <img width="350" src="./docs/assets/logo.svg" alt="commitfmt logo" />
   <br />
   <br />
-  Utility for formatting and verifying the commit message.
+  Utility for formatting and verifying commit messages.
 </p>
 
 ---
@@ -11,20 +11,30 @@
   <a href="https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml">
     <img src="https://github.com/mishamyrt/commitfmt/actions/workflows/qa.yaml/badge.svg" alt="Quality Assurance" />
   </a>
+  <a href="https://npmjs.com/package/commitfmt">
+    <img src="https://img.shields.io/npm/v/commitfmt.svg?color=red" alt="NPM Version" />
+  </a>
+  <a href="https://pypi.org/project/commitfmt/">
+    <img src="https://img.shields.io/pypi/v/commitfmt.svg?color=blue" alt="PyPI Version" />
+  </a>
 </p>
 
-It's not a linter. At least not a complete replacement for [commitlint](https://commitlint.js.org), because commitfmt can't prevent you from writing a body or force you to write a description in uppercase (I don't know why you might want to do that), but it will help keep the story high quality.
+It's not a linter. At least not a complete replacement for [commitlint](https://commitlint.js.org), because commitfmt can't prevent you from writing a body or force you to write a description in uppercase (I don't know why you might want to do that), but it will help keep git history clean and readable.
 
 By design, commitfmt runs on the `prepare-commit-msg` hook and formats the message according to git standards and [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in particular.
 
-A message like this:
+## Features
+
+### Formatting
+
+commitfmt by default transforms a message like this:
 
 ```
 feat ( scope     ,    scope  )  : add new feature.
 body description
 ```
 
-Will be formatted to:
+into well-formatted message:
 
 ```
 feat(scope, scope): add new feature
@@ -32,7 +42,23 @@ feat(scope, scope): add new feature
 body description
 ```
 
-Additionally, you can customize checks, such as limiting the list of available types and scopes. To do this, create a [configuration file](#configuration).
+### Linting
+
+commitfmt can check that developers follow the rules set by the project.
+
+For example, check that only allowed types and scopes are used. To do this, add the following to the [configuration file](#configuration):
+
+```toml
+[lint.header]
+# Check allowed commit type
+type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test"]
+# Check allowed commit scopes
+scope-enum = ["cc", "config", "git", "linter"]
+
+[lint.footer]
+# Check required footers
+exists = ["Issue-ID", "Authored-By"]
+```
 
 ## Installation
 
@@ -60,20 +86,120 @@ yarn add --dev commitfmt
 pip install commitfmt
 ```
 
+## Hook
+
+After installing the package, you need to add a hook to the `prepare-commit-msg` event. You can use any hook manager.
+
+> **Important:** if you are using a pnpm, yarn or any other package manager, you need to run `pnpm commitfmt`, `yarn commitfmt`, etc. instead of `commitfmt`.
+
+### Script
+
+You can use a simple script to add a hook.
+
+```bash
+echo "#!/bin/sh" > .git/hooks/prepare-commit-msg
+echo "commitfmt" >> .git/hooks/prepare-commit-msg
+chmod +x .git/hooks/prepare-commit-msg
+```
+
+### [Lefthook](https://github.com/evilmartians/lefthook)
+
+Add to your `lefthook.yml` file:
+
+```yaml
+prepare-commit-msg:
+  - name: format commit message
+    run: commitfmt
+```
+
+### [Husky](https://github.com/typicode/husky)
+
+Add to your `.husky` folder `prepare-commit-msg` file with the following content:
+
+```bash
+#!/bin/sh
+commitfmt
+```
+
 ## Configuration
 
-### TOML
+In commitfmt, you cannot customize basic formatting rules such as extra spaces removal.
 
-Create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project.
+It is an opinionated formatter and the author has established best practices that should not harm anyone.
 
-[List of Rules](https://github.com/mishamyrt/commitfmt/tree/main/crates/commitfmt_linter/docs/rules.md)
+### Linting
+
+Most of the linting rules are disabled by default. Default config contains 3 rules as they can be safely auto-fixed:
 
 ```toml
-[lint.body]
-full-stop = false
-
 [lint.header]
-scope-case = "lower"
-scope-enum = ["cc", "config", "git", "linter"]
-type-enum = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]
+full-stop = true
+
+[lint.body]
+new-line = true
+
+[lint.footer]
+breaking-exclamation = true
 ```
+
+To enable more rules, create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt_linter/docs/rules.md) file.
+
+If there is a problem with an enabled rule and it cannot be automatically fixed, the commit process will be aborted.
+
+#### Unsafe fixes
+
+Some rules may be fixed, but in certain contexts this fix may not be what is desired. For example, adding a full stop to the end of body will be useful in most cases, if there is a log at the end of the message, the period may distort it. You can see which rules have unsafe patches in the same `rules.md` file mentioned above.
+
+To enable unsafe fixes, add the following to your config file:
+
+```toml
+[lint]
+unsafe-fixes = true
+```
+
+### Additional footers
+
+commitfmt can add additional footers to the commit message.
+
+#### Value template
+
+You can use a template to format the value of the footer. Inside of template expression you can use any shell command available at the `PATH`.
+
+For example, to add the `Authored-By` footer with the current user name, add the following to your config file:
+
+```toml
+[additional-footers]
+key = "Authored-By"
+value-template = "{{ echo $USER }}"
+```
+
+#### Branch value pattern
+
+You can also add the ticket number from the task tracker to the footer if it is in the branch name:
+
+```toml
+[additional-footers]
+key = "Ticket-ID"
+branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
+```
+
+For example, if your branch name is `feature/CC-123/add-new-feature` or `feature/CC-123`, the `Ticket-ID` footer will be added to the commit message with the value `CC-123`.
+
+If the ticket number is not found in the branch name, footer will be skipped.
+
+#### On conflict
+
+If the footer already exists in the commit message, you can specify what to do with it.
+
+```toml
+[additional-footers]
+key = "Ticket-ID"
+branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
+on-conflict = "skip" # skip, append, error
+```
+
+Available options:
+
+- `skip` - skip the footer if it already exists
+- `append` - append the footer to the end of the footer list
+- `error` - abort the commit
