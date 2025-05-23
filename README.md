@@ -60,6 +60,18 @@ scope-enum = ["cc", "config", "git", "linter"]
 exists = ["Issue-ID", "Authored-By"]
 ```
 
+### Performance
+
+commitfmt is very fast because its code is written in Rust with memory consumption and performance in mind.
+
+It natively supports following platforms:
+
+| OS | Architecture |
+| --- | --- |
+| macOS | x86_64, arm64 |
+| Windows | x86_64, i686 |
+| Linux | x86_64, i686, arm64 |
+
 ## Installation
 
 ### pnpm
