@@ -46,7 +46,7 @@ body description
 
 commitfmt can check that developers follow the rules set by the project.
 
-For example, check that only allowed types and scopes are used. To do this, add the following to the [configuration file](#configuration):
+For example, check that only allowed types and scopes are used. To do this, add the following to the <nobr>[configuration file](#configuration)</nobr>:
 
 ```toml
 [lint.header]
@@ -73,6 +73,16 @@ It natively supports following platforms:
 | Linux | x86_64, i686, arm64 |
 
 ## Installation
+
+### Install script
+
+```bash
+# Install latest version
+curl -sSfL https://raw.githubusercontent.com/mishamyrt/commitfmt/refs/heads/main/scripts/install.sh | bash
+
+# Install specific version
+curl -sSfL https://raw.githubusercontent.com/mishamyrt/commitfmt/refs/heads/main/scripts/install.sh | bash -s -- -v v0.1.0
+```
 
 ### pnpm
 
@@ -201,7 +211,7 @@ If the ticket number is not found in the branch name, footer will be skipped.
 
 #### On conflict
 
-If the footer already exists in the commit message, you can specify what to do with it.
+If the footer already exists in the commit message, you can specify what to do with it. By default, the footer will be skipped.
 
 ```toml
 [additional-footers]
