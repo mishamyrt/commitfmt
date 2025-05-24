@@ -14,6 +14,11 @@ publish:
 		packaging/npm \
 		packaging/pypi
 	@git commit -m "chore: release v$(VERSION) 🔥"
+	@git tag -a v$(VERSION)
+	@git-cliff -o CHANGELOG.md
+	@git tag -d v$(VERSION)
+	@git add CHANGELOG.md
+	@git commit --amend --no-edit
 	@git tag -a v$(VERSION) -m "release v$(VERSION)"
 	@git push
 	@git push --tags
