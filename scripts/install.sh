@@ -129,8 +129,6 @@ download_binary() {
         $EXTRACT_CMD "$filename" || error "Extraction failed"
     fi
 
-        ls commitfmt-aarch64-apple-darwin
-
     # Binary is inside platform-specific directory
     local platform_dir="commitfmt-${PLATFORM}"
     if [[ -f "$platform_dir/$BINARY_NAME" ]]; then
@@ -208,8 +206,10 @@ main() {
         # Add 'v' prefix if missing
         [[ "$version" == v* ]] || version="v$version"
         LATEST_VERSION="$version"
+        info "Installing commitfmt $LATEST_VERSION"
     else
         get_latest_version
+        info "Installing commitfmt $LATEST_VERSION"
     fi
 
     download_binary "$LATEST_VERSION"
