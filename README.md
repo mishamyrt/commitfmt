@@ -74,14 +74,14 @@ It natively supports following platforms:
 
 ## Installation
 
-### Install script
+### Script
+
+You can use a simple [script](https://github.com/mishamyrt/commitfmt/blob/refs/heads/main/scripts/install.sh) to install commitfmt.
+It will download the latest version of the binary and install it to the system.
 
 ```bash
 # Install latest version
 curl -sSfL https://raw.githubusercontent.com/mishamyrt/commitfmt/refs/heads/main/scripts/install.sh | bash
-
-# Install specific version
-curl -sSfL https://raw.githubusercontent.com/mishamyrt/commitfmt/refs/heads/main/scripts/install.sh | bash -s -- -v v0.1.0
 ```
 
 ### pnpm
