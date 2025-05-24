@@ -1,4 +1,4 @@
-VERSION = 0.1.0
+VERSION = 0.1.1
 
 .PHONY: test
 test:
@@ -14,7 +14,7 @@ publish:
 		packaging/npm \
 		packaging/pypi
 	@git commit -m "chore: release v$(VERSION) 🔥"
-	@git tag -a v$(VERSION)
+	@git tag v$(VERSION)
 	@git-cliff -o CHANGELOG.md
 	@git tag -d v$(VERSION)
 	@git add CHANGELOG.md
