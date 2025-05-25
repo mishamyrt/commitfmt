@@ -1,9 +1,11 @@
 pre-commit:
   jobs:
     - name: check formatting
+      glob: "**/*.rs"
       run: cargo fmt --all -- --check
 
     - name: check clippy
+      glob: "**/*.rs"
       run: cargo clippy --all
 
 prepare-commit-msg:
