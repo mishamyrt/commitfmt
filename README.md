@@ -219,6 +219,20 @@ For example, if your branch name is `feature/CC-123/add-new-feature` or `feature
 
 If the ticket number is not found in the branch name, footer will be skipped.
 
+You can use [rustexp](https://rustexp.lpil.uk) to test your pattern.
+
+##### Recipes
+
+Examples of patterns for branch names in git flow format:
+
+- Jira/YouTrack: `(?:.*)/([A-Z0-9-]+)/?(?:.*)`
+  - `feature/CFMT-123`
+  - `feature/CFMT-123/add-new-feature`
+- GitHub: `(?:.*)/#?([0-9-]+)/?(?:.*)`
+  - `feature/#123`
+  - `feature/123`
+  - `feature/#123/add-new-feature`
+
 #### On conflict
 
 If the footer already exists in the commit message, you can specify what to do with it. By default, the footer will be skipped.
