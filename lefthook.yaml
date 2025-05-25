@@ -1,0 +1,12 @@
+pre-commit:
+  jobs:
+    - name: check formatting
+      run: cargo fmt --all -- --check
+
+    - name: check clippy
+      run: cargo clippy --all
+
+prepare-commit-msg:
+  jobs:
+    - name: lint commit message
+      run: commitfmt

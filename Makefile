@@ -1,5 +1,12 @@
 VERSION = 0.1.1
 
+.PHONY: setup
+setup:
+# TODO: remove dependency on Go
+	@go install github.com/evilmartians/lefthook@latest
+
+	lefthook install
+
 .PHONY: test
 test:
 	cargo test -- --nocapture
