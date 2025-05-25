@@ -151,9 +151,6 @@ impl<'a> Check<'a> {
         if self.rules.contains(Rule::FooterMinLength) {
             footer::min_length(&mut self.report, message, self.settings.footer.min_length);
         }
-        if self.rules.contains(Rule::FooterExists) {
-            footer::exists(&mut self.report, message, &self.settings.footer.required);
-        }
     }
 
     pub fn lint(&mut self, message: &Message) {
@@ -163,6 +160,11 @@ impl<'a> Check<'a> {
             self.lint_body(message);
         }
 
+        // First check required.
+        // It will fail on empty footers.
+        if self.rules.contains(Rule::FooterExists) {
+            footer::exists(&mut self.report, message, &self.settings.footer.required);
+        }
         if !message.footers.is_empty() {
             self.lint_footers(message);
         }
@@ -182,7 +184,7 @@ mod tests {
 
         let mut check = Check::new(&settings, rules);
         let message =
-            Message::parse("feat: my feature\nbody").expect("Unable to parse commit message");
+            Message::parse("feat: my feature\nbody", None, None).expect("Unable to parse commit message");
         check.lint(&message);
         assert_eq!(check.report.violations.len(), 1);
     }
@@ -193,8 +195,8 @@ mod tests {
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
         let mut check = Check::new(&settings, rules);
-        let message = Message::parse("feat: my feature\n\nbody")
-            .expect("Unable to parse commit message");
+        let message =
+            Message::parse("feat: my feature\n\nbody", None, None).expect("Unable to parse commit message");
         check.lint(&message);
         assert_eq!(check.report.violations.len(), 0);
     }
