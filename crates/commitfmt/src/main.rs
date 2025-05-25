@@ -13,9 +13,9 @@ use logging::pluralize;
 use std::{io::Read, process};
 
 use commitfmt_cc::Message;
-use commitfmt_config::{params::CommitParams, parse::CommitSettingsParser};
 use commitfmt_git::Repository;
 use commitfmt_linter::{check::Check, violation::FixMode};
+use commitfmt_workspace::{open_settings, CommitSettings};
 
 use report::{print_violation, report_violations};
 
@@ -55,7 +55,7 @@ fn handle_commit_range(
     repo: &Repository,
     from: &str,
     to: &str,
-    params: &CommitParams,
+    params: &CommitSettings,
 ) -> process::ExitCode {
     let commits = match repo.get_commits(from, to) {
         Ok(commits) => commits,
@@ -93,7 +93,7 @@ fn handle_commit_range(
 fn handle_single_message(
     source: InputSource,
     repo: &Repository,
-    params: &CommitParams,
+    params: &CommitSettings,
     lint: bool,
 ) -> process::ExitCode {
     let mut input = String::new();
@@ -206,8 +206,8 @@ fn main() -> process::ExitCode {
         }
     };
 
-    let params = match CommitParams::load(&cwd) {
-        Ok(params) => params.unwrap_or_default(),
+    let params = match open_settings(&repo.get_root()) {
+        Ok(params) => params,
         Err(err) => {
             print_error!("Failed to load settings: {}", err);
             return process::ExitCode::FAILURE;

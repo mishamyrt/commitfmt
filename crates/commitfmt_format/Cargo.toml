@@ -12,7 +12,7 @@ license = { workspace = true }
 
 [dependencies]
 commitfmt_cc = { workspace = true }
-commitfmt_config = { workspace = true }
+commitfmt_workspace = { workspace = true }
 commitfmt_git = { workspace = true }
 thiserror = { workspace = true }
 nom = { workspace = true }

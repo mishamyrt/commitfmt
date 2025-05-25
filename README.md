@@ -179,6 +179,16 @@ To enable unsafe fixes, add the following to your config file:
 unsafe-fixes = true
 ```
 
+### Extending
+
+You can extend the configuration of the parent project by adding the `extends` key to your config file:
+
+```toml
+extends = "node_modules/commitfmt-config-standard/commitfmt.toml"
+```
+
+Extension is only possible for the current configuration. If the current configuration extends another configuration, which in turn extends a third configuration, commitfmt will throw an error when trying to load such a configuration.
+
 ### Additional footers
 
 commitfmt can add additional footers to the commit message.

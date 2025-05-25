@@ -1,5 +1,5 @@
 use commitfmt_cc::{Footer, Message, SeparatorAlignment};
-use commitfmt_config::{params::OnConflictAction, AdditionalFooter};
+use commitfmt_workspace::{AdditionalFooter, OnConflictAction};
 use regex::Regex;
 use thiserror::Error;
 

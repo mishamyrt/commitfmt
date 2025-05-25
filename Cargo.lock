@@ -243,10 +243,10 @@ dependencies = [
  "clap",
  "colored",
  "commitfmt_cc",
- "commitfmt_config",
  "commitfmt_format",
  "commitfmt_git",
  "commitfmt_linter",
+ "commitfmt_workspace",
  "criterion",
  "fern",
  "lazy_static",
@@ -276,27 +276,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_config"
-version = "0.0.0"
-dependencies = [
- "commitfmt_cc",
- "commitfmt_linter",
- "fern",
- "log",
- "serde",
- "serde_derive",
- "tempfile",
- "thiserror",
- "toml",
-]
-
-[[package]]
 name = "commitfmt_format"
 version = "0.0.1"
 dependencies = [
  "commitfmt_cc",
- "commitfmt_config",
  "commitfmt_git",
+ "commitfmt_workspace",
  "nom",
  "regex",
  "thiserror",
@@ -334,6 +319,21 @@ dependencies = [
  "proc-macro2 1.0.93",
  "quote 1.0.38",
  "syn 2.0.98",
+]
+
+[[package]]
+name = "commitfmt_workspace"
+version = "0.0.0"
+dependencies = [
+ "commitfmt_cc",
+ "commitfmt_linter",
+ "fern",
+ "log",
+ "serde",
+ "serde_derive",
+ "tempfile",
+ "thiserror",
+ "toml",
 ]
 
 [[package]]

@@ -13,7 +13,7 @@ Library for formatting commit messages. Extends messages with additional footers
 
 ```rust
 use commitfmt_cc::Message;
-use commitfmt_config::AdditionalFooter;
+use commitfmt_workspace::AdditionalFooter;
 use commitfmt_format::{append_footers, FooterError};
 
 // Create a commit message
@@ -25,13 +25,13 @@ let footers = vec![
         key: "Signed-off-by".to_string(),
         value_template: Some("{{git config user.name}} <{{git config user.email}}>".to_string()),
         branch_value_pattern: None,
-        on_conflict: commitfmt_config::params::OnConflictAction::Append,
+        on_conflict: commitfmt_workspace::params::OnConflictAction::Append,
     },
     AdditionalFooter {
         key: "Task-ID".to_string(), 
         value_template: None,
         branch_value_pattern: Some("feature/([A-Z]+-[0-9]+)".to_string()),
-        on_conflict: commitfmt_config::params::OnConflictAction::Append,
+        on_conflict: commitfmt_workspace::params::OnConflictAction::Append,
     }
 ];
 

@@ -1,16 +1,19 @@
-pub mod params;
-pub mod parse;
+mod config;
+mod rules;
+mod settings;
 
-pub(crate) mod config;
-pub(crate) mod parse_toml;
-
-pub use params::AdditionalFooter;
+pub use settings::AdditionalFooter;
 
 use commitfmt_linter::rules::LinterGroup;
 use thiserror::Error;
 
+pub use settings::{open_settings, CommitSettings, OnConflictAction};
+
 #[derive(Error, Debug)]
-pub enum ConfigError {
+pub enum WorkspaceError {
+    #[error("Config file not found in {0}")]
+    ConfigNotFound(String),
+
     #[error("Unable to parse config: {0}")]
     ParseError(String),
 
@@ -52,4 +55,27 @@ pub enum ConfigError {
 
     #[error("Footer '{0}' has Invalid on conflict action: {1}")]
     InvalidOnConflictAction(String, String),
+
+    #[error("Circular dependency detected in config inheritance: {0}")]
+    CircularDependency(String),
+
+    #[error("Extended config file not found: {0}")]
+    ExtendedConfigNotFound(String),
+
+    #[error("Nested extend is not supported")]
+    NestedExtend,
+
+    #[error("Unable to parse TOML")]
+    TomlParseError(#[from] toml::de::Error),
+
+    #[error("Unknown on conflict action: {0}")]
+    UnknownOnConflictAction(String),
+
+    #[error("Invalid word case: {0}")]
+    InvalidWordCase(String),
+
+    #[error("Invalid text case: {0}")]
+    InvalidTextCase(String),
 }
+
+pub type WorkspaceResult<T> = std::result::Result<T, WorkspaceError>;

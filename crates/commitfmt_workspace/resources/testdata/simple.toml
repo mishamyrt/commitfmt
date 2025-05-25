@@ -1,0 +1,10 @@
+[lint]
+unsafe-fixes = true
+
+[lint.header]
+full-stop = false
+
+[[additional-footers]]
+key = "Footer"
+on-conflict = "error"
+value-template = "{{ echo $USER }}"

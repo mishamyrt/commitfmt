@@ -37,4 +37,4 @@ format:
 
 .PHONY: lint
 lint:
-	cargo clippy
+	cargo clippy --all

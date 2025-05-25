@@ -30,7 +30,7 @@ impl Repository {
 
     /// Returns the root directory of the repository
     pub fn get_root(&self) -> PathBuf {
-        self.git_dir.clone()
+        self.git_dir.parent().unwrap().to_path_buf()
     }
 
     /// Returns the name of the current branch
