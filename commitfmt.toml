@@ -1,0 +1,8 @@
+[lint.header]
+scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros"]
+description-max-length = 72
+type-required = true
+
+[[additional-footers]]
+key = "Issue-ID"
+branch-value-pattern = "(?:.*)/#([0-9-]+)/?(?:.*)"
