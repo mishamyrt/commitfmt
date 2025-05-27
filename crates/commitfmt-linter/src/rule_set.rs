@@ -43,10 +43,7 @@ impl IntoIterator for RuleSet {
     type IntoIter = RuleSetIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        RuleSetIter {
-            bits: self.0,
-            current_bit: 0,
-        }
+        RuleSetIter { bits: self.0, current_bit: 0 }
     }
 }
 
@@ -55,10 +52,7 @@ impl IntoIterator for &RuleSet {
     type IntoIter = RuleSetIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        RuleSetIter {
-            bits: self.0,
-            current_bit: 0,
-        }
+        RuleSetIter { bits: self.0, current_bit: 0 }
     }
 }
 
@@ -68,9 +62,8 @@ impl fmt::Display for RuleSet {
             return write!(f, "[]");
         }
 
-        let rules: Vec<String> = self.iter()
-            .map(|rule| rule.as_display().to_string())
-            .collect();
+        let rules: Vec<String> =
+            self.iter().map(|rule| rule.as_display().to_string()).collect();
 
         writeln!(f, "[")?;
         for (i, rule) in rules.iter().enumerate() {
