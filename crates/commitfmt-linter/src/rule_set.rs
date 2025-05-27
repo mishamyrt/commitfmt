@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::rules::Rule;
 
 /// Default set of rules
@@ -10,8 +12,82 @@ const DEFAULT_RULES: RuleSet = RuleSet::from_rules(&[
 /// Rule Set implements a set of rules using bit sets in a u64.
 /// Each bit corresponds to a rule.
 /// For now it has a maximum of 64 rules.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct RuleSet(pub u64);
+
+/// Iterator over the rules in a `RuleSet`
+pub struct RuleSetIter {
+    bits: u64,
+    current_bit: u8,
+}
+
+impl Iterator for RuleSetIter {
+    type Item = Rule;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while self.current_bit < 64 {
+            let bit_mask = 1u64 << self.current_bit;
+            if self.bits & bit_mask != 0 {
+                let rule = unsafe { std::mem::transmute::<u8, Rule>(self.current_bit) };
+                self.current_bit += 1;
+                return Some(rule);
+            }
+            self.current_bit += 1;
+        }
+        None
+    }
+}
+
+impl IntoIterator for RuleSet {
+    type Item = Rule;
+    type IntoIter = RuleSetIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        RuleSetIter {
+            bits: self.0,
+            current_bit: 0,
+        }
+    }
+}
+
+impl IntoIterator for &RuleSet {
+    type Item = Rule;
+    type IntoIter = RuleSetIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        RuleSetIter {
+            bits: self.0,
+            current_bit: 0,
+        }
+    }
+}
+
+impl fmt::Display for RuleSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.is_empty() {
+            return write!(f, "[]");
+        }
+
+        let rules: Vec<String> = self.iter()
+            .map(|rule| rule.as_display().to_string())
+            .collect();
+
+        writeln!(f, "[")?;
+        for (i, rule) in rules.iter().enumerate() {
+            write!(f, "\t{rule}")?;
+            if i < rules.len() - 1 {
+                writeln!(f, ",")?;
+            }
+        }
+        write!(f, "\n]")
+    }
+}
+
+impl fmt::Debug for RuleSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
 
 // TODO: Implement buckets, when we have more than 64 rules
 
@@ -96,6 +172,12 @@ impl RuleSet {
     pub const fn contains(&self, rule: Rule) -> bool {
         self.0 & (1 << (rule as u64)) != 0
     }
+
+    /// Returns an iterator over the rules in this set.
+    #[inline]
+    pub fn iter(&self) -> RuleSetIter {
+        self.into_iter()
+    }
 }
 
 // TODO: Implement a way to print the rules not as number but as names
@@ -174,5 +256,93 @@ mod tests {
         assert!(set.contains(Rule::BodyLeadingNewLine));
         assert!(set.contains(Rule::HeaderDescriptionFullStop));
         assert_eq!(set.len(), 2);
+    }
+
+    #[test]
+    fn test_iterator() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderDescriptionFullStop);
+
+        let mut rules: Vec<Rule> = set.into_iter().collect();
+        rules.sort();
+
+        let mut expected = vec![Rule::BodyLeadingNewLine, Rule::HeaderDescriptionFullStop];
+        expected.sort();
+
+        assert_eq!(rules, expected);
+    }
+
+    #[test]
+    fn test_iterator_empty() {
+        let set = RuleSet::empty();
+        let rules: Vec<Rule> = set.into_iter().collect();
+        assert!(rules.is_empty());
+    }
+
+    #[test]
+    fn test_iterator_reference() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+
+        let rules: Vec<Rule> = (&set).into_iter().collect();
+        assert_eq!(rules.len(), 1);
+        assert_eq!(rules[0], Rule::BodyLeadingNewLine);
+
+        // Check that set can still be used
+        assert!(set.contains(Rule::BodyLeadingNewLine));
+    }
+
+    #[test]
+    fn test_iter_method() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderDescriptionFullStop);
+
+        let rules: Vec<Rule> = set.iter().collect();
+        assert_eq!(rules.len(), 2);
+        assert!(rules.contains(&Rule::BodyLeadingNewLine));
+        assert!(rules.contains(&Rule::HeaderDescriptionFullStop));
+
+        // Check that set can still be used after iter()
+        assert!(set.contains(Rule::BodyLeadingNewLine));
+    }
+
+    #[test]
+    fn test_display_empty() {
+        let set = RuleSet::empty();
+        assert_eq!(format!("{set}"), "[]");
+    }
+
+    #[test]
+    fn test_display_single_rule() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+        let expected = "[\n\tleading-newline\n]";
+        assert_eq!(format!("{set}"), expected);
+    }
+
+    #[test]
+    fn test_display_multiple_rules() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderDescriptionFullStop);
+
+        let display = format!("{set}");
+        assert!(display.starts_with("[\n"));
+        assert!(display.ends_with("\n]"));
+        assert!(display.contains("\tleading-newline"));
+        assert!(display.contains("\tdescription-full-stop"));
+        assert!(display.contains(",\n"));
+    }
+
+    #[test]
+    fn test_debug_format() {
+        let mut set = RuleSet::empty();
+        set.insert(Rule::BodyLeadingNewLine);
+
+        let debug = format!("{set:?}");
+        let display = format!("{set}");
+        assert_eq!(debug, display);
     }
 }

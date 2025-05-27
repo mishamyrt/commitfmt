@@ -9,7 +9,7 @@ use toml::Table;
 use commitfmt_cc::footer::SeparatorAlignment;
 
 use crate::{
-    config::{AdditionalFooterConfig, CommitParams},
+    configuration::{AdditionalFooterConfig, CommitParams},
     rules::parse_rule_setting,
     WorkspaceError, WorkspaceResult,
 };
@@ -160,7 +160,7 @@ impl CommitSettings {
 
         let footers: Vec<AdditionalFooter> = params
             .config
-            .footers
+            .additional_footers
             .unwrap_or_default()
             .into_iter()
             .map(AdditionalFooter::from_config)
@@ -183,7 +183,7 @@ pub fn open_settings(dir_path: &Path) -> WorkspaceResult<CommitSettings> {
 mod tests {
     use toml::map::Map;
 
-    use crate::config::{CommitConfig, LintConfig};
+    use crate::configuration::{CommitConfiguration, LintConfiguration};
 
     use super::*;
 
@@ -216,10 +216,10 @@ mod tests {
     #[test]
     fn test_rules_settings_from_params() {
         let params = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: None,
-                lint: Some(LintConfig { unsafe_fixes: Some(true) }),
-                footers: Some(vec![AdditionalFooterConfig {
+                lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "Footer".to_string(),
                     on_conflict: Some("error".to_string()),
                     value_template: Some("{{ echo $USER }}".to_string()),

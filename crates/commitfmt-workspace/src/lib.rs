@@ -1,4 +1,4 @@
-mod config;
+mod configuration;
 mod rules;
 mod settings;
 

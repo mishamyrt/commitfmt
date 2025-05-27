@@ -25,31 +25,31 @@ pub(crate) struct AdditionalFooterConfig {
 }
 
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
-pub(crate) struct LintConfig {
-    #[serde(alias = "unsafe-fixes")]
+#[serde(rename_all = "kebab-case")]
+pub(crate) struct LintConfiguration {
     pub unsafe_fixes: Option<bool>,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
-pub(crate) struct CommitConfig {
+pub(crate) struct CommitConfiguration {
     pub extends: Option<String>,
 
-    pub lint: Option<LintConfig>,
+    pub lint: Option<LintConfiguration>,
 
     #[serde(alias = "additional-footers")]
-    pub footers: Option<Vec<AdditionalFooterConfig>>,
+    pub additional_footers: Option<Vec<AdditionalFooterConfig>>,
 }
 
 #[derive(Debug, PartialEq, Clone, Default)]
 pub(crate) struct CommitParams {
-    pub config: CommitConfig,
+    pub config: CommitConfiguration,
     pub lint_values: Map<String, Value>,
 }
 
 impl CommitParams {
     /// Parse a TOML string into a `CommitParams` object
     fn parse_toml(data: &str) -> WorkspaceResult<Self> {
-        let config: CommitConfig = toml::from_str(data)?;
+        let config: CommitConfiguration = toml::from_str(data)?;
 
         let config_values = data.parse::<Table>()?;
         let mut lint_values = Map::new();
@@ -118,13 +118,13 @@ impl CommitParams {
             self.config.lint = Some(other_lint.clone());
         }
 
-        if let Some(other_footers) = &other.config.footers {
-            if let Some(self_footers) = &mut self.config.footers {
+        if let Some(other_footers) = &other.config.additional_footers {
+            if let Some(self_footers) = &mut self.config.additional_footers {
                 for footer in other_footers {
                     self_footers.push(footer.clone());
                 }
             } else {
-                self.config.footers = Some(other_footers.clone());
+                self.config.additional_footers = Some(other_footers.clone());
             }
         }
 
@@ -157,8 +157,8 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(params.config.extends, None);
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
 
-        assert!(params.config.footers.is_some());
-        let footers = params.config.footers.as_ref().unwrap();
+        assert!(params.config.additional_footers.is_some());
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].on_conflict, Some("error".to_string()));
@@ -171,19 +171,19 @@ value-template = \"{{ echo $USER }}\"
     #[test]
     fn test_extend_with_lint_config() {
         let mut params = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: Some("base".to_string()),
-                lint: Some(LintConfig { unsafe_fixes: Some(false) }),
-                footers: None,
+                lint: Some(LintConfiguration { unsafe_fixes: Some(false) }),
+                additional_footers: None,
             },
             lint_values: Map::new(),
         };
 
         let other = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: Some("ignored".to_string()),
-                lint: Some(LintConfig { unsafe_fixes: Some(true) }),
-                footers: None,
+                lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
+                additional_footers: None,
             },
             lint_values: Map::new(),
         };
@@ -197,10 +197,10 @@ value-template = \"{{ echo $USER }}\"
     #[test]
     fn test_extend_with_footers() {
         let mut params = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: None,
                 lint: None,
-                footers: Some(vec![AdditionalFooterConfig {
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "existing".to_string(),
                     on_conflict: Some("error".to_string()),
                     value_template: Some("existing template".to_string()),
@@ -213,10 +213,10 @@ value-template = \"{{ echo $USER }}\"
         };
 
         let other = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: None,
                 lint: None,
-                footers: Some(vec![AdditionalFooterConfig {
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "new".to_string(),
                     on_conflict: Some("skip".to_string()),
                     value_template: Some("new template".to_string()),
@@ -230,7 +230,7 @@ value-template = \"{{ echo $USER }}\"
 
         params.extend(&other);
 
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 2);
         assert_eq!(footers[0].key, "existing");
         assert_eq!(footers[1].key, "new");
@@ -239,15 +239,19 @@ value-template = \"{{ echo $USER }}\"
     #[test]
     fn test_extend_with_empty_footers() {
         let mut params = CommitParams {
-            config: CommitConfig { extends: None, lint: None, footers: None },
+            config: CommitConfiguration {
+                extends: None,
+                lint: None,
+                additional_footers: None,
+            },
             lint_values: Map::new(),
         };
 
         let other = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: None,
                 lint: None,
-                footers: Some(vec![AdditionalFooterConfig {
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "first".to_string(),
                     on_conflict: None,
                     value_template: Some("template".to_string()),
@@ -261,7 +265,7 @@ value-template = \"{{ echo $USER }}\"
 
         params.extend(&other);
 
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "first");
     }
@@ -269,7 +273,7 @@ value-template = \"{{ echo $USER }}\"
     #[test]
     fn test_extend_with_params() {
         let mut params = CommitParams {
-            config: CommitConfig::default(),
+            config: CommitConfiguration::default(),
             lint_values: {
                 let mut map = Map::new();
                 map.insert(
@@ -281,7 +285,7 @@ value-template = \"{{ echo $USER }}\"
         };
 
         let other = CommitParams {
-            config: CommitConfig::default(),
+            config: CommitConfiguration::default(),
             lint_values: {
                 let mut map = Map::new();
                 map.insert("new_key".to_string(), Value::String("new_value".to_string()));
@@ -308,16 +312,20 @@ value-template = \"{{ echo $USER }}\"
     #[test]
     fn test_extend_with_none_values() {
         let mut params = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: Some("test".to_string()),
-                lint: Some(LintConfig { unsafe_fixes: Some(true) }),
-                footers: Some(vec![]),
+                lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
+                additional_footers: Some(vec![]),
             },
             lint_values: Map::new(),
         };
 
         let other = CommitParams {
-            config: CommitConfig { extends: None, lint: None, footers: None },
+            config: CommitConfiguration {
+                extends: None,
+                lint: None,
+                additional_footers: None,
+            },
             lint_values: Map::new(),
         };
 
@@ -326,16 +334,16 @@ value-template = \"{{ echo $USER }}\"
         // Original values should remain unchanged
         assert_eq!(params.config.extends, Some("test".to_string()));
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
-        assert_eq!(params.config.footers.as_ref().unwrap().len(), 0);
+        assert_eq!(params.config.additional_footers.as_ref().unwrap().len(), 0);
     }
 
     #[test]
     fn test_extend_complete_scenario() {
         let mut params = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: Some("base".to_string()),
-                lint: Some(LintConfig { unsafe_fixes: Some(false) }),
-                footers: Some(vec![AdditionalFooterConfig {
+                lint: Some(LintConfiguration { unsafe_fixes: Some(false) }),
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "base_footer".to_string(),
                     on_conflict: Some("error".to_string()),
                     value_template: Some("base template".to_string()),
@@ -352,10 +360,10 @@ value-template = \"{{ echo $USER }}\"
         };
 
         let other = CommitParams {
-            config: CommitConfig {
+            config: CommitConfiguration {
                 extends: Some("should_be_ignored".to_string()),
-                lint: Some(LintConfig { unsafe_fixes: Some(true) }),
-                footers: Some(vec![AdditionalFooterConfig {
+                lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
+                additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "other_footer".to_string(),
                     on_conflict: Some("skip".to_string()),
                     value_template: None,
@@ -384,7 +392,7 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
 
         // Check footers were appended
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 2);
         assert_eq!(footers[0].key, "base_footer");
         assert_eq!(footers[1].key, "other_footer");
@@ -411,7 +419,7 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(params.config.extends, None);
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
 
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].on_conflict, Some("error".to_string()));
@@ -428,7 +436,7 @@ value-template = \"{{ echo $USER }}\"
 
         assert_eq!(params.config.extends, Some("simple.toml".to_string()));
         assert_eq!(params.config.lint, None);
-        assert_eq!(params.config.footers, None);
+        assert_eq!(params.config.additional_footers, None);
         assert!(params.lint_values.is_empty());
     }
 
@@ -440,7 +448,7 @@ value-template = \"{{ echo $USER }}\"
         // Config should come from parent (simple.toml)
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
 
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].on_conflict, Some("error".to_string()));
@@ -458,7 +466,7 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(params.config.extends, None);
         assert_eq!(params.config.lint.as_ref().unwrap().unsafe_fixes, Some(true));
 
-        let footers = params.config.footers.as_ref().unwrap();
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
     }
@@ -500,8 +508,8 @@ alignment = \"right\"
         )
         .unwrap();
 
-        assert!(params.config.footers.is_some());
-        let footers = params.config.footers.as_ref().unwrap();
+        assert!(params.config.additional_footers.is_some());
+        let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].separator, Some('#'));
