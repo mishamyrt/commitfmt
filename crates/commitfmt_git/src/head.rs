@@ -2,7 +2,7 @@ const HEAD_PREFIX: &str = "ref: refs/heads/";
 
 /// Extracts the name of the current branch from the HEAD file.
 /// Returns None if the HEAD file does not contain a branch name (e.g. detached HEAD)
-pub fn branch_name_from_head(head: &str) -> Option<&str> {
+pub(crate) fn branch_name_from_head(head: &str) -> Option<&str> {
     if !head.starts_with(HEAD_PREFIX) {
         return None;
     }

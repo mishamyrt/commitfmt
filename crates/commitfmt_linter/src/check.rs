@@ -183,8 +183,8 @@ mod tests {
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
         let mut check = Check::new(&settings, rules);
-        let message =
-            Message::parse("feat: my feature\nbody", None, None).expect("Unable to parse commit message");
+        let message = Message::parse("feat: my feature\nbody", None, None)
+            .expect("Unable to parse commit message");
         check.lint(&message);
         assert_eq!(check.report.violations.len(), 1);
     }
@@ -195,8 +195,8 @@ mod tests {
         let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
         let mut check = Check::new(&settings, rules);
-        let message =
-            Message::parse("feat: my feature\n\nbody", None, None).expect("Unable to parse commit message");
+        let message = Message::parse("feat: my feature\n\nbody", None, None)
+            .expect("Unable to parse commit message");
         check.lint(&message);
         assert_eq!(check.report.violations.len(), 0);
     }

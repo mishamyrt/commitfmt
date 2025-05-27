@@ -1,11 +1,28 @@
-mod bin;
+use thiserror::Error;
+
 mod commit;
-mod config;
-pub mod head;
+mod head;
 mod hook;
-pub mod path;
+mod path;
 mod repository;
 
 pub use commit::Commit;
-pub use config::get_trailer_separators;
-pub use {bin::is_available, hook::HookType, repository::Repository};
+pub use hook::HookType;
+pub use repository::Repository;
+
+#[derive(Error, Debug)]
+pub enum GitError {
+    #[error("Unable to find: {0}")]
+    NotFound(String),
+
+    #[error("Unable to resolve: {0}")]
+    NotResolvable(String),
+
+    #[error("Command failed with exit code {0}: {1}")]
+    CommandFailed(i32, String),
+
+    #[error("IO error: {0}")]
+    IOError(#[from] std::io::Error),
+}
+
+type GitResult<T> = std::result::Result<T, GitError>;

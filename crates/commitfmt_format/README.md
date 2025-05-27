@@ -1,4 +1,4 @@
-# commitfmt_format
+# commitfmt format
 
 Library for formatting commit messages. Extends messages with additional footers based on specified configuration.
 

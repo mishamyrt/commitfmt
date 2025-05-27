@@ -1,41 +1,40 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use thiserror::Error;
 
-#[derive(Error, Debug)]
-pub enum PathError {
-    #[error("Unable to find repository root")]
-    RootNotFound(PathBuf),
+use crate::{GitError, GitResult};
 
-    #[error("Unable to resolve path")]
-    NotResolvable(),
-}
-
-#[derive(Error, Debug)]
-pub enum CmdError {
-    #[error("Command exited with error: {0}")]
-    InvalidResult(String),
-
-    #[error("Command execution failed")]
-    ExecutionFailed(std::io::Error),
-}
+const COMMIT_MSG_FILE: &str = "COMMIT_EDITMSG";
+const HEAD_FILE: &str = "HEAD";
 
 /// Returns the path to the .git directory of a provided repo root.
-pub fn git_directory(path: &Path) -> PathBuf {
-    path.join(".git")
+#[inline]
+pub(crate) fn git_directory(repo_dir: &Path) -> PathBuf {
+    repo_dir.join(".git")
+}
+
+/// Returns the path to the commit message file
+#[inline]
+pub(crate) fn get_commit_message_file(repo_dir: &Path) -> PathBuf {
+    git_directory(repo_dir).join(COMMIT_MSG_FILE)
+}
+
+/// Returns the path to the HEAD file
+#[inline]
+pub(crate) fn get_head_file(repo_dir: &Path) -> PathBuf {
+    git_directory(repo_dir).join(HEAD_FILE)
 }
 
 /// Finds the root directory of a git repository.
 /// It traverses up the tree until it finds the .git directory.
-pub fn find_root(start_path: &Path) -> Result<PathBuf, PathError> {
+pub(crate) fn find_root(start_path: &Path) -> Option<PathBuf> {
     let Ok(mut current) = start_path.canonicalize() else {
-        return Err(PathError::NotResolvable());
+        return None;
     };
 
     loop {
         let git_path = git_directory(&current);
         if git_path.is_dir() {
-            return Ok(current);
+            return Some(current);
         }
 
         match current.parent() {
@@ -49,28 +48,29 @@ pub fn find_root(start_path: &Path) -> Result<PathBuf, PathError> {
         }
     }
 
-    Err(PathError::RootNotFound(current))
+    None
 }
 
 /// Returns the path to the hooks directory
 /// It uses the `git rev-parse --git-path hooks` command so it depends
 /// on `git` executable at the $PATH.
-pub fn hooks_dir(repo_path: &Path) -> Result<PathBuf, CmdError> {
+pub(crate) fn hooks_dir(repo_dir: &Path) -> GitResult<PathBuf> {
     let mut cmd = Command::new("git");
-    cmd.arg("rev-parse").arg("--git-path").arg("hooks").current_dir(repo_path);
+    cmd.arg("rev-parse").arg("--git-path").arg("hooks").current_dir(repo_dir);
 
     match cmd.output() {
         Ok(output) => {
             if output.status.success() {
                 let output = String::from_utf8_lossy(&output.stdout);
                 let hook_path = PathBuf::from(output.trim());
-                Ok(hook_path)
-            } else {
-                let output = String::from_utf8_lossy(&output.stderr);
-                Err(CmdError::InvalidResult(output.to_string()))
+                return Ok(repo_dir.join(hook_path));
             }
+
+            let code = output.status.code().unwrap_or(-1);
+            let stdout = String::from_utf8_lossy(&output.stderr);
+            Err(GitError::CommandFailed(code, stdout.to_string()))
         }
-        Err(error) => Err(CmdError::ExecutionFailed(error)),
+        Err(error) => Err(GitError::IOError(error)),
     }
 }
 
@@ -90,7 +90,7 @@ mod tests {
 
         let result = find_root(dir_path);
 
-        assert!(result.is_ok());
+        assert!(result.is_some());
         assert_eq!(result.unwrap().to_str(), dir_path.canonicalize().unwrap().to_str());
     }
 
@@ -106,7 +106,7 @@ mod tests {
 
         let result = find_root(subdir.as_path());
 
-        assert!(result.is_ok());
+        assert!(result.is_some());
         assert_eq!(result.unwrap().to_str(), dir_path.canonicalize().unwrap().to_str());
     }
 
@@ -117,7 +117,7 @@ mod tests {
 
         let result = find_root(dir_path);
 
-        assert!(result.is_err());
+        assert!(result.is_none());
     }
 
     #[test]
@@ -135,7 +135,7 @@ mod tests {
 
         let result = hooks_dir(dir_path);
         assert!(result.is_ok());
-        assert_eq!(result.unwrap().to_str().unwrap(), "hooks".to_string());
+        assert!(result.unwrap().ends_with("hooks"));
     }
 
     #[test]

@@ -55,9 +55,9 @@ fn handle_commit_range(
     repo: &Repository,
     from: &str,
     to: &str,
-    params: &CommitSettings,
+    settings: &CommitSettings,
 ) -> process::ExitCode {
-    let commits = match repo.get_commits(from, to) {
+    let commits = match repo.get_log(from, to) {
         Ok(commits) => commits,
         Err(err) => {
             print_error!("Failed to get commits: {}", err);
@@ -65,11 +65,18 @@ fn handle_commit_range(
         }
     };
 
+    let footer_separators = repo.trailer_separators();
+    let comment_symbol = repo.comment_symbol();
+
     let mut has_problems = false;
-    let mut check = Check::new(&params.rules.settings, params.rules.set);
+    let mut check = Check::new(&settings.rules.settings, settings.rules.set);
 
     for commit in commits {
-        let Ok(message) = Message::parse(&commit.message) else {
+        let Ok(message) = Message::parse(
+            &commit.message,
+            footer_separators.as_deref(),
+            comment_symbol.as_deref(),
+        ) else {
             print_error!("Failed to parse commit message");
             return process::ExitCode::FAILURE;
         };
@@ -93,7 +100,7 @@ fn handle_commit_range(
 fn handle_single_message(
     source: InputSource,
     repo: &Repository,
-    params: &CommitSettings,
+    settings: &CommitSettings,
     lint: bool,
 ) -> process::ExitCode {
     let mut input = String::new();
@@ -118,13 +125,18 @@ fn handle_single_message(
             unreachable!();
         }
     }
+    // TODO: remove duplicate code on range handling
+    let footer_separators = repo.trailer_separators();
+    let comment_symbol = repo.comment_symbol();
 
-    let Ok(mut message) = Message::parse(&input) else {
+    let Ok(mut message) =
+        Message::parse(&input, footer_separators.as_deref(), comment_symbol.as_deref())
+    else {
         print_error!("Failed to parse commit message");
         return process::ExitCode::FAILURE;
     };
 
-    let mut check = Check::new(&params.rules.settings, params.rules.set);
+    let mut check = Check::new(&settings.rules.settings, settings.rules.set);
     check.lint(&message);
 
     if lint {
@@ -133,6 +145,7 @@ fn handle_single_message(
         }
         let count = report_violations(check.report.violations.iter());
         print_error!("\n{}", format!("{} problems found", count));
+
         return process::ExitCode::FAILURE;
     }
 
@@ -142,7 +155,7 @@ fn handle_single_message(
         let violation = violation_box.as_ref();
         match violation.fix_mode() {
             FixMode::Unsafe => {
-                if params.lint.unsafe_fixes {
+                if settings.lint.unsafe_fixes {
                     violation.fix(message_ptr).expect("Failed to fix violation");
                 } else {
                     // TODO: add available fixes report
@@ -161,16 +174,21 @@ fn handle_single_message(
     }
 
     if unfixable_count > 0 {
-        let pluralized = pluralize(unfixable_count, "problem", "problems");
-        print_error!("\n{}", format!("{unfixable_count} unfixable {pluralized} found"));
+        let problem_pluralization = pluralize(unfixable_count, "problem", "problems");
+        print_error!(
+            "\n{}",
+            format!("{unfixable_count} unfixable {problem_pluralization} found")
+        );
+
         return process::ExitCode::FAILURE;
     }
 
     if let Some(branch) = repo.get_branch_name() {
-        match append_footers(&mut message, &params.footers.borrow(), &branch) {
+        match append_footers(&mut message, &settings.footers.borrow(), &branch) {
             Ok(()) => {}
             Err(err) => {
                 print_error!("Failed to append footers: {}", err);
+
                 return process::ExitCode::FAILURE;
             }
         }
@@ -180,6 +198,7 @@ fn handle_single_message(
         print_debug!("Writing commit message");
         if let Err(err) = repo.write_commit_message(&message.to_string()) {
             print_error!("Failed to write commit message: {}", err);
+
             return process::ExitCode::FAILURE;
         }
     } else if source == InputSource::Stdin {
@@ -206,15 +225,15 @@ fn main() -> process::ExitCode {
         }
     };
 
-    let params = match open_settings(&repo.get_root()) {
-        Ok(params) => params,
+    let settings = match open_settings(&repo.get_root()) {
+        Ok(settings) => settings,
         Err(err) => {
             print_error!("Failed to load settings: {}", err);
             return process::ExitCode::FAILURE;
         }
     };
 
-    print_debug!("Params: {:#?}", params);
+    print_debug!("Settings: {:#?}", settings);
 
     if cli.to.is_some() && cli.from.is_none() {
         print_error!("--to requires --from");
@@ -229,7 +248,7 @@ fn main() -> process::ExitCode {
         let to = cli.to.as_deref().unwrap_or("HEAD");
         let from = cli.from.as_ref().unwrap();
 
-        return handle_commit_range(&repo, from, to, &params);
+        return handle_commit_range(&repo, from, to, &settings);
     }
 
     let source = get_source(&repo);
@@ -242,5 +261,5 @@ fn main() -> process::ExitCode {
         return process::ExitCode::FAILURE;
     }
 
-    handle_single_message(source, &repo, &params, cli.lint)
+    handle_single_message(source, &repo, &settings, cli.lint)
 }

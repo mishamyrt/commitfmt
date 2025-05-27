@@ -1,8 +1,9 @@
 use thiserror::Error;
 
-use crate::body::parse_body;
-use crate::footer::{Footer, Footers};
+use crate::body::{parse_body, DEFAULT_COMMENT_SYMBOL};
+use crate::footer::Footers;
 use crate::header::Header;
+use crate::Footer;
 
 #[derive(Debug, Error)]
 pub enum ParseError {
@@ -19,11 +20,11 @@ pub struct Message {
 }
 
 impl Message {
-    pub fn parse(input: &str) -> Result<Self, ParseError> {
-        Self::parse_with_separators(input, Footer::DEFAULT_SEPARATOR)
-    }
-
-    pub fn parse_with_separators(input: &str, separators: &str) -> Result<Self, ParseError> {
+    pub fn parse(
+        input: &str,
+        footer_separators: Option<&str>,
+        comment_symbol: Option<&str>,
+    ) -> Result<Self, ParseError> {
         let header_end = input.find('\n').unwrap_or(input.len());
         let header = Header::from(&input[..header_end]);
 
@@ -31,7 +32,11 @@ impl Message {
             return Ok(Message { header, body: None, footers: Footers::default() });
         }
 
-        let (body, footers) = parse_body(&input[header_end + 1..], separators);
+        let footer_separators = footer_separators.unwrap_or(Footer::DEFAULT_SEPARATOR);
+        let comment_symbol = comment_symbol.unwrap_or(DEFAULT_COMMENT_SYMBOL);
+
+        let body_input = &input[header_end + 1..];
+        let (body, footers) = parse_body(body_input, footer_separators, comment_symbol);
 
         Ok(Message { header, body, footers: footers.unwrap_or_default() })
     }
@@ -65,7 +70,7 @@ Description body
 
 Authored-By: John Doe";
 
-        let parsed = Message::parse(commit_msg);
+        let parsed = Message::parse(commit_msg, Some(":"), Some("#"));
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
@@ -92,7 +97,7 @@ Authored-By: John Doe";
     fn test_parse_without_body() {
         let commit_msg = "feat: my feature\n\nAuthored-By: John Doe";
 
-        let parsed = Message::parse(commit_msg).unwrap();
+        let parsed = Message::parse(commit_msg, Some(":"), Some("#")).unwrap();
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
