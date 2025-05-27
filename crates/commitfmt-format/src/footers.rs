@@ -74,13 +74,11 @@ pub fn append_footers(
             return Err(FooterError::MissingValue(footer.key.clone()));
         };
 
-        message.footers.push(Footer {
-            key: footer.key.clone(),
-            // TODO: add support for separator and alignment from config
-            separator: Footer::DEFAULT_SEPARATOR.chars().next().unwrap(),
-            alignment: SeparatorAlignment::default(),
-            value,
-        });
+        let separator =
+            footer.separator.unwrap_or(Footer::DEFAULT_SEPARATOR.chars().next().unwrap());
+        let alignment = footer.alignment.unwrap_or(SeparatorAlignment::default());
+
+        message.footers.push(Footer { key: footer.key.clone(), separator, alignment, value });
     }
     Ok(())
 }
@@ -111,6 +109,8 @@ mod tests {
             value_template: Some("Test User <test@example.com>".to_string()),
             branch_value_pattern: None,
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -129,6 +129,8 @@ mod tests {
             value_template: None,
             branch_value_pattern: Some("feature/([A-Z]+-[0-9]+)".to_string()),
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "feature/ABC-123");
@@ -159,6 +161,8 @@ mod tests {
             value_template: Some("New User <new@example.com>".to_string()),
             branch_value_pattern: None,
             on_conflict: OnConflictAction::Skip,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -185,6 +189,8 @@ mod tests {
             value_template: Some("New User <new@example.com>".to_string()),
             branch_value_pattern: None,
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -211,6 +217,8 @@ mod tests {
             value_template: Some("New User <new@example.com>".to_string()),
             branch_value_pattern: None,
             on_conflict: OnConflictAction::Error,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -232,6 +240,8 @@ mod tests {
             value_template: None,
             branch_value_pattern: None,
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -252,6 +262,8 @@ mod tests {
             value_template: None,
             branch_value_pattern: Some("(unclosed pattern".to_string()),
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");
@@ -270,6 +282,8 @@ mod tests {
             value_template: None,
             branch_value_pattern: Some("feature/([A-Z]+-[0-9]+)".to_string()),
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "hotfix/ABC-123");
@@ -286,12 +300,16 @@ mod tests {
                 value_template: Some("Test User <test@example.com>".to_string()),
                 branch_value_pattern: None,
                 on_conflict: OnConflictAction::Append,
+                separator: None,
+                alignment: None,
             },
             AdditionalFooter {
                 key: "Reviewed-by".to_string(),
                 value_template: Some("Reviewer <reviewer@example.com>".to_string()),
                 branch_value_pattern: None,
                 on_conflict: OnConflictAction::Append,
+                separator: None,
+                alignment: None,
             },
         ];
 
@@ -309,6 +327,63 @@ mod tests {
     }
 
     #[test]
+    fn test_footer_with_custom_separator() {
+        let mut message = create_test_message();
+        let footers = vec![AdditionalFooter {
+            key: "Custom-Sep".to_string(),
+            value_template: Some("value".to_string()),
+            branch_value_pattern: None,
+            on_conflict: OnConflictAction::Append,
+            separator: Some('='),
+            alignment: None,
+        }];
+
+        let result = append_footers(&mut message, &footers, "main");
+        assert!(result.is_ok());
+        assert_eq!(message.footers.len(), 1);
+
+        let footer = message.footers.get(0).unwrap();
+        assert_eq!(footer.key, "Custom-Sep");
+        assert_eq!(footer.value, "value");
+        assert_eq!(footer.separator, '=');
+    }
+
+    #[test]
+    fn test_footer_with_custom_alignment() {
+        use commitfmt_cc::footer::SeparatorAlignment;
+
+        let mut message = create_test_message();
+        let footers = vec![
+            AdditionalFooter {
+                key: "Align-Left".to_string(),
+                value_template: Some("left".to_string()),
+                branch_value_pattern: None,
+                on_conflict: OnConflictAction::Append,
+                separator: Some(':'),
+                alignment: Some(SeparatorAlignment::Left),
+            },
+            AdditionalFooter {
+                key: "Align-Right".to_string(),
+                value_template: Some("right".to_string()),
+                branch_value_pattern: None,
+                on_conflict: OnConflictAction::Append,
+                separator: Some(':'),
+                alignment: Some(SeparatorAlignment::Right),
+            },
+        ];
+
+        let result = append_footers(&mut message, &footers, "main");
+        assert!(result.is_ok());
+        assert_eq!(message.footers.len(), 2);
+
+        let footer_left = message.footers.iter().find(|f| f.key == "Align-Left").unwrap();
+        assert_eq!(footer_left.alignment, SeparatorAlignment::Left);
+
+        let footer_right = message.footers.iter().find(|f| f.key == "Align-Right").unwrap();
+        assert_eq!(footer_right.alignment, SeparatorAlignment::Right);
+    }
+
+    #[test]
     fn test_branch_exclusion_pattern() {
         let mut message = create_test_message();
 
@@ -317,6 +392,8 @@ mod tests {
             value_template: None,
             branch_value_pattern: Some("^[a-z]+/([A-Z]+-[0-9]+)/?(?:.*)?".to_string()),
             on_conflict: OnConflictAction::Append,
+            separator: None,
+            alignment: None,
         }];
 
         let result = append_footers(&mut message, &footers, "main");

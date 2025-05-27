@@ -6,6 +6,8 @@ use commitfmt_linter::{
 };
 use toml::Table;
 
+use commitfmt_cc::footer::SeparatorAlignment;
+
 use crate::{
     config::{AdditionalFooterConfig, CommitParams},
     rules::parse_rule_setting,
@@ -38,7 +40,8 @@ pub struct AdditionalFooter {
     pub value_template: Option<String>,
     pub branch_value_pattern: Option<String>,
     pub on_conflict: OnConflictAction,
-    // TODO: add custom separator
+    pub separator: Option<char>,
+    pub alignment: Option<SeparatorAlignment>,
 }
 
 impl AdditionalFooter {
@@ -53,9 +56,11 @@ impl AdditionalFooter {
 
         Self {
             key: config.key,
-            value_template: config.template,
-            branch_value_pattern: config.branch_pattern,
+            value_template: config.value_template,
+            branch_value_pattern: config.branch_value_pattern,
             on_conflict,
+            separator: config.separator,
+            alignment: config.alignment,
         }
     }
 }
@@ -195,8 +200,10 @@ mod tests {
         let config = AdditionalFooterConfig {
             key: "Footer".to_string(),
             on_conflict: Some("error".to_string()),
-            template: Some("{{ echo $USER }}".to_string()),
-            branch_pattern: None,
+            value_template: Some("{{ echo $USER }}".to_string()),
+            branch_value_pattern: None,
+            separator: None,
+            alignment: None,
         };
 
         let footer = AdditionalFooter::from_config(config);
@@ -215,8 +222,10 @@ mod tests {
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "Footer".to_string(),
                     on_conflict: Some("error".to_string()),
-                    template: Some("{{ echo $USER }}".to_string()),
-                    branch_pattern: None,
+                    value_template: Some("{{ echo $USER }}".to_string()),
+                    branch_value_pattern: None,
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: Map::new(),

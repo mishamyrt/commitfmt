@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use commitfmt_cc::footer::SeparatorAlignment;
 use serde_derive::{Deserialize, Serialize};
 use toml::{map::Map, Table, Value};
 
@@ -13,15 +14,14 @@ const KNOWN_PATHS: &[&str] = &[".commitfmt.toml", "commitfmt.toml"];
 const MAX_CONFIG_SIZE: u64 = 1_000_000;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct AdditionalFooterConfig {
     pub key: String,
-
-    #[serde(alias = "on-conflict")]
     pub on_conflict: Option<String>,
-    #[serde(alias = "value-template")]
-    pub template: Option<String>,
-    #[serde(alias = "branch-value-pattern")]
-    pub branch_pattern: Option<String>,
+    pub value_template: Option<String>,
+    pub branch_value_pattern: Option<String>,
+    pub separator: Option<char>,
+    pub alignment: Option<SeparatorAlignment>,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
@@ -135,6 +135,7 @@ impl CommitParams {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use commitfmt_cc::footer::SeparatorAlignment;
 
     #[test]
     fn test_parse_toml() {
@@ -161,7 +162,7 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].on_conflict, Some("error".to_string()));
-        assert_eq!(footers[0].template, Some("{{ echo $USER }}".to_string()));
+        assert_eq!(footers[0].value_template, Some("{{ echo $USER }}".to_string()));
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
@@ -202,8 +203,10 @@ value-template = \"{{ echo $USER }}\"
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "existing".to_string(),
                     on_conflict: Some("error".to_string()),
-                    template: Some("existing template".to_string()),
-                    branch_pattern: None,
+                    value_template: Some("existing template".to_string()),
+                    branch_value_pattern: None,
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: Map::new(),
@@ -216,8 +219,10 @@ value-template = \"{{ echo $USER }}\"
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "new".to_string(),
                     on_conflict: Some("skip".to_string()),
-                    template: Some("new template".to_string()),
-                    branch_pattern: Some("pattern".to_string()),
+                    value_template: Some("new template".to_string()),
+                    branch_value_pattern: Some("pattern".to_string()),
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: Map::new(),
@@ -245,8 +250,10 @@ value-template = \"{{ echo $USER }}\"
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "first".to_string(),
                     on_conflict: None,
-                    template: Some("template".to_string()),
-                    branch_pattern: None,
+                    value_template: Some("template".to_string()),
+                    branch_value_pattern: None,
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: Map::new(),
@@ -331,8 +338,10 @@ value-template = \"{{ echo $USER }}\"
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "base_footer".to_string(),
                     on_conflict: Some("error".to_string()),
-                    template: Some("base template".to_string()),
-                    branch_pattern: None,
+                    value_template: Some("base template".to_string()),
+                    branch_value_pattern: None,
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: {
@@ -349,8 +358,10 @@ value-template = \"{{ echo $USER }}\"
                 footers: Some(vec![AdditionalFooterConfig {
                     key: "other_footer".to_string(),
                     on_conflict: Some("skip".to_string()),
-                    template: None,
-                    branch_pattern: Some("pattern".to_string()),
+                    value_template: None,
+                    branch_value_pattern: Some("pattern".to_string()),
+                    separator: None,
+                    alignment: None,
                 }]),
             },
             lint_values: {
@@ -404,7 +415,7 @@ value-template = \"{{ echo $USER }}\"
         assert_eq!(footers.len(), 1);
         assert_eq!(footers[0].key, "Footer");
         assert_eq!(footers[0].on_conflict, Some("error".to_string()));
-        assert_eq!(footers[0].template, Some("{{ echo $USER }}".to_string()));
+        assert_eq!(footers[0].value_template, Some("{{ echo $USER }}".to_string()));
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
@@ -470,5 +481,30 @@ value-template = \"{{ echo $USER }}\"
 
         let result = CommitParams::open_single(temp_file.path());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_toml_with_separator_and_alignment() {
+        let params = CommitParams::parse_toml(
+            "
+[lint]
+unsafe-fixes = true
+
+[[additional-footers]]
+key = \"Footer\"
+on-conflict = \"error\"
+value-template = \"{{ echo $USER }}\"
+separator = '#'
+alignment = \"right\"
+",
+        )
+        .unwrap();
+
+        assert!(params.config.footers.is_some());
+        let footers = params.config.footers.as_ref().unwrap();
+        assert_eq!(footers.len(), 1);
+        assert_eq!(footers[0].key, "Footer");
+        assert_eq!(footers[0].separator, Some('#'));
+        assert_eq!(footers[0].alignment, Some(SeparatorAlignment::Right));
     }
 }

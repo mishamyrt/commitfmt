@@ -9,9 +9,11 @@ use nom::error::Error;
 use nom::multi::{fold_many1, separated_list1};
 use nom::sequence::preceded;
 use nom::{IResult, Parser};
+use serde_derive::{Deserialize, Serialize};
 
 /// Indicates on which side of the separator the space should be
-#[derive(Debug, Default, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum SeparatorAlignment {
     #[default]
     Left,
