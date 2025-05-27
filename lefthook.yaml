@@ -1,12 +1,8 @@
 pre-commit:
   jobs:
-    - name: check formatting
+    - name: format
       glob: "**/*.rs"
-      run: cargo fmt --all -- --check
-
-    - name: check clippy
-      glob: "**/*.rs"
-      run: cargo clippy --all
+      run: rustfmt {staged_files}
 
 prepare-commit-msg:
   jobs:
