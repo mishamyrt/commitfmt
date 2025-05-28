@@ -249,3 +249,23 @@ Available options:
 - `skip` - skip the footer if it already exists
 - `append` - append the footer to the end of the footer list
 - `error` - abort the commit
+
+## Testing
+
+To test the configuration and the work of commitfmt, run the following command:
+
+```bash
+echo "chore ( test ) : test commit" | commitfmt
+# or
+cat commit_text.txt | commitfmt
+```
+
+## History testing
+
+To test the history of commits, run the following command:
+
+```bash
+commitfmt --from HEAD~20
+# or
+commitfmt --from 1234567890 --to 1234567890
+```
