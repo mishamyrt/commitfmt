@@ -6,9 +6,9 @@ type-required = true
 # [lint.footer]
 # exists = ["Issue"]
 
-[[additional-footers]]
-key = "Authored-By"
-value-template = "{{ git config user.name }} <{{ git config user.email }}>"
+# [[additional-footers]]
+# key = "Authored-By"
+# value-template = "{{ git config user.name }} <{{ git config user.email }}>"
 
 [[additional-footers]]
 key = "Issue-ID"
