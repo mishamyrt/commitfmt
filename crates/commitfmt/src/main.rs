@@ -71,7 +71,7 @@ fn handle_commit_range(
     let mut has_problems = false;
     let mut check = Check::new(&settings.rules.settings, settings.rules.set);
 
-    for commit in commits {
+    for commit in &commits {
         let Ok(message) = Message::parse(
             &commit.message,
             footer_separators.as_deref(),
@@ -93,6 +93,8 @@ fn handle_commit_range(
     if has_problems {
         process::ExitCode::FAILURE
     } else {
+        let commit_pluralized = pluralize(commits.len(), "commit", "commits");
+        print_info!("No problems found in {} {}", commits.len(), commit_pluralized);
         process::ExitCode::SUCCESS
     }
 }

@@ -8,7 +8,7 @@ macro_rules! print_error {
 }
 
 #[macro_export]
-macro_rules! print_stdout {
+macro_rules! print_info {
     ($($arg:tt)*) => {
         log::info!("{}", format!($($arg)*));
     }

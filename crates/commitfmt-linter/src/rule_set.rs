@@ -173,8 +173,6 @@ impl RuleSet {
     }
 }
 
-// TODO: Implement a way to print the rules not as number but as names
-
 #[cfg(test)]
 mod tests {
     use super::*;
