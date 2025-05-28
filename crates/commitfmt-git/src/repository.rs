@@ -65,7 +65,7 @@ impl Repository {
     pub fn get_log(&self, from: &str, to: &str) -> Result<Vec<Commit>, std::io::Error> {
         let output = std::process::Command::new("git")
             .arg("log")
-            .arg("--pretty=format:%h%n%B#")
+            .arg("--pretty=format:%h%n%B#-eoc-#")
             .arg(format!("{from}..{to}"))
             .output()?;
 
