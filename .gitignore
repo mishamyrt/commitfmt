@@ -2,6 +2,9 @@
 .DS_Store
 .vscode
 
+.cursor/rules/
+
+
 # Node artifacts
 node_modules
 
