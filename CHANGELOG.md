@@ -2,11 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.1](https://github.com/mishamyrt/commitfmt/compare/v0.1.0..v0.1.1) - 2025-05-24
+## [0.2.0](https://github.com/mishamyrt/commitfmt/compare/v0.1.0..v0.2.0) - 2025-05-28
 
 ### 🚀 Features
 
 - Pluralize problems
+- Add configuration extending
+- Use comment char and trailer separators from the environment
+- Replace underscores in crate names with dashes
+- Add alignment and separator to additional footers
+- Add rule set printing
+- Add success message on history run
+
+### 🐛 Bug Fixes
+
+- Run `footer::exists` validation if message contains no footers
+- Correctly parse `#` in commits
+
+### 🚜 Refactor
+
+- Improve configuration
 
 ### 📚 Documentation
 
@@ -18,6 +33,8 @@ All notable changes to this project will be documented in this file.
 - Add script installation guide
 - Add script information
 - Add minimal contributing guide
+- Add branch pattern examples
+- Describe history testing
 
 ## [0.1.0](https://github.com/mishamyrt/commitfmt/compare/v0.0.2-alpha.1..v0.1.0) - 2025-04-26
 
