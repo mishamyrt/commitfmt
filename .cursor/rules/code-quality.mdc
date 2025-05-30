@@ -1,7 +1,7 @@
 ---
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
 # Code Quality Guidelines
 
@@ -46,3 +46,7 @@ Always provide links to the real files, not x.md.
 
 ## No Current Implementation
 Don't show or discuss the current implementation unless specifically requested.
+
+## Extra comments
+Don't write unnecessary comments in the code if everything is clear.
+If you do write comments, write them ONLY in English

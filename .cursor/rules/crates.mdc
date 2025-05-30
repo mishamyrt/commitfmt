@@ -7,13 +7,10 @@ commitfmt is an utility for formatting and verifying the commit message. It writ
 
 ## Crates
 
-- commitfmt - cli entrypoint
+- commitfmt - cli entrypoint.
 - commitfmt-cc - conventional commits parser. Returns structs that can be converted to message string
 - commitfmt-workspace - contains configuration structures, as well as functions that allow you to send the configuration in different formats
 - commitfmt-git - contains wrappers over the git cli utility, as well as functions to simplify working with git
-- commitfmt-format - contains formatter, that add configured footers to message.
-- commitfmt-linter - package containing linting rules. The rules are divided by parts of the comit (footer, header, body). Violations of some rules can be automatically corrected. Some rules accept parameters (e.g. maximum string length)
+- commitfmt-format - contains formatter, that add footers from configuration to message.
+- commitfmt-linter - package containing linting rules. The rules are divided by parts of the comit (`footer`, `header`, `body`). Violations of some rules can be automatically corrected. Some rules accept parameters (e.g. `max-length`)
 - commitfmt-macros - contains macros that are used by other crates. Needed to separate proc_macro from other crates
-
-Don't write unnecessary comments in the code if everything is clear.
-If you do write comments, write them ONLY in English
