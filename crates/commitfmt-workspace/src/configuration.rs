@@ -13,6 +13,9 @@ const KNOWN_PATHS: &[&str] = &[".commitfmt.toml", "commitfmt.toml"];
 /// If the file is larger than this, return an error.
 const MAX_CONFIG_SIZE: u64 = 1_000_000;
 
+/// Additional footer configuration.
+///
+/// This is used to add additional footers to the commit message.
 #[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct AdditionalFooterConfig {
@@ -24,12 +27,16 @@ pub(crate) struct AdditionalFooterConfig {
     pub alignment: Option<SeparatorAlignment>,
 }
 
+/// Lint configuration.
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct LintConfiguration {
     pub unsafe_fixes: Option<bool>,
 }
 
+/// Commit configuration.
+///
+/// This is used to configure the commit message.
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
 pub(crate) struct CommitConfiguration {
     pub extends: Option<String>,
@@ -40,6 +47,9 @@ pub(crate) struct CommitConfiguration {
     pub additional_footers: Option<Vec<AdditionalFooterConfig>>,
 }
 
+/// Commit parameters.
+///
+/// This is used to store the commit message parameters.
 #[derive(Debug, PartialEq, Clone, Default)]
 pub(crate) struct CommitParams {
     pub config: CommitConfiguration,
