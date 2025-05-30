@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0](https://github.com/mishamyrt/commitfmt/compare/v0.2.0..v0.3.0) - 2025-05-30
+
+### 🚀 Features
+
+- Add parser options to configuration
+
+### 🚜 Refactor
+
+- *(cli)* Improve parse params reading
+
+### 📚 Documentation
+
+- *(workspace)* Describe configuration
+
 ## [0.2.0](https://github.com/mishamyrt/commitfmt/compare/v0.1.0..v0.2.0) - 2025-05-28
 
 ### 🚀 Features
