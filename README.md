@@ -189,6 +189,30 @@ extends = "node_modules/commitfmt-config-standard/commitfmt.toml"
 
 Extension is only possible for the current configuration. If the current configuration extends another configuration, which in turn extends a third configuration, commitfmt will throw an error when trying to load such a configuration.
 
+### Parser Configuration
+
+commitfmt can be configured to use custom footer separators and comment symbols for parsing commit messages.
+
+#### Footer separators
+
+By default, commitfmt uses git's `trailer.separators` configuration to determine which characters separate footer keys from values. You can override this in your config file:
+
+```toml
+footer-separators = ":#"
+```
+
+This allows footers like `Issue-ID: 123` or `Issue-ID #123` to be recognized.
+
+#### Comment symbol
+
+By default, commitfmt uses git's `core.commentChar` or `core.commentString` configuration to identify comment lines in commit messages. You can override this:
+
+```toml
+comment-symbol = "//"
+```
+
+Lines starting with the comment symbol will be ignored during parsing.
+
 ### Additional footers
 
 commitfmt can add additional footers to the commit message.

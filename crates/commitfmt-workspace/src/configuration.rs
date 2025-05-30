@@ -38,12 +38,12 @@ pub(crate) struct LintConfiguration {
 ///
 /// This is used to configure the commit message.
 #[derive(Debug, PartialEq, Deserialize, Clone, Serialize, Default)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct CommitConfiguration {
     pub extends: Option<String>,
-
+    pub footer_separators: Option<String>,
+    pub comment_symbol: Option<String>,
     pub lint: Option<LintConfiguration>,
-
-    #[serde(alias = "additional-footers")]
     pub additional_footers: Option<Vec<AdditionalFooterConfig>>,
 }
 
@@ -121,6 +121,8 @@ impl CommitParams {
     /// - `lint`: completely replaced with configuration from `other`, if present
     /// - `footers`: additional footers from `other` are appended to existing ones
     /// - `params`: parameters from `other` are merged with existing ones
+    /// - `footer_separators`: completely replaced with configuration from `other`, if present
+    /// - `comment_symbol`: completely replaced with configuration from `other`, if present
     ///
     /// The `extends` field is ignored and not processed.
     pub(crate) fn extend(&mut self, other: &CommitParams) {
@@ -136,6 +138,14 @@ impl CommitParams {
             } else {
                 self.config.additional_footers = Some(other_footers.clone());
             }
+        }
+
+        if let Some(other_footer_separators) = &other.config.footer_separators {
+            self.config.footer_separators = Some(other_footer_separators.clone());
+        }
+
+        if let Some(other_comment_symbol) = &other.config.comment_symbol {
+            self.config.comment_symbol = Some(other_comment_symbol.clone());
         }
 
         self.lint_values.extend(other.lint_values.clone());
@@ -185,6 +195,8 @@ value-template = \"{{ echo $USER }}\"
                 extends: Some("base".to_string()),
                 lint: Some(LintConfiguration { unsafe_fixes: Some(false) }),
                 additional_footers: None,
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -194,6 +206,8 @@ value-template = \"{{ echo $USER }}\"
                 extends: Some("ignored".to_string()),
                 lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
                 additional_footers: None,
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -218,6 +232,8 @@ value-template = \"{{ echo $USER }}\"
                     separator: None,
                     alignment: None,
                 }]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -234,6 +250,8 @@ value-template = \"{{ echo $USER }}\"
                     separator: None,
                     alignment: None,
                 }]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -253,6 +271,8 @@ value-template = \"{{ echo $USER }}\"
                 extends: None,
                 lint: None,
                 additional_footers: None,
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -269,6 +289,8 @@ value-template = \"{{ echo $USER }}\"
                     separator: None,
                     alignment: None,
                 }]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -326,6 +348,8 @@ value-template = \"{{ echo $USER }}\"
                 extends: Some("test".to_string()),
                 lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
                 additional_footers: Some(vec![]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -335,6 +359,8 @@ value-template = \"{{ echo $USER }}\"
                 extends: None,
                 lint: None,
                 additional_footers: None,
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: Map::new(),
         };
@@ -361,6 +387,8 @@ value-template = \"{{ echo $USER }}\"
                     separator: None,
                     alignment: None,
                 }]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: {
                 let mut map = Map::new();
@@ -381,6 +409,8 @@ value-template = \"{{ echo $USER }}\"
                     separator: None,
                     alignment: None,
                 }]),
+                footer_separators: None,
+                comment_symbol: None,
             },
             lint_values: {
                 let mut map = Map::new();

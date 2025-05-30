@@ -1,14 +1,9 @@
+footer-separators = ":#"
+
 [lint.header]
 scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros"]
 description-max-length = 72
 type-required = true
-
-# [lint.footer]
-# exists = ["Issue"]
-
-# [[additional-footers]]
-# key = "Authored-By"
-# value-template = "{{ git config user.name }} <{{ git config user.email }}>"
 
 [[additional-footers]]
 key = "Issue-ID"

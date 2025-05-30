@@ -58,7 +58,7 @@ fn handle_commit_range(
         }
     };
 
-    let (footer_separators, comment_symbol) = get_parse_params(repo);
+    let (footer_separators, comment_symbol) = get_parse_params(repo, settings);
 
     let mut has_problems = false;
     let mut check = Check::new(&settings.rules.settings, settings.rules.set);
@@ -120,7 +120,7 @@ fn handle_single_message(
         }
     }
 
-    let (footer_separators, comment_symbol) = get_parse_params(repo);
+    let (footer_separators, comment_symbol) = get_parse_params(repo, settings);
 
     let Ok(mut message) =
         Message::parse(&input, footer_separators.as_deref(), comment_symbol.as_deref())
@@ -213,8 +213,24 @@ fn get_source(repo: &Repository) -> InputSource {
     InputSource::None
 }
 
-fn get_parse_params(repo: &Repository) -> (Option<String>, Option<String>) {
-    (repo.trailer_separators(), repo.comment_symbol())
+fn get_parse_params(
+    repo: &Repository,
+    settings: &CommitSettings,
+) -> (Option<String>, Option<String>) {
+    let trailer_separators =
+        if let Some(footer_separators) = settings.footer_separators.clone() {
+            Some(footer_separators)
+        } else {
+            repo.trailer_separators()
+        };
+
+    let comment_symbol = if let Some(comment_symbol) = settings.comment_symbol.clone() {
+        Some(comment_symbol)
+    } else {
+        repo.comment_symbol()
+    };
+
+    (trailer_separators, comment_symbol)
 }
 
 fn main() -> process::ExitCode {

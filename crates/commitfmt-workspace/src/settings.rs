@@ -151,6 +151,8 @@ pub struct CommitSettings {
     pub rules: RulesSettings,
     pub lint: LintSettings,
     pub footers: RefCell<Vec<AdditionalFooter>>,
+    pub footer_separators: Option<String>,
+    pub comment_symbol: Option<String>,
 }
 
 impl CommitSettings {
@@ -166,7 +168,13 @@ impl CommitSettings {
             .map(AdditionalFooter::from_config)
             .collect();
 
-        Ok(Self { rules, lint, footers: RefCell::new(footers) })
+        Ok(Self {
+            rules,
+            lint,
+            footers: RefCell::new(footers),
+            footer_separators: params.config.footer_separators,
+            comment_symbol: params.config.comment_symbol,
+        })
     }
 }
 
@@ -219,6 +227,8 @@ mod tests {
             config: CommitConfiguration {
                 extends: None,
                 lint: Some(LintConfiguration { unsafe_fixes: Some(true) }),
+                footer_separators: None,
+                comment_symbol: None,
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "Footer".to_string(),
                     on_conflict: Some("error".to_string()),
