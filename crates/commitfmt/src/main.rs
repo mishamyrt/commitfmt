@@ -19,23 +19,15 @@ use commitfmt_workspace::{open_settings, CommitSettings};
 
 use report::{print_violation, report_violations};
 
+/// Input source for the commit message.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum InputSource {
+    /// The commit message is read from stdin.
     Stdin,
+    /// The commit message is read from the commit edit message (e.g. `COMMIT_EDITMSG`).
     CommitEditMessage,
+    /// No input source is available.
     None,
-}
-
-fn get_source(repo: &Repository) -> InputSource {
-    if stdin::is_readable() {
-        return InputSource::Stdin;
-    }
-
-    if repo.is_committing() {
-        return InputSource::CommitEditMessage;
-    }
-
-    InputSource::None
 }
 
 fn setup_logger(verbose: bool, no_color: bool) {
@@ -51,6 +43,7 @@ fn setup_logger(verbose: bool, no_color: bool) {
     }
 }
 
+/// Handle a commit range (from..to).
 fn handle_commit_range(
     repo: &Repository,
     from: &str,
@@ -65,8 +58,7 @@ fn handle_commit_range(
         }
     };
 
-    let footer_separators = repo.trailer_separators();
-    let comment_symbol = repo.comment_symbol();
+    let (footer_separators, comment_symbol) = get_parse_params(repo);
 
     let mut has_problems = false;
     let mut check = Check::new(&settings.rules.settings, settings.rules.set);
@@ -127,9 +119,8 @@ fn handle_single_message(
             unreachable!();
         }
     }
-    // TODO: remove duplicate code on range handling
-    let footer_separators = repo.trailer_separators();
-    let comment_symbol = repo.comment_symbol();
+
+    let (footer_separators, comment_symbol) = get_parse_params(repo);
 
     let Ok(mut message) =
         Message::parse(&input, footer_separators.as_deref(), comment_symbol.as_deref())
@@ -208,6 +199,22 @@ fn handle_single_message(
     }
 
     process::ExitCode::SUCCESS
+}
+
+fn get_source(repo: &Repository) -> InputSource {
+    if stdin::is_readable() {
+        return InputSource::Stdin;
+    }
+
+    if repo.is_committing() {
+        return InputSource::CommitEditMessage;
+    }
+
+    InputSource::None
+}
+
+fn get_parse_params(repo: &Repository) -> (Option<String>, Option<String>) {
+    (repo.trailer_separators(), repo.comment_symbol())
 }
 
 fn main() -> process::ExitCode {
