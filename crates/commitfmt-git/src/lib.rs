@@ -1,13 +1,13 @@
 use thiserror::Error;
 
+mod command;
 mod commit;
 mod head;
-mod hook;
 mod path;
 mod repository;
+pub mod testing;
 
 pub use commit::Commit;
-pub use hook::HookType;
 pub use repository::Repository;
 
 #[derive(Error, Debug)]

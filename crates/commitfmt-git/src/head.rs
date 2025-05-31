@@ -7,7 +7,7 @@ pub(crate) fn branch_name_from_head(head: &str) -> Option<&str> {
         return None;
     }
 
-    Some(head.trim_start_matches(HEAD_PREFIX))
+    Some(head.trim_start_matches(HEAD_PREFIX).trim_end())
 }
 
 #[cfg(test)]
