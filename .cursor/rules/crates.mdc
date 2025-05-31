@@ -3,7 +3,9 @@ description:
 globs:
 alwaysApply: true
 ---
-commitfmt is an utility for formatting and verifying the commit message. It written in Rust using nom parser.
+commitfmt is an utility for formatting and verifying commit messages. It written in Rust.
+
+By design, commitfmt runs on the prepare-commit-msg hook and formats the message according to git standards and conventional commits in particular.
 
 ## Crates
 

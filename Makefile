@@ -9,7 +9,7 @@ setup:
 
 .PHONY: test
 test:
-	cargo test -- --nocapture
+	cargo nextest run
 
 publish:
 	@python3 ./scripts/update_version.py "$(VERSION)"

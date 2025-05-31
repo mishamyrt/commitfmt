@@ -17,8 +17,8 @@ use toml::{Table, Value};
 
 const TAG_PREFIX: &str = "<!--<";
 const TAG_INPUT: &str = "<!--<test-input>-->";
+const TAG_INPUT_PARAMS: &str = "<!--<test-input-params>-->";
 const TAG_RESULT: &str = "<!--<test-result>-->";
-const TAG_OPTIONS: &str = "<!--<test-options>-->";
 const TAG_START_PREFIX: &str = "<!--<test-case id=\"";
 const TAG_START_SUFFIX: &str = "\">-->";
 const TAG_END: &str = "<!--</test-case>-->";
@@ -31,8 +31,10 @@ enum ParseError {
 }
 
 #[derive(Debug, PartialEq, Default, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 struct CaseOptions {
-    separators: String,
+    separators: Option<String>,
+    comment_symbol: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Default)]
@@ -58,7 +60,7 @@ impl Case {
             // Find next test tag and extract it
             (rest, _) = take_until(TAG_PREFIX).parse(rest)?;
             let (input, tag) =
-                alt((tag(TAG_INPUT), tag(TAG_RESULT), tag(TAG_OPTIONS), tag(TAG_END)))
+                alt((tag(TAG_INPUT), tag(TAG_RESULT), tag(TAG_INPUT_PARAMS), tag(TAG_END)))
                     .parse(rest)?;
             (rest, _) = (char('\n')).parse(input)?;
 
@@ -74,7 +76,7 @@ impl Case {
                     case.expected = Self::parse_expected(&result);
                     input
                 }
-                TAG_OPTIONS => {
+                TAG_INPUT_PARAMS => {
                     let (input, case_options_text) = Self::take_code_block(rest)?;
                     case.options = toml::from_str(case_options_text).unwrap();
                     input
@@ -87,10 +89,6 @@ impl Case {
                         "Case expected result is empty"
                     );
 
-                    if case.options.separators.is_empty() {
-                        case.options.separators = Footer::DEFAULT_SEPARATOR.to_string();
-                    }
-
                     return Ok((rest, case));
                 }
                 _ => unreachable!(),
@@ -102,7 +100,7 @@ impl Case {
         let mut result = Message::default();
         for key in input.keys() {
             match key.as_str() {
-                "kind" => {
+                "type" => {
                     result.header.kind = Some(input[key].as_str().unwrap().to_string());
                 }
                 "scope" => {
@@ -195,15 +193,14 @@ fn verify_resource(resource: &str) {
 
     let stem = md_path.file_stem().unwrap().to_str().unwrap();
 
-    println!("testcases___: {}", cases.len());
-
     for case in cases {
         let case_path = format!("{}/{}", stem, case.id);
+        let separators = case.options.separators.as_deref();
+        let comment_symbol = case.options.comment_symbol.as_deref();
 
         println!("Case: {}", case.id);
         let expected = case.expected;
-        // TODO: pass custom separators and comment symbol
-        let actual = Message::parse(&case.input, None, None).unwrap();
+        let actual = Message::parse(&case.input, separators, comment_symbol).unwrap();
 
         assert_eq!(actual.header.kind, expected.header.kind, "kind at {case_path}");
         assert_eq!(actual.header.scope, expected.header.scope, "scope at {case_path}");

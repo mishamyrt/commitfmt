@@ -14,7 +14,7 @@ In git terminology, footers are called trailers.
 
 ### Location
 
-Footers are always placed at the end of the “meaningful part” of the message and are separated from the header or body by two line breaks `\n\n`. commitfmt is kinder in terms of parsing and can recognize the footer on the next line after the header.
+Footers are always placed at the end of the "meaningful part" of the message and are separated from the header or body by two line breaks `\n\n`. commitfmt is kinder in terms of parsing and can recognize the footer on the next line after the header.
 
 <!--<test-case id="trailing-junk-breakage">-->
 Footers must be in a row. If the end of the commit message looks like this:
@@ -43,10 +43,10 @@ footers = []
 ```
 <!--</test-case>-->
 
-#### Comments
+### Comments
 
 <!--<test-case id="before-comments">-->
-Since comments aren't part of the “meaningful part” of the post, if message has trailing comments right after the footers:
+Since comments aren't part of the "meaningful part" of the post, if message has trailing comments right after the footers:
 
 <!--<test-input>-->
 ```
@@ -118,163 +118,329 @@ alignment = "left"
 ```
 <!--</test-case>-->
 
+Comment symbol can be altered by git config.
+
+<!--<test-case id="comment-symbol">-->
+
+<!--<test-input-params>-->
+```toml
+comment-symbol = "//"
+```
+
+<!--<test-input>-->
+```
+my cool feature
+
+// This is a comment
+// This is another comment
+Footer-1: value-1
+```
+
+<!--<test-result>-->
+```toml
+description = "my cool feature"
+
+[[footers]]
+key = "Footer-1"
+value = "value-1"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
 ### Key
 
 The key consists of letters and numbers and may include a dash `-` as a separator between words.
-The case can be any, but it is recommended to write in `Train-Case` and `UPPER-TRAIN-CASE` for `BREAKING-CHANGES`.
 
-### Separator
+<!--<test-case id="key-letters-numbers">-->
 
-The separator can be any character with any number of spaces.
-The default delimiter is a colon `:`.
+<!--<test-input>-->
+```
+add new feature
 
-git uses the `trailer.separators` config to define the available separators. A string of possible characters is written there.
-
-## Cases
-
-### Single
-
-```git-commit
-my cool feature
-
-Authored-By: Co Mitter <comitter@example.com>
+Footer-123: value
+ABC-456: another value
 ```
 
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+description = "add new feature"
+
+[[footers]]
+key = "Footer-123"
+value = "value"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "ABC-456"
+value = "another value"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+<!--<test-case id="key-with-dashes">-->
+Keys can contain dashes as word separators.
+
+<!--<test-input>-->
+```
+fix bug
+
+Co-Authored-By: John Doe <john@example.com>
+Reviewed-By: Jane Smith <jane@example.com>
 ```
 
-### Multiple 
-
-```git-commit
-my cool feature
-
-Authored-By: Co Mitter <comitter@example.com>
-Reviewed-By: Re Viewer <reviewer@example.com>
-```
-
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" },
-  { key = "Reviewed-By", value = "Re Viewer <reviewer@example.com>" }
-]
+description = "fix bug"
+
+[[footers]]
+key = "Co-Authored-By"
+value = "John Doe <john@example.com>"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "Reviewed-By"
+value = "Jane Smith <jane@example.com>"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+#### Case
+
+The case can be any, but it is recommended to write in `Train-Case` and `UPPER-TRAIN-CASE` for `BREAKING-CHANGES`
+
+<!--<test-case id="key-train-case">-->
+
+<!--<test-input>-->
+```
+implement feature
+
+Signed-Off-By: Developer <dev@example.com>
+Related-To: #123
 ```
 
-### Multiline 
-
-```git-commit
-my cool feature
-
-Authored-By: Co Mitter <comitter@example.com>
-Multiline-Details: First
- Second
- Third
-```
-
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" },
-  { key = "Multiline-Details", value = "First\nSecond\nThird" }
-]
+description = "implement feature"
+
+[[footers]]
+key = "Signed-Off-By"
+value = "Developer <dev@example.com>"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "Related-To"
+value = "#123"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+<!--<test-case id="key-upper-train-case">-->
+
+<!--<test-input>-->
+```
+API endpoint removed
+
+SECURITY-FIX: vulnerability patched
 ```
 
-### After comments
-
-```git-commit
-my cool feature
-
-# This is a comment
-# This is another comment
-
-Authored-By: Co Mitter <comitter@example.com>
-```
-
+<!--<test-result>-->
 ```toml
-body = "\n# This is a comment\n# This is another comment"
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+description = "API endpoint removed"
+
+[[footers]]
+key = "SECURITY-FIX"
+value = "vulnerability patched"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+<!--<test-case id="key-mixed-case">-->
+
+<!--<test-input>-->
+```
+update dependencies
+
+camelCase: value1
+PascalCase: value2
+lowercase: value3
+UPPERCASE: value4
 ```
 
-### Before comments
-
-```git-commit
-my cool feature
-
-Authored-By: Co Mitter <comitter@example.com>
-
-# This is a comment
-# This is another comment
-```
-
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+description = "update dependencies"
+
+[[footers]]
+key = "camelCase"
+value = "value1"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "PascalCase"
+value = "value2"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "lowercase"
+value = "value3"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "UPPERCASE"
+value = "value4"
+separator = ":"
+alignment = "left"
+```
+<!--</test-case>-->
+
+#### Breaking changes
+
+The only exception to the key naming rules is `BREAKING CHANGES`. This key contains a space as a delimiter, but will still be processed correctly
+
+<!--<test-case id="breaking-changes-variants">-->
+
+<!--<test-input>-->
+```
+major update
+
+Breaking-Changes: removed deprecated API
+BreakingChanges: changed response format
+BREAKING CHANGES: updated authentication method
 ```
 
-### Right before comments
-
-```git-commit
-my cool feature
-
-Authored-By: Co Mitter <comitter@example.com>
-# This is a comment
-# This is another comment
-```
-
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+description = "major update"
+
+[[footers]]
+key = "Breaking-Changes"
+value = "removed deprecated API"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "BreakingChanges"
+value = "changed response format"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "BREAKING CHANGES"
+value = "updated authentication method"
+separator = ":"
+alignment = "left"
 ```
+<!--</test-case>-->
 
-### With body after comments
+### Separators
 
-```git-commit
-my cool feature
+The separator is a character that separates the key from the value. The default separator in git trailer is the colon character `:`. 
 
-# This is a comment
-# This is another comment
+<!--<test-case id="default-colon-separator">-->
 
-Body content
-
-Authored-By: Co Mitter <comitter@example.com>
-```
-
+<!--<test-input-params>-->
 ```toml
-description = "my cool feature"
-body = "\n# This is a comment\n# This is another comment\n\nBody content"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+separators = ":"
 ```
 
-### With body before comments
+<!--<test-input>-->
+```
+fix issue
 
-```git-commit
-my cool feature
-
-Body content
-
-# This is a comment
-# This is another comment
-
-Authored-By: Co Mitter <comitter@example.com>
+Signed-off-by: Developer <dev@example.com>
 ```
 
+<!--<test-result>-->
 ```toml
-description = "my cool feature"
-body = "\nBody content\n\n# This is a comment\n# This is another comment"
-footers = [
-  { key = "Authored-By", value = "Co Mitter <comitter@example.com>" }
-]
+description = "fix issue"
+
+[[footers]]
+key = "Signed-off-by"
+value = "Developer <dev@example.com>"
+separator = ":"
+alignment = "left"
 ```
+<!--</test-case>-->
+
+Git supports multiple separators at once.
+
+<!--<test-case id="multiple-separators">-->
+
+<!--<test-input-params>-->
+```toml
+separators = ":="
+```
+
+<!--<test-input>-->
+```
+fix issue
+
+Signed-off-by: Developer <dev@example.com>
+Issue-ID= 123
+```
+
+<!--<test-result>-->
+```toml
+description = "fix issue"
+
+[[footers]]
+key = "Signed-off-by"
+value = "Developer <dev@example.com>"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "Issue-ID"
+value = "123"
+separator = "="
+alignment = "left"
+```
+
+<!--</test-case>-->
+
+Separator can be left or right aligned.
+
+<!--<test-case id="multiple-separators">-->
+
+<!--<test-input-params>-->
+```toml
+separators = ":#"
+```
+
+<!--<test-input>-->
+```
+fix issue
+
+Signed-off-by: Developer <dev@example.com>
+Issue-ID #123
+```
+
+<!--<test-result>-->
+```toml
+description = "fix issue"
+
+[[footers]]
+key = "Signed-off-by"
+value = "Developer <dev@example.com>"
+separator = ":"
+alignment = "left"
+
+[[footers]]
+key = "Issue-ID"
+value = "123"
+separator = "#"
+alignment = "right"
+```
+
+<!--</test-case>-->

@@ -82,6 +82,7 @@ impl Footer {
     }
 
     /// Checks if a key is a breaking change.
+    /// It is a breaking change if the key is `BREAKING CHANGES`, `Breaking-Changes`, or `BreakingChanges`.
     pub fn is_breaking_key(key: &str) -> bool {
         let lower_key = key.to_lowercase();
         key == Self::BREAKING_TAG
