@@ -65,22 +65,6 @@ impl Footer {
         self.key.is_empty() && self.value.is_empty()
     }
 
-    /// Returns a footer from a string. Returns `None` if the input is not a valid footer.
-    pub fn from_value(input: &str) -> Option<Self> {
-        match Self::take(Self::DEFAULT_SEPARATOR).parse(input) {
-            Ok((_, footer)) => Some(footer),
-            Err(_) => None,
-        }
-    }
-
-    /// Returns a footer from a string. Returns `None` if the input is not a valid footer.
-    pub fn from_value_with_separators(input: &str, separators: &str) -> Option<Self> {
-        match Self::take(separators).parse(input) {
-            Ok((_, footer)) => Some(footer),
-            Err(_) => None,
-        }
-    }
-
     /// Checks if a key is a breaking change.
     /// It is a breaking change if the key is `BREAKING CHANGES`, `Breaking-Changes`, or `BreakingChanges`.
     pub fn is_breaking_key(key: &str) -> bool {
@@ -177,7 +161,7 @@ impl std::fmt::Display for Footer {
         } else {
             write!(f, "{} ", self.separator)?;
         }
-        write!(f, "{}", self.value)
+        write!(f, "{}", self.value.replace('\n', "\n "))
     }
 }
 
@@ -188,10 +172,6 @@ pub struct Footers {
 }
 
 impl Footers {
-    pub fn new(values: Vec<Footer>, keys: HashSet<String>) -> Self {
-        Self { values, keys }
-    }
-
     pub fn contains_key(&self, key: &str) -> bool {
         self.keys.contains(key)
     }
@@ -208,10 +188,6 @@ impl Footers {
         self.values.is_empty()
     }
 
-    pub fn get_by_key(&self, key: &str) -> Option<&Footer> {
-        self.values.iter().find(|f| f.key == key)
-    }
-
     pub fn get(&self, index: usize) -> Option<&Footer> {
         self.values.get(index)
     }
@@ -219,16 +195,6 @@ impl Footers {
     pub fn push(&mut self, footer: Footer) {
         self.keys.insert(footer.key.clone());
         self.values.push(footer);
-    }
-
-    pub fn remove(&mut self, key: &str) -> Option<Footer> {
-        if let Some(index) = self.keys.iter().position(|k| k == key) {
-            let removed = self.values.remove(index);
-            self.keys.remove(&removed.key);
-            Some(removed)
-        } else {
-            None
-        }
     }
 
     /// Takes all footers from the input
@@ -288,6 +254,48 @@ impl std::fmt::Display for Footers {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_footer_len() {
+        let footer = Footer {
+            key: "foo".into(),
+            value: "bar".into(),
+            separator: ':',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert_eq!(footer.len(), footer.to_string().len());
+
+        let footer = Footer {
+            key: "foo".into(),
+            value: "bar\nbaz".into(),
+            separator: ':',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert_eq!(footer.len(), footer.to_string().len());
+    }
+
+    #[test]
+    fn test_footer_is_empty() {
+        let footer = Footer {
+            key: String::new(),
+            value: String::new(),
+            separator: ':',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert!(footer.is_empty());
+
+        let footer = Footer {
+            key: "foo".into(),
+            value: String::new(),
+            separator: ':',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert!(!footer.is_empty());
+    }
 
     #[test]
     fn test_take() {
@@ -398,11 +406,11 @@ mod tests {
             Footer {
                 key: "baz".into(),
                 value: "qux".into(),
-                separator: ':',
-                alignment: SeparatorAlignment::Left,
+                separator: '#',
+                alignment: SeparatorAlignment::Right,
             },
         ]);
 
-        assert_eq!(footers.to_string(), "foo: bar\nbaz: qux");
+        assert_eq!(footers.to_string(), "foo: bar\nbaz #qux");
     }
 }

@@ -298,4 +298,13 @@ mod tests {
         let header = Header::from("fix(scope1, scope2)!: my fix");
         assert_eq!(header.len(), header.to_string().len());
     }
+
+    #[test]
+    fn test_header_is_empty() {
+        let header = Header::from("");
+        assert!(header.is_empty());
+
+        let header = Header::from("feat: my feature");
+        assert!(!header.is_empty());
+    }
 }
