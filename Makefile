@@ -11,6 +11,10 @@ setup:
 test:
 	cargo nextest run
 
+.PHONY: test-coverage
+test-coverage:
+	cargo llvm-cov --html nextest
+
 publish:
 	@python3 ./scripts/update_version.py "$(VERSION)"
 	@cargo update -p commitfmt
