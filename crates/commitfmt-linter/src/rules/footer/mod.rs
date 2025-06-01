@@ -6,6 +6,7 @@ mod min_length;
 
 mod settings;
 
+// TODO: add case check
 #[allow(unused)]
 pub(crate) use {
     breaking_exclamation::{breaking_exclamation, BreakingExclamation},

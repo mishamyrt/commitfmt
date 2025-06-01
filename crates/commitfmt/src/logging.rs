@@ -1,5 +1,7 @@
 // Colorized wrappers for logging
 
+use fern::Dispatch;
+
 #[macro_export]
 macro_rules! print_error {
     ($($arg:tt)*) => {
@@ -33,5 +35,18 @@ pub(crate) fn pluralize(count: usize, singular: &str, plural: &str) -> String {
         singular.to_string()
     } else {
         plural.to_string()
+    }
+}
+
+pub(crate) fn setup_logger(verbose: bool, no_color: bool) {
+    let log_level = if verbose { log::LevelFilter::Debug } else { log::LevelFilter::Info };
+    Dispatch::new()
+        .level(log_level)
+        .chain(std::io::stdout())
+        .apply()
+        .expect("Unable to set up logger");
+
+    if no_color {
+        colored::control::set_override(false);
     }
 }

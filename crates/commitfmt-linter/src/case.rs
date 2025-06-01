@@ -16,6 +16,8 @@ const NAME_PASCAL: &str = "pascal";
 const NAME_SNAKE: &str = "snake";
 const NAME_START: &str = "start";
 
+// TODO: add "lower-start" and "upper-start"
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub enum WordCase {
     #[default]

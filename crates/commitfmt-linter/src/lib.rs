@@ -6,4 +6,7 @@ pub mod rule_set;
 pub mod rules;
 pub mod violation;
 
+pub use check::Check;
 pub use rule_set::RuleSet;
+pub use rules::Rule;
+pub use violation::{Violation, FixMode};
