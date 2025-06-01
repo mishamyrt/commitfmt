@@ -9,4 +9,4 @@ pub mod violation;
 pub use check::Check;
 pub use rule_set::RuleSet;
 pub use rules::Rule;
-pub use violation::{Violation, FixMode};
+pub use violation::{FixMode, Violation};
