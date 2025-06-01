@@ -18,15 +18,26 @@ pub(crate) fn run_git(args: &[&str], dir: &Path) -> GitResult<String> {
 mod tests {
     use super::*;
 
+    fn get_dir() -> &'static Path {
+        #[cfg(unix)]
+        {
+            Path::new("/tmp")
+        }
+        #[cfg(windows)]
+        {
+            Path::new("C:\\Windows")
+        }
+    }
+
     #[test]
     fn test_run_git() {
-        let output = run_git(&["version"], Path::new("/tmp")).unwrap();
+        let output = run_git(&["version"], get_dir()).unwrap();
         assert!(output.contains("git version"));
     }
 
     #[test]
     fn test_run_git_error() {
-        let result = run_git(&["invalid-command"], Path::new("/tmp"));
+        let result = run_git(&["invalid-command"], get_dir());
         assert!(result.is_err());
     }
 }
