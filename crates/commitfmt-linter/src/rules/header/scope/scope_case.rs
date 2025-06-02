@@ -1,4 +1,4 @@
-use crate::case::KeyCase;
+use crate::case::IdentifierCase;
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
@@ -23,7 +23,7 @@ use commitfmt_macros::ViolationMetadata;
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct ScopeCase {
-    pub(crate) case: KeyCase,
+    pub(crate) case: IdentifierCase,
 }
 
 impl Violation for ScopeCase {
@@ -38,7 +38,7 @@ impl Violation for ScopeCase {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn scope_case(report: &mut Report, message: &Message, case: KeyCase) {
+pub(crate) fn scope_case(report: &mut Report, message: &Message, case: IdentifierCase) {
     for scope in message.header.scope.iter() {
         if !case.is_match(scope) {
             report.add_violation(Box::new(ScopeCase { case }));
@@ -63,7 +63,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        scope_case(&mut report, &message, KeyCase::Kebab);
+        scope_case(&mut report, &message, IdentifierCase::Kebab);
         assert_eq!(report.len(), 0);
 
         let message: Message = Message {
@@ -72,7 +72,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        scope_case(&mut report, &message, KeyCase::Kebab);
+        scope_case(&mut report, &message, IdentifierCase::Kebab);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "ScopeCase");
     }

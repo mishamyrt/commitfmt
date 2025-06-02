@@ -138,6 +138,9 @@ impl<'a> Check<'a> {
         if self.rules.contains(Rule::FooterBreakingExclamation) {
             footer::breaking_exclamation(&mut self.report, message);
         }
+        if self.rules.contains(Rule::FooterKeyCase) {
+            footer::key_case(&mut self.report, message, self.settings.footer.key_case);
+        }
         if self.rules.contains(Rule::FooterMaxLineLength) {
             footer::max_line_length(
                 &mut self.report,

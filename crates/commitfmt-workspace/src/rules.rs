@@ -1,5 +1,5 @@
 use commitfmt_linter::{
-    case::{KeyCase, TextCase},
+    case::{IdentifierCase, TextCase},
     rules::{Rule, Settings},
 };
 use toml::Value;
@@ -25,12 +25,12 @@ pub(crate) fn parse_rule_setting(
         }
         Rule::HeaderDescriptionCase => reader.text_case(&mut settings.header.description_case),
         Rule::HeaderScopeEnum => reader.str_vec(&mut settings.header.scope_enum),
-        Rule::HeaderScopeCase => reader.key_case(&mut settings.header.scope_case),
+        Rule::HeaderScopeCase => reader.id_case(&mut settings.header.scope_case),
         Rule::HeaderMaxLength => reader.usize(&mut settings.header.max_length),
         Rule::HeaderMinLength => reader.usize(&mut settings.header.min_length),
         Rule::HeaderScopeMaxLength => reader.usize(&mut settings.header.scope_max_length),
         Rule::HeaderScopeMinLength => reader.usize(&mut settings.header.scope_min_length),
-        Rule::HeaderTypeCase => reader.key_case(&mut settings.header.type_case),
+        Rule::HeaderTypeCase => reader.id_case(&mut settings.header.type_case),
 
         Rule::HeaderTypeMaxLength => reader.usize(&mut settings.header.type_max_length),
         Rule::HeaderTypeMinLength => reader.usize(&mut settings.header.type_min_length),
@@ -44,6 +44,7 @@ pub(crate) fn parse_rule_setting(
         Rule::FooterMaxLength => reader.usize(&mut settings.footer.max_length),
         Rule::FooterMinLength => reader.usize(&mut settings.footer.min_length),
         Rule::FooterMaxLineLength => reader.usize(&mut settings.footer.max_line_length),
+        Rule::FooterKeyCase => reader.id_case(&mut settings.footer.key_case),
         Rule::FooterExists => reader.str_vec(&mut settings.footer.required),
 
         _ => match value.as_bool() {
@@ -66,7 +67,7 @@ impl<'a> RuleSettingsReader<'a> {
         Self { rule, value }
     }
 
-    fn key_case(&self, target: &mut KeyCase) -> WorkspaceResult<bool> {
+    fn id_case(&self, target: &mut IdentifierCase) -> WorkspaceResult<bool> {
         let Some(case_str) = self.value.as_str() else {
             return Err(WorkspaceError::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
@@ -74,7 +75,7 @@ impl<'a> RuleSettingsReader<'a> {
             ));
         };
 
-        let Some(case) = KeyCase::from_name(case_str) else {
+        let Some(case) = IdentifierCase::from_name(case_str) else {
             return Err(WorkspaceError::InvalidWordCase(case_str.to_string()));
         };
 

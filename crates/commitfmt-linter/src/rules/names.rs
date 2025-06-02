@@ -40,6 +40,7 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
         // Footer
         (Footer, "breaking-exclamation")      => footer::BreakingExclamation,
         (Footer, "exists")                    => footer::Exists,
+        (Footer, "key-case")                  => footer::KeyCase,
         (Footer, "max-length")                => footer::MaxLength,
         (Footer, "max-line-length")           => footer::MaxLineLength,
         (Footer, "min-length")                => footer::MinLength,

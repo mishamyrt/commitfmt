@@ -16,6 +16,7 @@
 |------|---------|----------|
 | [`breaking-exclamation`](footer/breaking-exclamation.md) | Message contains breaking changes footer but no exclamation mark | Safe |
 | [`exists`](footer/exists.md) | Footer `{key}` is required but not found | Unfixable |
+| [`key-case`](footer/key-case.md) | Footer key case is inconsistent. Expected: `{case}` | Unfixable |
 | [`max-length`](footer/max-length.md) | Footer `{key}` length is longer than `{length}` characters | Unfixable |
 | [`max-line-length`](footer/max-line-length.md) | Footer `{key}` contains a line that length is longer than `{length}` characters | Unfixable |
 | [`min-length`](footer/min-length.md) | Footer `{key}` length is less than `{length}` characters | Unfixable |

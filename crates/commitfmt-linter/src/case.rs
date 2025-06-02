@@ -18,7 +18,7 @@ const NAME_PASCAL: &str = "pascal";
 const NAME_CAPITALIZED_KEBAB: &str = "capitalized-kebab";
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub enum KeyCase {
+pub enum IdentifierCase {
     #[default]
     Any,
     Camel,
@@ -37,49 +37,49 @@ pub enum TextCase {
     UpperFirst,
 }
 
-impl std::fmt::Display for KeyCase {
+impl std::fmt::Display for IdentifierCase {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl KeyCase {
+impl IdentifierCase {
     pub fn is_match(&self, word: &str) -> bool {
         match self {
-            KeyCase::Any => true,
-            KeyCase::Camel => all_consuming(Self::camel_case).parse(word).is_ok(),
-            KeyCase::Kebab => all_consuming(Self::kebab_case).parse(word).is_ok(),
-            KeyCase::Pascal => all_consuming(Self::pascal_case).parse(word).is_ok(),
-            KeyCase::CapitalizedKebab => {
+            IdentifierCase::Any => true,
+            IdentifierCase::Camel => all_consuming(Self::camel_case).parse(word).is_ok(),
+            IdentifierCase::Kebab => all_consuming(Self::kebab_case).parse(word).is_ok(),
+            IdentifierCase::Pascal => all_consuming(Self::pascal_case).parse(word).is_ok(),
+            IdentifierCase::CapitalizedKebab => {
                 all_consuming(Self::capitalized_kebab_case).parse(word).is_ok()
             }
-            KeyCase::Lower => word.chars().all(char::is_lowercase),
-            KeyCase::Upper => word.chars().all(char::is_uppercase),
+            IdentifierCase::Lower => word.chars().all(char::is_lowercase),
+            IdentifierCase::Upper => word.chars().all(char::is_uppercase),
         }
     }
 
-    pub fn from_name(name: &str) -> Option<KeyCase> {
+    pub fn from_name(name: &str) -> Option<IdentifierCase> {
         match name {
-            NAME_ANY => Some(KeyCase::Any),
-            NAME_CAMEL => Some(KeyCase::Camel),
-            NAME_KEBAB => Some(KeyCase::Kebab),
-            NAME_PASCAL => Some(KeyCase::Pascal),
-            NAME_CAPITALIZED_KEBAB => Some(KeyCase::CapitalizedKebab),
-            NAME_LOWER => Some(KeyCase::Lower),
-            NAME_UPPER => Some(KeyCase::Upper),
+            NAME_ANY => Some(IdentifierCase::Any),
+            NAME_CAMEL => Some(IdentifierCase::Camel),
+            NAME_KEBAB => Some(IdentifierCase::Kebab),
+            NAME_PASCAL => Some(IdentifierCase::Pascal),
+            NAME_CAPITALIZED_KEBAB => Some(IdentifierCase::CapitalizedKebab),
+            NAME_LOWER => Some(IdentifierCase::Lower),
+            NAME_UPPER => Some(IdentifierCase::Upper),
             _ => None,
         }
     }
 
     pub fn name(&self) -> &'static str {
         match self {
-            KeyCase::Any => NAME_ANY,
-            KeyCase::Camel => NAME_CAMEL,
-            KeyCase::Kebab => NAME_KEBAB,
-            KeyCase::CapitalizedKebab => NAME_CAPITALIZED_KEBAB,
-            KeyCase::Pascal => NAME_PASCAL,
-            KeyCase::Lower => NAME_LOWER,
-            KeyCase::Upper => NAME_UPPER,
+            IdentifierCase::Any => NAME_ANY,
+            IdentifierCase::Camel => NAME_CAMEL,
+            IdentifierCase::Kebab => NAME_KEBAB,
+            IdentifierCase::CapitalizedKebab => NAME_CAPITALIZED_KEBAB,
+            IdentifierCase::Pascal => NAME_PASCAL,
+            IdentifierCase::Lower => NAME_LOWER,
+            IdentifierCase::Upper => NAME_UPPER,
         }
     }
 
@@ -161,84 +161,87 @@ impl TextCase {
 mod tests {
     use crate::case::TextCase;
 
-    use super::KeyCase;
+    use super::IdentifierCase;
 
     #[test]
-    fn test_key_match_any() {
-        assert!(KeyCase::Any.is_match("f_o-bAr"));
+    fn test_id_match_any() {
+        assert!(IdentifierCase::Any.is_match("f_o-bAr"));
     }
 
     #[test]
-    fn test_key_match_camel() {
-        assert!(KeyCase::Camel.is_match("fooBar"));
-        assert!(!KeyCase::Camel.is_match("FooBar"));
-        assert!(!KeyCase::Camel.is_match("foo-Bar"));
+    fn test_id_match_camel() {
+        assert!(IdentifierCase::Camel.is_match("fooBar"));
+        assert!(!IdentifierCase::Camel.is_match("FooBar"));
+        assert!(!IdentifierCase::Camel.is_match("foo-Bar"));
     }
 
     #[test]
-    fn test_key_match_capitalized_kebab() {
-        assert!(KeyCase::CapitalizedKebab.is_match("Foo-Bar"));
-        assert!(!KeyCase::CapitalizedKebab.is_match("foo-bar"));
-        assert!(!KeyCase::CapitalizedKebab.is_match("fooBar"));
+    fn test_id_match_capitalized_kebab() {
+        assert!(IdentifierCase::CapitalizedKebab.is_match("Foo-Bar"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match("foo-bar"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match("fooBar"));
     }
 
     #[test]
-    fn test_key_match_kebab() {
-        assert!(KeyCase::Kebab.is_match("foo-bar"));
-        assert!(KeyCase::Kebab.is_match("foobar"));
-        assert!(!KeyCase::Kebab.is_match("FooBar"));
-        assert!(!KeyCase::Kebab.is_match("foo_bar"));
+    fn test_id_match_kebab() {
+        assert!(IdentifierCase::Kebab.is_match("foo-bar"));
+        assert!(IdentifierCase::Kebab.is_match("foobar"));
+        assert!(!IdentifierCase::Kebab.is_match("FooBar"));
+        assert!(!IdentifierCase::Kebab.is_match("foo_bar"));
     }
 
     #[test]
-    fn test_key_match_pascal() {
-        assert!(KeyCase::Pascal.is_match("FooBar"));
-        assert!(KeyCase::Pascal.is_match("Foobar"));
-        assert!(!KeyCase::Pascal.is_match("foo-bar"));
-        assert!(!KeyCase::Pascal.is_match("fooBar"));
+    fn test_id_match_pascal() {
+        assert!(IdentifierCase::Pascal.is_match("FooBar"));
+        assert!(IdentifierCase::Pascal.is_match("Foobar"));
+        assert!(!IdentifierCase::Pascal.is_match("foo-bar"));
+        assert!(!IdentifierCase::Pascal.is_match("fooBar"));
     }
 
     #[test]
-    fn test_key_match_lower() {
-        assert!(KeyCase::Lower.is_match("foobar"));
-        assert!(!KeyCase::Lower.is_match("FOOBAR"));
-        assert!(!KeyCase::Lower.is_match("FooBar"));
+    fn test_id_match_lower() {
+        assert!(IdentifierCase::Lower.is_match("foobar"));
+        assert!(!IdentifierCase::Lower.is_match("FOOBAR"));
+        assert!(!IdentifierCase::Lower.is_match("FooBar"));
     }
 
     #[test]
-    fn test_key_match_upper() {
-        assert!(KeyCase::Upper.is_match("FOOBAR"));
-        assert!(!KeyCase::Upper.is_match("foobar"));
-        assert!(!KeyCase::Upper.is_match("FooBar"));
+    fn test_id_match_upper() {
+        assert!(IdentifierCase::Upper.is_match("FOOBAR"));
+        assert!(!IdentifierCase::Upper.is_match("foobar"));
+        assert!(!IdentifierCase::Upper.is_match("FooBar"));
     }
 
     #[test]
-    fn test_key_from_name() {
-        assert_eq!(KeyCase::from_name("any"), Some(KeyCase::Any));
-        assert_eq!(KeyCase::from_name("camel"), Some(KeyCase::Camel));
-        assert_eq!(KeyCase::from_name("kebab"), Some(KeyCase::Kebab));
-        assert_eq!(KeyCase::from_name("pascal"), Some(KeyCase::Pascal));
-        assert_eq!(KeyCase::from_name("capitalized-kebab"), Some(KeyCase::CapitalizedKebab));
-        assert_eq!(KeyCase::from_name("lower"), Some(KeyCase::Lower));
-        assert_eq!(KeyCase::from_name("upper"), Some(KeyCase::Upper));
-        assert_eq!(KeyCase::from_name("foo"), None);
+    fn test_id_from_name() {
+        assert_eq!(IdentifierCase::from_name("any"), Some(IdentifierCase::Any));
+        assert_eq!(IdentifierCase::from_name("camel"), Some(IdentifierCase::Camel));
+        assert_eq!(IdentifierCase::from_name("kebab"), Some(IdentifierCase::Kebab));
+        assert_eq!(IdentifierCase::from_name("pascal"), Some(IdentifierCase::Pascal));
+        assert_eq!(
+            IdentifierCase::from_name("capitalized-kebab"),
+            Some(IdentifierCase::CapitalizedKebab)
+        );
+        assert_eq!(IdentifierCase::from_name("lower"), Some(IdentifierCase::Lower));
+        assert_eq!(IdentifierCase::from_name("upper"), Some(IdentifierCase::Upper));
+        assert_eq!(IdentifierCase::from_name("foo"), None);
     }
 
     #[test]
-    fn test_key_name() {
-        assert_eq!(KeyCase::Any.name(), "any");
-        assert_eq!(KeyCase::Camel.name(), "camel");
-        assert_eq!(KeyCase::Kebab.name(), "kebab");
-        assert_eq!(KeyCase::Pascal.name(), "pascal");
-        assert_eq!(KeyCase::CapitalizedKebab.name(), "capitalized-kebab");
-        assert_eq!(KeyCase::Lower.name(), "lower");
-        assert_eq!(KeyCase::Upper.name(), "upper");
+    fn test_id_name() {
+        assert_eq!(IdentifierCase::Any.name(), "any");
+        assert_eq!(IdentifierCase::Camel.name(), "camel");
+        assert_eq!(IdentifierCase::Kebab.name(), "kebab");
+        assert_eq!(IdentifierCase::Pascal.name(), "pascal");
+        assert_eq!(IdentifierCase::CapitalizedKebab.name(), "capitalized-kebab");
+        assert_eq!(IdentifierCase::Lower.name(), "lower");
+        assert_eq!(IdentifierCase::Upper.name(), "upper");
     }
 
     #[test]
-    fn test_key_case_display() {
-        assert_eq!(KeyCase::Any.to_string(), "any");
-        assert_eq!(KeyCase::Kebab.to_string(), "kebab");
+    fn test_id_case_display() {
+        assert_eq!(IdentifierCase::Any.to_string(), "any");
+        assert_eq!(IdentifierCase::Kebab.to_string(), "kebab");
     }
 
     #[test]
