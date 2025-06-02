@@ -21,7 +21,9 @@ use commitfmt_macros::ViolationMetadata;
 /// feat: my feature
 /// ```
 #[derive(ViolationMetadata)]
-pub(crate) struct TypeEnum;
+pub(crate) struct TypeEnum {
+    miss: String,
+}
 
 impl Violation for TypeEnum {
     fn group(&self) -> LinterGroup {
@@ -30,7 +32,8 @@ impl Violation for TypeEnum {
 
     #[allow(clippy::useless_format)]
     fn message(&self) -> String {
-        format!("Type value is not allowed by enum")
+        let miss = &self.miss;
+        format!("Type is not allowed: {miss}")
     }
 }
 
@@ -46,7 +49,9 @@ pub(crate) fn type_enum(report: &mut Report, message: &Message, allowed: &Vec<Bo
         }
     }
 
-    report.add_violation(Box::new(TypeEnum));
+    report.add_violation(Box::new(TypeEnum {
+        miss: kind.to_string(),
+    }));
 }
 
 #[cfg(test)]

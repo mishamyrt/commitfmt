@@ -22,7 +22,7 @@ use commitfmt_macros::ViolationMetadata;
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct ScopeEnum {
-    pub(crate) miss: String,
+    miss: String,
 }
 
 impl Violation for ScopeEnum {
@@ -32,7 +32,7 @@ impl Violation for ScopeEnum {
 
     fn message(&self) -> String {
         let miss = &self.miss;
-        format!("Scope contains incorrect case: {miss}")
+        format!("Scope is not allowed: {miss}")
     }
 }
 

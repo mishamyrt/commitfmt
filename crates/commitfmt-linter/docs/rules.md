@@ -31,12 +31,12 @@
 | [`max-length`](header/max-length.md) | Header is longer than `{max_length}` characters | Unfixable |
 | [`min-length`](header/min-length.md) | Header is shorter than `{length}` characters | Unfixable |
 | [`scope-case`](header/scope-case.md) | Scope case is inconsistent. Expected: `{case}` | Unfixable |
-| [`scope-enum`](header/scope-enum.md) | Scope contains incorrect case: `{miss}` | Unfixable |
+| [`scope-enum`](header/scope-enum.md) | Scope is not allowed: `{miss}` | Unfixable |
 | [`scope-max-length`](header/scope-max-length.md) | Scope is longer than `{length}` characters | Unfixable |
 | [`scope-min-length`](header/scope-min-length.md) | Scope is shorter than `{length}` characters | Unfixable |
 | [`scope-required`](header/scope-required.md) | Scope is required | Unfixable |
 | [`type-case`](header/type-case.md) | Type case is inconsistent. Expected: `{case}` | Unfixable |
-| [`type-enum`](header/type-enum.md) | Type value is not allowed by enum | Unfixable |
+| [`type-enum`](header/type-enum.md) | Type is not allowed: `{miss}` | Unfixable |
 | [`type-max-length`](header/type-max-length.md) | Type is longer than `{length}` characters | Unfixable |
 | [`type-min-length`](header/type-min-length.md) | Type is shorter than `{length}` characters | Unfixable |
 | [`type-required`](header/type-required.md) | Commit type is required | Unfixable |

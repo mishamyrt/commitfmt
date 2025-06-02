@@ -24,6 +24,3 @@ walkdir = "2.3"
 
 [lints]
 workspace = true
-
-[dev-dependencies]
-insta = "1.43.1"

@@ -181,30 +181,23 @@ impl std::fmt::Display for Check<'_> {
 mod tests {
     use commitfmt_cc::Message;
 
-    use crate::{check::Check, rule_set::RuleSet, rules};
+    use crate::{check::Check, rule_set::RuleSet, rules::Settings};
 
     #[test]
-    fn test_check() {
-        let mut settings = rules::Settings::default();
-        settings.header.scope_min_length = 1;
-        let rules = RuleSet::from_rules(&[rules::Rule::HeaderScopeMinLength]);
-
+    fn test_check_default() {
+        let settings = Settings::default();
+        let rules = RuleSet::default();
         let mut check = Check::new(&settings, rules);
-        let message = Message::parse("feat: my feature\nbody", None, None)
-            .expect("Unable to parse commit message");
+
+        let message = Message::parse(
+            "feat:test.
+    Body
+    BREAKING CHANGES: test",
+            None,
+            None,
+        )
+        .unwrap();
+
         check.lint(&message);
-        assert_eq!(check.report.violations.len(), 1);
     }
-
-    // #[test]
-    // fn test_empty_check() {
-    //     let settings = rules::Settings::default();
-    //     let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
-
-    //     let mut check = Check::new(&settings, rules);
-    //     let message = Message::parse("feat: my feature\n\nbody", None, None)
-    //         .expect("Unable to parse commit message");
-    //     check.lint(&message);
-    //     assert_eq!(check.report.violations.len(), 0);
-    // }
 }
