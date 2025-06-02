@@ -151,14 +151,11 @@ It is an opinionated formatter and the author has established best practices tha
 
 ### Linting
 
-Most of the linting rules are disabled by default. Default config contains 3 rules as they can be safely auto-fixed:
+Most of the linting rules are disabled by default. Default config contains 2 rules as they can be safely auto-fixed:
 
 ```toml
 [lint.header]
 full-stop = true
-
-[lint.body]
-new-line = true
 
 [lint.footer]
 breaking-exclamation = true

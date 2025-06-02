@@ -34,7 +34,6 @@ pub fn name_to_rule(linter: Linter, code: &str) -> Option<Rule> {
         // Body
         (Body, "case")                        => body::Case,
         (Body, "full-stop")                   => body::FullStop,
-        (Body, "leading-newline")             => body::LeadingNewLine,
         (Body, "max-line-length")             => body::MaxLineLength,
         (Body, "max-length")                  => body::MaxLength,
         (Body, "min-length")                  => body::MinLength,

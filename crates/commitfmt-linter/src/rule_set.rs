@@ -3,11 +3,8 @@ use std::fmt;
 use crate::rules::Rule;
 
 /// Default set of rules
-const DEFAULT_RULES: RuleSet = RuleSet::from_rules(&[
-    Rule::HeaderDescriptionFullStop,
-    Rule::BodyLeadingNewLine,
-    Rule::FooterBreakingExclamation,
-]);
+const DEFAULT_RULES: RuleSet =
+    RuleSet::from_rules(&[Rule::HeaderDescriptionFullStop, Rule::FooterBreakingExclamation]);
 
 /// Rule Set implements a set of rules using bit sets in a u64.
 /// Each bit corresponds to a rule.
@@ -188,8 +185,8 @@ mod tests {
     #[test]
     fn test_add_and_contains() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
-        assert!(set.contains(Rule::BodyLeadingNewLine));
+        set.insert(Rule::HeaderScopeMinLength);
+        assert!(set.contains(Rule::HeaderScopeMinLength));
         assert!(!set.contains(Rule::BodyMaxLineLength));
         assert_eq!(set.len(), 1);
         assert!(!set.is_empty());
@@ -202,25 +199,25 @@ mod tests {
     #[test]
     fn test_remove() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
         set.insert(Rule::BodyMaxLineLength);
         assert_eq!(set.len(), 2);
 
-        set = set.remove(Rule::BodyLeadingNewLine);
-        assert!(!set.contains(Rule::BodyLeadingNewLine));
+        set = set.remove(Rule::HeaderScopeMinLength);
+        assert!(!set.contains(Rule::HeaderScopeMinLength));
         assert_eq!(set.len(), 1);
     }
 
     #[test]
     fn test_union() {
         let mut set1 = RuleSet::empty();
-        set1.insert(Rule::BodyLeadingNewLine);
+        set1.insert(Rule::HeaderScopeMinLength);
 
         let mut set2 = RuleSet::empty();
         set2.insert(Rule::BodyMaxLineLength);
 
         let union_set = set1.union(set2);
-        assert!(union_set.contains(Rule::BodyLeadingNewLine));
+        assert!(union_set.contains(Rule::HeaderScopeMinLength));
         assert!(union_set.contains(Rule::BodyMaxLineLength));
         assert_eq!(union_set.len(), 2);
     }
@@ -228,23 +225,23 @@ mod tests {
     #[test]
     fn test_subtract() {
         let mut set1 = RuleSet::empty();
-        set1.insert(Rule::BodyLeadingNewLine);
+        set1.insert(Rule::HeaderScopeMinLength);
         set1.insert(Rule::BodyMaxLineLength);
 
         let mut set2 = RuleSet::empty();
         set2.insert(Rule::BodyMaxLineLength);
 
         let subtract_set = set1.subtract(set2);
-        assert!(subtract_set.contains(Rule::BodyLeadingNewLine));
+        assert!(subtract_set.contains(Rule::HeaderScopeMinLength));
         assert!(!subtract_set.contains(Rule::BodyMaxLineLength));
         assert_eq!(subtract_set.len(), 1);
     }
 
     #[test]
     fn test_from_rules() {
-        let rules = [Rule::BodyLeadingNewLine, Rule::HeaderDescriptionFullStop];
+        let rules = [Rule::HeaderScopeMinLength, Rule::HeaderDescriptionFullStop];
         let set = RuleSet::from_rules(&rules);
-        assert!(set.contains(Rule::BodyLeadingNewLine));
+        assert!(set.contains(Rule::HeaderScopeMinLength));
         assert!(set.contains(Rule::HeaderDescriptionFullStop));
         assert_eq!(set.len(), 2);
     }
@@ -252,13 +249,13 @@ mod tests {
     #[test]
     fn test_iterator() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
         set.insert(Rule::HeaderDescriptionFullStop);
 
         let mut rules: Vec<Rule> = set.into_iter().collect();
         rules.sort();
 
-        let mut expected = vec![Rule::BodyLeadingNewLine, Rule::HeaderDescriptionFullStop];
+        let mut expected = vec![Rule::HeaderScopeMinLength, Rule::HeaderDescriptionFullStop];
         expected.sort();
 
         assert_eq!(rules, expected);
@@ -274,29 +271,29 @@ mod tests {
     #[test]
     fn test_iterator_reference() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
 
         let rules: Vec<Rule> = (&set).into_iter().collect();
         assert_eq!(rules.len(), 1);
-        assert_eq!(rules[0], Rule::BodyLeadingNewLine);
+        assert_eq!(rules[0], Rule::HeaderScopeMinLength);
 
         // Check that set can still be used
-        assert!(set.contains(Rule::BodyLeadingNewLine));
+        assert!(set.contains(Rule::HeaderScopeMinLength));
     }
 
     #[test]
     fn test_iter_method() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
         set.insert(Rule::HeaderDescriptionFullStop);
 
         let rules: Vec<Rule> = set.iter().collect();
         assert_eq!(rules.len(), 2);
-        assert!(rules.contains(&Rule::BodyLeadingNewLine));
+        assert!(rules.contains(&Rule::HeaderScopeMinLength));
         assert!(rules.contains(&Rule::HeaderDescriptionFullStop));
 
         // Check that set can still be used after iter()
-        assert!(set.contains(Rule::BodyLeadingNewLine));
+        assert!(set.contains(Rule::HeaderScopeMinLength));
     }
 
     #[test]
@@ -308,21 +305,21 @@ mod tests {
     #[test]
     fn test_display_single_rule() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
-        let expected = "[\n\tleading-newline\n]";
+        set.insert(Rule::HeaderScopeMinLength);
+        let expected = "[\n\tscope-min-length\n]";
         assert_eq!(format!("{set}"), expected);
     }
 
     #[test]
     fn test_display_multiple_rules() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
         set.insert(Rule::HeaderDescriptionFullStop);
 
         let display = format!("{set}");
         assert!(display.starts_with("[\n"));
         assert!(display.ends_with("\n]"));
-        assert!(display.contains("\tleading-newline"));
+        assert!(display.contains("\tscope-min-length"));
         assert!(display.contains("\tdescription-full-stop"));
         assert!(display.contains(",\n"));
     }
@@ -330,7 +327,7 @@ mod tests {
     #[test]
     fn test_debug_format() {
         let mut set = RuleSet::empty();
-        set.insert(Rule::BodyLeadingNewLine);
+        set.insert(Rule::HeaderScopeMinLength);
 
         let debug = format!("{set:?}");
         let display = format!("{set}");

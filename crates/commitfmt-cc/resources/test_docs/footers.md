@@ -34,11 +34,9 @@ Then all footers is treated as part of the body.
 ```toml
 description = "my cool feature"
 body = """
-
 Footer-1: value-1
 Footer-2: value-2
-Not a footer
-"""
+Not a footer"""
 footers = []
 ```
 <!--</test-case>-->

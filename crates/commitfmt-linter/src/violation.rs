@@ -50,3 +50,13 @@ pub trait Violation: ViolationMetadata {
         Err(ViolationError::Unfixable())
     }
 }
+
+impl std::fmt::Display for Box<dyn Violation> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let rule_name = self.rule_name();
+        let group = self.group().as_display();
+        let message = self.message();
+
+        write!(f, "{group}::{rule_name}: {message}")
+    }
+}

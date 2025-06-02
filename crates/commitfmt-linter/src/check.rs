@@ -110,9 +110,6 @@ impl<'a> Check<'a> {
     }
 
     fn lint_body(&mut self, message: &Message) {
-        if self.rules.contains(Rule::BodyLeadingNewLine) {
-            body::leading_nl(&mut self.report, message);
-        }
         if self.rules.contains(Rule::BodyMaxLineLength) {
             body::max_line_length(
                 &mut self.report,
@@ -171,6 +168,15 @@ impl<'a> Check<'a> {
     }
 }
 
+impl std::fmt::Display for Check<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for violation in &self.report.violations {
+            writeln!(f, "- {violation}")?;
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use commitfmt_cc::Message;
@@ -179,8 +185,9 @@ mod tests {
 
     #[test]
     fn test_check() {
-        let settings = rules::Settings::default();
-        let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
+        let mut settings = rules::Settings::default();
+        settings.header.scope_min_length = 1;
+        let rules = RuleSet::from_rules(&[rules::Rule::HeaderScopeMinLength]);
 
         let mut check = Check::new(&settings, rules);
         let message = Message::parse("feat: my feature\nbody", None, None)
@@ -189,15 +196,15 @@ mod tests {
         assert_eq!(check.report.violations.len(), 1);
     }
 
-    #[test]
-    fn test_empty_check() {
-        let settings = rules::Settings::default();
-        let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
+    // #[test]
+    // fn test_empty_check() {
+    //     let settings = rules::Settings::default();
+    //     let rules = RuleSet::from_rules(&[rules::Rule::BodyLeadingNewLine]);
 
-        let mut check = Check::new(&settings, rules);
-        let message = Message::parse("feat: my feature\n\nbody", None, None)
-            .expect("Unable to parse commit message");
-        check.lint(&message);
-        assert_eq!(check.report.violations.len(), 0);
-    }
+    //     let mut check = Check::new(&settings, rules);
+    //     let message = Message::parse("feat: my feature\n\nbody", None, None)
+    //         .expect("Unable to parse commit message");
+    //     check.lint(&message);
+    //     assert_eq!(check.report.violations.len(), 0);
+    // }
 }

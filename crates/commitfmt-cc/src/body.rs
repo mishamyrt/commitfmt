@@ -22,7 +22,7 @@ pub(crate) fn parse_body(
         let meaningful_input = trim_meaningless_start(meaningful_input, comment_symbol);
         match Footers::parse(meaningful_input, footer_separators) {
             Ok((_rest, footers)) => return (None, Some(footers)),
-            Err(_) => return (Some(input.to_string()), None),
+            Err(_) => return (Some(meaningful_input.to_string()), None),
         }
     }
 
@@ -30,10 +30,15 @@ pub(crate) fn parse_body(
 
     match Footers::parse(last_block, footer_separators) {
         Ok((_rest, footers)) => {
-            let body = Some(meaningful_input[..last_block_index].to_string());
-            (body, Some(footers))
+            let body =
+                trim_meaningless_start(&meaningful_input[..last_block_index], comment_symbol)
+                    .to_string();
+            (Some(body), Some(footers))
         }
-        Err(_) => (Some(meaningful_input.to_string()), None),
+        Err(_) => {
+            let body = trim_meaningless_start(input, comment_symbol).to_string();
+            (Some(body), None)
+        }
     }
 }
 
@@ -138,10 +143,29 @@ mod tests {
 
         let input = "# some comment\n# some comment\n\nmy body";
         assert_eq!(trim_meaningless_start(input, "#"), "my body");
+
+        let input = "// some comment\n// some comment\n\nmy body";
+        assert_eq!(trim_meaningless_start(input, "//"), "my body");
     }
 
     #[test]
     fn test_parse_body() {
+        // let input = "my body";
+        // let expected = (Some("my body".to_string()), None);
+        // assert_eq!(parse_body(input, ":", "#"), expected);
+
+        // let input = "\nmy body";
+        // let expected = (Some("my body".to_string()), None);
+        // assert_eq!(parse_body(input, ":", "#"), expected);
+
+        // let input = "\n\nmy body";
+        // let expected = (Some("my body".to_string()), None);
+        // assert_eq!(parse_body(input, ":", "#"), expected);
+
+        let input = "\n\n\nmy body";
+        let expected = (Some("my body".to_string()), None);
+        assert_eq!(parse_body(input, ":", "#"), expected);
+
         let input = "my body\n\nmyfooter: my value";
         let expected = (
             Some("my body".to_string()),

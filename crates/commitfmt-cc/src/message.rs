@@ -78,7 +78,7 @@ Authored-By: John Doe";
                 description: "my feature".to_string(),
                 breaking: false,
             },
-            body: Some("\nDescription body".to_string()),
+            body: Some("Description body".to_string()),
             footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
@@ -115,6 +115,19 @@ Authored-By: John Doe";
         };
 
         assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn test_parse_ignores_extra_newlines() {
+        let commit_msg_with_newlines = "feat: my feature\n\nbody";
+        let commit_msg_without_newlines = "feat: my feature\nbody";
+
+        let parsed_with_newlines =
+            Message::parse(commit_msg_with_newlines, None, None).unwrap();
+        let parsed_without_newlines =
+            Message::parse(commit_msg_without_newlines, None, None).unwrap();
+
+        assert_eq!(parsed_with_newlines, parsed_without_newlines);
     }
 
     #[test]
