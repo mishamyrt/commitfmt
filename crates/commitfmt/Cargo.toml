@@ -11,11 +11,11 @@ repository = { workspace = true }
 license = { workspace = true }
 
 [dependencies]
-commitfmt_cc = { workspace = true }
-commitfmt_linter = { workspace = true }
-commitfmt_workspace = { workspace = true }
-commitfmt_git = { workspace = true }
-commitfmt_format = { workspace = true }
+commitfmt-cc = { workspace = true }
+commitfmt-linter = { workspace = true }
+commitfmt-workspace = { workspace = true }
+commitfmt-git = { workspace = true }
+commitfmt-format = { workspace = true }
 
 thiserror = { workspace = true }
 tempfile = { workspace = true }

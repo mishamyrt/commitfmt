@@ -242,11 +242,11 @@ dependencies = [
  "atty",
  "clap",
  "colored",
- "commitfmt_cc",
- "commitfmt_format",
- "commitfmt_git",
- "commitfmt_linter",
- "commitfmt_workspace",
+ "commitfmt-cc",
+ "commitfmt-format",
+ "commitfmt-git",
+ "commitfmt-linter",
+ "commitfmt-workspace",
  "criterion",
  "fern",
  "lazy_static",
@@ -260,7 +260,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_cc"
+name = "commitfmt-cc"
 version = "0.0.0"
 dependencies = [
  "build-deps",
@@ -276,19 +276,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_format"
+name = "commitfmt-format"
 version = "0.0.1"
 dependencies = [
- "commitfmt_cc",
- "commitfmt_git",
- "commitfmt_workspace",
+ "commitfmt-cc",
+ "commitfmt-git",
+ "commitfmt-workspace",
  "nom",
  "regex",
  "thiserror",
 ]
 
 [[package]]
-name = "commitfmt_git"
+name = "commitfmt-git"
 version = "0.0.0"
 dependencies = [
  "nom",
@@ -298,11 +298,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_linter"
+name = "commitfmt-linter"
 version = "0.0.0"
 dependencies = [
- "commitfmt_cc",
- "commitfmt_macros",
+ "commitfmt-cc",
+ "commitfmt-macros",
+ "insta",
  "nom",
  "proc-macro2 1.0.93",
  "quote 1.0.38",
@@ -312,10 +313,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_macros"
+name = "commitfmt-macros"
 version = "0.0.0"
 dependencies = [
- "commitfmt_cc",
+ "commitfmt-cc",
  "itertools 0.14.0",
  "proc-macro2 1.0.93",
  "quote 1.0.38",
@@ -323,11 +324,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "commitfmt_workspace"
+name = "commitfmt-workspace"
 version = "0.0.0"
 dependencies = [
- "commitfmt_cc",
- "commitfmt_linter",
+ "commitfmt-cc",
+ "commitfmt-linter",
  "fern",
  "log",
  "serde",
@@ -335,6 +336,18 @@ dependencies = [
  "tempfile",
  "thiserror",
  "toml",
+]
+
+[[package]]
+name = "console"
+version = "0.15.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "054ccb5b10f9f2cbf51eb355ca1d05c2d279ce1804688d0db74b4733a5aeafd8"
+dependencies = [
+ "encode_unicode",
+ "libc",
+ "once_cell",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -409,6 +422,12 @@ name = "either"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7914353092ddf589ad78f25c5c1c21b7f80b0ff8621e7c814c3485b5306da9d"
+
+[[package]]
+name = "encode_unicode"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0"
 
 [[package]]
 name = "equivalent"
@@ -510,6 +529,17 @@ checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
  "hashbrown",
+]
+
+[[package]]
+name = "insta"
+version = "1.43.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "154934ea70c58054b556dd430b99a98c2a7ff5309ac9891597e339b5c28f4371"
+dependencies = [
+ "console",
+ "once_cell",
+ "similar",
 ]
 
 [[package]]
@@ -908,6 +938,12 @@ checksum = "a9e9e0b4211b72e7b8b6e85c807d36c212bdb33ea8587f7569562a84df5465b1"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "similar"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "smallvec"

@@ -1,5 +1,5 @@
 [package]
-name = "commitfmt_workspace"
+name = "commitfmt-workspace"
 version = "0.0.0"
 publish = false
 authors = { workspace = true }
@@ -13,8 +13,8 @@ license = { workspace = true }
 [dependencies]
 thiserror = { workspace = true }
 tempfile = { workspace = true }
-commitfmt_cc = { workspace = true }
-commitfmt_linter = { workspace = true }
+commitfmt-cc = { workspace = true }
+commitfmt-linter = { workspace = true }
 fern = { workspace = true }
 log = { workspace = true }
 toml = { workspace = true }

@@ -6,7 +6,6 @@
 |------|---------|----------|
 | [`case`](body/case.md) | Body case is inconsistent. Expected: `{case}` | Unfixable |
 | [`full-stop`](body/full-stop.md) | Body is not ended with a full stop | Unsafe |
-| [`leading-new-line`](body/leading-new-line.md) | Body must start with a newline | Unfixable |
 | [`max-length`](body/max-length.md) | Body is longer than `{max_length}` characters | Unfixable |
 | [`max-line-length`](body/max-line-length.md) | Body line is longer than `{max_length}` characters | Unfixable |
 | [`min-length`](body/min-length.md) | Body is shorter than `{length}` characters | Unfixable |
