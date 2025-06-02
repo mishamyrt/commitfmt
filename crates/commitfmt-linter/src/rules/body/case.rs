@@ -69,11 +69,11 @@ mod tests {
             footers: footer_vec![],
         };
 
-        case(&mut report, &message, TextCase::Lower);
+        case(&mut report, &message, TextCase::LowerFirst);
         assert_eq!(report.len(), 0);
 
-        message.body = Some("FEATURE description".to_string());
-        case(&mut report, &message, TextCase::Lower);
+        message.body = Some("Feature description".to_string());
+        case(&mut report, &message, TextCase::LowerFirst);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "Case");
     }

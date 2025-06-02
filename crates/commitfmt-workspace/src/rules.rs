@@ -1,5 +1,5 @@
 use commitfmt_linter::{
-    case::{TextCase, WordCase},
+    case::{KeyCase, TextCase},
     rules::{Rule, Settings},
 };
 use toml::Value;
@@ -25,12 +25,12 @@ pub(crate) fn parse_rule_setting(
         }
         Rule::HeaderDescriptionCase => reader.text_case(&mut settings.header.description_case),
         Rule::HeaderScopeEnum => reader.str_vec(&mut settings.header.scope_enum),
-        Rule::HeaderScopeCase => reader.word_case(&mut settings.header.scope_case),
+        Rule::HeaderScopeCase => reader.key_case(&mut settings.header.scope_case),
         Rule::HeaderMaxLength => reader.usize(&mut settings.header.max_length),
         Rule::HeaderMinLength => reader.usize(&mut settings.header.min_length),
         Rule::HeaderScopeMaxLength => reader.usize(&mut settings.header.scope_max_length),
         Rule::HeaderScopeMinLength => reader.usize(&mut settings.header.scope_min_length),
-        Rule::HeaderTypeCase => reader.word_case(&mut settings.header.type_case),
+        Rule::HeaderTypeCase => reader.key_case(&mut settings.header.type_case),
 
         Rule::HeaderTypeMaxLength => reader.usize(&mut settings.header.type_max_length),
         Rule::HeaderTypeMinLength => reader.usize(&mut settings.header.type_min_length),
@@ -66,7 +66,7 @@ impl<'a> RuleSettingsReader<'a> {
         Self { rule, value }
     }
 
-    fn word_case(&self, target: &mut WordCase) -> WorkspaceResult<bool> {
+    fn key_case(&self, target: &mut KeyCase) -> WorkspaceResult<bool> {
         let Some(case_str) = self.value.as_str() else {
             return Err(WorkspaceError::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
@@ -74,7 +74,7 @@ impl<'a> RuleSettingsReader<'a> {
             ));
         };
 
-        let Some(case) = WordCase::from_name(case_str) else {
+        let Some(case) = KeyCase::from_name(case_str) else {
             return Err(WorkspaceError::InvalidWordCase(case_str.to_string()));
         };
 

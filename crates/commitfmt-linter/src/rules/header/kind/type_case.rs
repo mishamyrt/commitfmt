@@ -1,4 +1,4 @@
-use crate::case::WordCase;
+use crate::case::KeyCase;
 use crate::report::Report;
 use crate::rules::LinterGroup;
 use crate::violation::{Violation, ViolationMetadata};
@@ -23,7 +23,7 @@ use commitfmt_macros::ViolationMetadata;
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct TypeCase {
-    pub(crate) case: WordCase,
+    pub(crate) case: KeyCase,
 }
 
 impl Violation for TypeCase {
@@ -38,7 +38,7 @@ impl Violation for TypeCase {
 }
 
 /// Checks for scope case consistency
-pub(crate) fn type_case(report: &mut Report, message: &Message, case: WordCase) {
+pub(crate) fn type_case(report: &mut Report, message: &Message, case: KeyCase) {
     let Some(kind) = &message.header.kind else {
         return;
     };
@@ -64,7 +64,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        type_case(&mut report, &message, WordCase::Lower);
+        type_case(&mut report, &message, KeyCase::Lower);
         assert_eq!(report.len(), 0);
 
         let message: Message = Message {
@@ -73,7 +73,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        type_case(&mut report, &message, WordCase::Lower);
+        type_case(&mut report, &message, KeyCase::Lower);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "TypeCase");
     }

@@ -60,7 +60,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        description_case(&mut report, &message, TextCase::Lower);
+        description_case(&mut report, &message, TextCase::LowerFirst);
         assert_eq!(report.len(), 0);
 
         let message: Message = Message {
@@ -69,7 +69,7 @@ mod tests {
             footers: footer_vec![],
         };
 
-        description_case(&mut report, &message, TextCase::Lower);
+        description_case(&mut report, &message, TextCase::LowerFirst);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "DescriptionCase");
     }
