@@ -249,11 +249,13 @@ dependencies = [
  "commitfmt-workspace",
  "criterion",
  "fern",
+ "insta",
  "lazy_static",
  "log",
  "regex",
  "same-file",
  "tempfile",
+ "testing_logger",
  "thiserror",
  "tokio",
  "winapi-util",
@@ -303,7 +305,6 @@ version = "0.0.0"
 dependencies = [
  "commitfmt-cc",
  "commitfmt-macros",
- "insta",
  "nom",
  "proc-macro2 1.0.93",
  "quote 1.0.38",
@@ -1033,6 +1034,15 @@ dependencies = [
  "proc-macro2 0.4.30",
  "quote 0.6.13",
  "syn 0.15.44",
+]
+
+[[package]]
+name = "testing_logger"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d92b727cb45d33ae956f7f46b966b25f1bc712092aeef9dba5ac798fc89f720"
+dependencies = [
+ "log",
 ]
 
 [[package]]

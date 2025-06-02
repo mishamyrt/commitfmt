@@ -49,9 +49,7 @@ pub(crate) fn type_enum(report: &mut Report, message: &Message, allowed: &Vec<Bo
         }
     }
 
-    report.add_violation(Box::new(TypeEnum {
-        miss: kind.to_string(),
-    }));
+    report.add_violation(Box::new(TypeEnum { miss: kind.to_string() }));
 }
 
 #[cfg(test)]

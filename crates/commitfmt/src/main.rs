@@ -1,14 +1,15 @@
-mod cli;
-mod commitfmt;
-mod logging;
+// mod cli;
+// mod commitfmt;
+// mod logging;
 
 use clap::{CommandFactory, Parser};
-use cli::Cli;
+
 use colored::Colorize;
-use commitfmt::Commitfmt;
-use logging::setup_logger;
 use std::{io::Read, process};
 
+use commitfmt::{
+    print_debug, print_error, print_info, print_warning, setup_logger, Commitfmt,
+};
 use commitfmt_git::Repository;
 
 /// Input source for the commit message.
@@ -20,6 +21,33 @@ enum InputSource {
     CommitEditMessage,
     /// No input source is available.
     None,
+}
+
+/// Utility to add ticket id to commit message
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// Turn debugging information on
+    #[arg(short, long)]
+    pub verbose: bool,
+
+    /// Disable colored output
+    #[arg(long)]
+    pub no_color: bool,
+
+    /// The lower boundary of the commit range to be checked.
+    /// If the `--to` parameter is not set, it will check commits up to the current one
+    #[arg(long)]
+    pub from: Option<String>,
+
+    /// The upper boundary of the commits range to be checked.
+    /// Can be used only together with the `--from` parameter
+    #[arg(long)]
+    pub to: Option<String>,
+
+    /// Check the message and return an error if any problem is found
+    #[arg(short, long)]
+    pub lint: bool,
 }
 
 /// Returns true if and only if stdin is believed to be readable.

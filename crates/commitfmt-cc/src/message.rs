@@ -46,7 +46,7 @@ impl std::fmt::Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.header)?;
         if let Some(body) = &self.body {
-            write!(f, "\n{body}")?;
+            write!(f, "\n\n{body}")?;
         }
         if !self.footers.is_empty() {
             writeln!(f)?;
@@ -139,7 +139,7 @@ Authored-By: John Doe";
                 description: "my feature".to_string(),
                 breaking: false,
             },
-            body: Some("\nDescription body".to_string()),
+            body: Some("Description body".to_string()),
             footers: footer_vec![{
                 key: "Authored-By".to_string(),
                 value: "John Doe".to_string(),
@@ -204,5 +204,23 @@ Authored-By: John Doe";
         };
 
         assert_eq!(commit_msg.to_string(), "feat: my feature");
+    }
+
+    #[test]
+    fn test_format() {
+        let tests: Vec<(&str, &str)> = vec![
+            ("feat: test", "feat: test"),
+            ("feat(test): test", "feat(test): test"),
+            ("feat(test): test\n\nbody", "feat(test): test\n\nbody"),
+            (
+                "feat(test): test\n\nbody\n\nAuthored-By: John Doe",
+                "feat(test): test\n\nbody\n\nAuthored-By: John Doe",
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let message = Message::parse(input, None, None).unwrap();
+            assert_eq!(message.to_string(), expected);
+        }
     }
 }

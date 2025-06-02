@@ -66,6 +66,14 @@ impl TestBed {
         Ok(test_bed)
     }
 
+    pub fn new_with_commits(commits: &[&str]) -> GitResult<Self> {
+        let test_bed = Self::new()?;
+        for message in commits {
+            test_bed.commit(message)?;
+        }
+        Ok(test_bed)
+    }
+
     pub fn commit(&self, message: &str) -> GitResult<()> {
         self.run(&["commit", "--allow-empty", "-m", message])?;
         Ok(())

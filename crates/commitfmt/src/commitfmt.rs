@@ -1,7 +1,6 @@
 use std::path::Path;
 
 use colored::Colorize;
-use thiserror::Error;
 
 use commitfmt_cc::Message;
 use commitfmt_format::append_footers;
@@ -11,44 +10,17 @@ use commitfmt_workspace::{open_settings, CommitSettings};
 
 use crate::logging::pluralize;
 use crate::{print_error, print_info, print_warning};
-
-/// Application error.
-#[derive(Error, Debug)]
-pub(crate) enum Error {
-    #[error("Git operation failed")]
-    Git(#[from] commitfmt_git::GitError),
-
-    #[error("Failed to parse commit message")]
-    Parse(#[from] commitfmt_cc::ParseError),
-
-    #[error("Found {0} problems")]
-    Lint(usize),
-
-    #[error("Commit has {0} unfixable problems")]
-    Unfixable(usize),
-
-    #[error("Failed to append footers")]
-    AppendFooters(#[from] commitfmt_format::FooterError),
-
-    #[error("Failed to open configuration file")]
-    OpenConfig(#[from] commitfmt_workspace::WorkspaceError),
-}
-
-/// Application result.
-pub(crate) type Result<T> = std::result::Result<T, Error>;
-
-/// Commit range. (from..to)
-pub(crate) type CommitRange<'a> = (&'a str, &'a str);
+use crate::{CommitRange, Error, Result};
 
 /// Commitfmt application.
-pub(crate) struct Commitfmt {
-    pub(crate) repo: Repository,
-    pub(crate) settings: CommitSettings,
+pub struct Commitfmt {
+    pub repo: Repository,
+    pub settings: CommitSettings,
 }
 
 impl Commitfmt {
     /// Creates a new Commitfmt application with workspace from the given path.
-    pub(crate) fn from_path(path: &Path) -> Result<Self> {
+    pub fn from_path(path: &Path) -> Result<Self> {
         let repo = Repository::open(path)?;
         let mut settings = open_settings(path)?;
         if settings.comment_symbol.is_none() {
@@ -62,11 +34,9 @@ impl Commitfmt {
     }
 
     /// Lint a commit range (from..to).
-    pub(crate) fn lint_commit_range(&self, range: CommitRange) -> Result<()> {
+    pub fn lint_commit_range(&self, range: CommitRange) -> Result<()> {
         let (from, to) = range;
         let commits = self.repo.get_log(from, to)?;
-
-        let (footer_separators, comment_symbol) = get_parse_params(&self.repo, &self.settings);
 
         let mut problems_count: usize = 0;
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
@@ -74,20 +44,22 @@ impl Commitfmt {
         for commit in &commits {
             let message = Message::parse(
                 &commit.message,
-                footer_separators.as_deref(),
-                comment_symbol.as_deref(),
+                self.settings.footer_separators.as_deref(),
+                self.settings.comment_symbol.as_deref(),
             )?;
 
             check.lint(&message);
             if !check.report.violations.is_empty() {
-                let count = report_violations(check.report.violations.iter());
+                let count = check.report.violations.len();
                 let sha = &commit.sha;
                 if count == 1 {
                     print_error!("Commit {sha} has violation");
                 } else {
                     print_error!("Commit {sha} has {count} violations");
                 }
-                problems_count += check.report.violations.len();
+
+                let _ = report_violations(check.report.violations.iter());
+                problems_count += count;
                 check.report.violations.clear();
             }
         }
@@ -102,15 +74,12 @@ impl Commitfmt {
     }
 
     /// Formats a commit message.
-    pub(crate) fn format_commit_message(
-        &self,
-        input: &str,
-        lint_only: bool,
-    ) -> Result<String> {
-        let (footer_separators, comment_symbol) = get_parse_params(&self.repo, &self.settings);
-
-        let mut message =
-            Message::parse(input, footer_separators.as_deref(), comment_symbol.as_deref())?;
+    pub fn format_commit_message(&self, input: &str, lint_only: bool) -> Result<String> {
+        let mut message = Message::parse(
+            input,
+            self.settings.footer_separators.as_deref(),
+            self.settings.comment_symbol.as_deref(),
+        )?;
 
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
         check.lint(&message);
@@ -186,26 +155,7 @@ fn print_violation(violation: &dyn Violation) {
     let Some(rule) = Rule::from_violation(violation) else {
         panic!("Failed to get rule from violation");
     };
-    let line = format!("- {} {}", violation.message(), rule.as_display().dimmed());
+    let rule_name = format!("[{}]", rule.as_display());
+    let line = format!("- {} {}", violation.message(), rule_name.dimmed());
     print_info!("{line}");
-}
-
-fn get_parse_params(
-    repo: &Repository,
-    settings: &CommitSettings,
-) -> (Option<String>, Option<String>) {
-    let trailer_separators =
-        if let Some(footer_separators) = settings.footer_separators.clone() {
-            Some(footer_separators)
-        } else {
-            repo.trailer_separators()
-        };
-
-    let comment_symbol = if let Some(comment_symbol) = settings.comment_symbol.clone() {
-        Some(comment_symbol)
-    } else {
-        repo.comment_symbol()
-    };
-
-    (trailer_separators, comment_symbol)
 }

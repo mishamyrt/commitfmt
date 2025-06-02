@@ -38,7 +38,7 @@ pub(crate) fn pluralize(count: usize, singular: &str, plural: &str) -> String {
     }
 }
 
-pub(crate) fn setup_logger(verbose: bool, no_color: bool) {
+pub fn setup_logger(verbose: bool, no_color: bool) {
     let log_level = if verbose { log::LevelFilter::Debug } else { log::LevelFilter::Info };
     Dispatch::new()
         .level(log_level)
