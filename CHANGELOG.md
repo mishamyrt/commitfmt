@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/mishamyrt/commitfmt/compare/v0.3.0..v0.4.0) - 2025-06-02
+
+### 🚀 Features
+
+- Remove `leading_newline` for body, transform it to basic formatting
+- *(cc)* Allow dashes at type name
+- Improve case handling
+- *(linter)* Add footer key case check
+
+### 🐛 Bug Fixes
+
+- Correctly read comment char and footer separator from repo
+- *(linter)* Correct message for `scope-enum`
+- *(cc)* Add body newline on message formatting
+
+### 🚜 Refactor
+
+- *(cli)* Commonize settings usage
+- *(cli)* Simplify testing
+
 ## [0.3.0](https://github.com/mishamyrt/commitfmt/compare/v0.2.0..v0.3.0) - 2025-05-30
 
 ### 🚀 Features
