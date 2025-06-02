@@ -150,7 +150,10 @@ impl Header {
     /// Parse a commit kind.
     /// Returns `None` if the input does not contain a valid kind
     fn parse_kind(input: &str) -> IResult<&str, &str> {
-        verify(take_while1(char::is_alphabetic), |s: &str| !s.contains(' ')).parse(input)
+        verify(take_while1(|c: char| c.is_alphabetic() || c == '-'), |s: &str| {
+            !s.contains(' ')
+        })
+        .parse(input)
     }
 
     /// Parse a breaking change indicator

@@ -150,17 +150,17 @@ mod tests {
 
     #[test]
     fn test_parse_body() {
-        // let input = "my body";
-        // let expected = (Some("my body".to_string()), None);
-        // assert_eq!(parse_body(input, ":", "#"), expected);
+        let input = "my body";
+        let expected = (Some("my body".to_string()), None);
+        assert_eq!(parse_body(input, ":", "#"), expected);
 
-        // let input = "\nmy body";
-        // let expected = (Some("my body".to_string()), None);
-        // assert_eq!(parse_body(input, ":", "#"), expected);
+        let input = "\nmy body";
+        let expected = (Some("my body".to_string()), None);
+        assert_eq!(parse_body(input, ":", "#"), expected);
 
-        // let input = "\n\nmy body";
-        // let expected = (Some("my body".to_string()), None);
-        // assert_eq!(parse_body(input, ":", "#"), expected);
+        let input = "\n\nmy body";
+        let expected = (Some("my body".to_string()), None);
+        assert_eq!(parse_body(input, ":", "#"), expected);
 
         let input = "\n\n\nmy body";
         let expected = (Some("my body".to_string()), None);
