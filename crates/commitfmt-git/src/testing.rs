@@ -40,7 +40,7 @@ impl TestBed {
     pub const DEFAULT_USER_EMAIL: &str = "test@example.com";
 
     /// Creates a new test bed with a fresh git repository
-    pub fn new() -> GitResult<Self> {
+    pub fn empty() -> GitResult<Self> {
         let dir = TempDir::with_prefix("commitfmt-git-test-")?;
         let dir_path = dir.path();
 
@@ -54,33 +54,31 @@ impl TestBed {
         Ok(Self { dir, repo })
     }
 
+    /// Returns the path to the test bed
     pub fn path(&self) -> PathBuf {
         self.dir.path().to_path_buf()
     }
 
-    pub fn new_with_history() -> GitResult<Self> {
-        let test_bed = Self::new()?;
-        for message in COMMIT_HISTORY {
-            test_bed.commit(message)?;
-        }
-        Ok(test_bed)
-    }
-
-    pub fn new_with_commits(commits: &[&str]) -> GitResult<Self> {
-        let test_bed = Self::new()?;
-        for message in commits {
-            test_bed.commit(message)?;
-        }
-        Ok(test_bed)
-    }
-
-    pub fn commit(&self, message: &str) -> GitResult<()> {
-        self.run(&["commit", "--allow-empty", "-m", message])?;
+    /// Switches to a new branch
+    pub fn switch_to_new(&self, branch_name: &str) -> GitResult<()> {
+        run_git(&["switch", "-c", branch_name], self.dir.path())?;
         Ok(())
     }
 
-    pub fn run(&self, args: &[&str]) -> GitResult<String> {
-        run_git(args, self.dir.path())
+    pub fn with_default_history() -> GitResult<Self> {
+        let test_bed = Self::empty()?;
+        for message in COMMIT_HISTORY {
+            test_bed.repo.commit(message)?;
+        }
+        Ok(test_bed)
+    }
+
+    pub fn with_history(commits: &[&str]) -> GitResult<Self> {
+        let test_bed = Self::empty()?;
+        for message in commits {
+            test_bed.repo.commit(message)?;
+        }
+        Ok(test_bed)
     }
 }
 
@@ -90,7 +88,7 @@ mod tests {
 
     #[test]
     fn test_new() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
         assert!(test_bed.path().to_str().unwrap().contains("commitfmt-git-test-"));
         assert_eq!(test_bed.repo.get_branch_name(), Some("main".to_string()));
         assert_eq!(test_bed.repo.get_root(), test_bed.dir.path());
@@ -98,19 +96,12 @@ mod tests {
 
     #[test]
     fn test_new_with_history() {
-        let test_bed = TestBed::new_with_history().unwrap();
+        let test_bed = TestBed::with_default_history().unwrap();
         assert_eq!(test_bed.repo.get_branch_name(), Some("main".to_string()));
         assert_eq!(test_bed.repo.get_root(), test_bed.dir.path());
         assert_eq!(
-            test_bed.run(&["rev-list", "--count", "--all"]).unwrap(),
+            test_bed.repo.run(&["rev-list", "--count", "--all"]).unwrap(),
             COMMIT_HISTORY.len().to_string()
         );
-    }
-
-    #[test]
-    fn test_run() {
-        let test_bed = TestBed::new().unwrap();
-        let output = test_bed.run(&["version"]).unwrap();
-        assert!(output.contains("git version"));
     }
 }

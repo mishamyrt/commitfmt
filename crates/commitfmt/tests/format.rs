@@ -11,7 +11,7 @@ feat  (  test   ): test
 body
 "
     .trim();
-    let test_bed = TestBed::new().unwrap();
+    let test_bed = TestBed::empty().unwrap();
     let app = Commitfmt::from_path(&test_bed.path()).unwrap();
 
     let result = app.format_commit_message(input, false);
@@ -29,7 +29,7 @@ body
 "
     .trim();
 
-    let test_bed = TestBed::new().unwrap();
+    let test_bed = TestBed::empty().unwrap();
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
     let mut cmd = Command::new(exe);
@@ -54,7 +54,7 @@ footer-key: value
 "
     .trim();
 
-    let test_bed = TestBed::new_with_history().unwrap();
+    let test_bed = TestBed::with_default_history().unwrap();
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
     test_bed.repo.write_commit_message(input).unwrap();
@@ -64,4 +64,7 @@ footer-key: value
 
     let output = cmd.output().unwrap();
     assert!(output.status.success());
+
+    let output = test_bed.repo.read_commit_message().unwrap();
+    assert_eq!(output, "feat(test): test\n\nbody\n\nfooter-key: value");
 }

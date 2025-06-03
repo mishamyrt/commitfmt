@@ -1,7 +1,3 @@
-// mod cli;
-// mod commitfmt;
-// mod logging;
-
 use clap::{CommandFactory, Parser};
 
 use colored::Colorize;

@@ -61,31 +61,34 @@ impl std::fmt::Display for Box<dyn Violation> {
     }
 }
 
+/// A test violation for testing purposes
+#[allow(dead_code)]
+#[derive(Debug)]
+pub(crate) struct TestViolation;
+
+impl ViolationMetadata for TestViolation {
+    fn rule_name(&self) -> &'static str {
+        "test"
+    }
+
+    fn explain(&self) -> Option<&'static str> {
+        unimplemented!()
+    }
+}
+
+impl Violation for TestViolation {
+    fn group(&self) -> LinterGroup {
+        LinterGroup::Header
+    }
+
+    fn message(&self) -> String {
+        "test".to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    struct TestViolation;
-
-    impl ViolationMetadata for TestViolation {
-        fn rule_name(&self) -> &'static str {
-            "test"
-        }
-
-        fn explain(&self) -> Option<&'static str> {
-            unimplemented!()
-        }
-    }
-
-    impl Violation for TestViolation {
-        fn group(&self) -> LinterGroup {
-            LinterGroup::Header
-        }
-
-        fn message(&self) -> String {
-            "test".to_string()
-        }
-    }
 
     #[test]
     fn test_default_fix_mode() {

@@ -72,16 +72,19 @@ impl Repository {
 
     /// Returns the commits between two references
     pub fn get_log(&self, from: &str, to: &str) -> GitResult<Vec<Commit>> {
-        let output = run_git(
-            &["log", "--pretty=format:%h%n%B#-eoc-#", &format!("{from}..{to}")],
-            &self.root_dir,
-        )?;
+        let output =
+            self.run(&["log", "--pretty=format:%h%n%B#-eoc-#", &format!("{from}..{to}")])?;
 
         let Ok((_, commits)) = parse_git_log(&output) else {
             return Err(GitError::CommandFailed(-1, "Failed to parse git log".to_string()));
         };
 
         Ok(commits)
+    }
+
+    pub fn commit(&self, message: &str) -> GitResult<()> {
+        self.run(&["commit", "--allow-empty", "--message", message])?;
+        Ok(())
     }
 
     /// Reads the commit message
@@ -118,8 +121,14 @@ impl Repository {
         self.get_config(ConfigKey::TrailerSeparators)
     }
 
+    /// Runs a git command in the repository
+    pub(crate) fn run(&self, args: &[&str]) -> GitResult<String> {
+        run_git(args, &self.root_dir)
+    }
+
+    /// Gets a git configuration value
     fn get_config(&self, key: ConfigKey) -> Option<String> {
-        let Ok(output) = run_git(&["config", &key.to_string()], &self.root_dir) else {
+        let Ok(output) = self.run(&["config", &key.to_string()]) else {
             return None;
         };
 
@@ -165,7 +174,7 @@ mod tests {
 
     #[test]
     fn test_get_branch_name() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         let branch_name = test_bed.repo.get_branch_name();
 
@@ -174,7 +183,7 @@ mod tests {
 
     #[test]
     fn test_read_write_commit_message() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         let test_message = "feat: test commit message\n\nThis is a test commit.";
 
@@ -190,7 +199,7 @@ mod tests {
 
     #[test]
     fn test_read_commit_message_not_found() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         let result = test_bed.repo.read_commit_message();
         assert!(result.is_err());
@@ -198,7 +207,7 @@ mod tests {
 
     #[test]
     fn test_is_committing() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         assert!(!test_bed.repo.is_committing());
 
@@ -209,7 +218,7 @@ mod tests {
 
     #[test]
     fn test_hook_path() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         let hook_path = test_bed.repo.hook_path(HookType::PrepareCommitMsg);
         assert!(hook_path.is_ok());
@@ -222,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_get_log() {
-        let test_bed = TestBed::new_with_history().unwrap();
+        let test_bed = TestBed::with_default_history().unwrap();
 
         let log = test_bed.repo.get_log("HEAD~5", "HEAD").unwrap();
         assert_eq!(log.len(), 5);
@@ -230,24 +239,24 @@ mod tests {
 
     #[test]
     fn test_comment_symbol() {
-        let test_bed = TestBed::new().unwrap();
-        test_bed.run(&["config", "--local", "core.commentChar", "#"]).unwrap();
+        let test_bed = TestBed::empty().unwrap();
+        test_bed.repo.run(&["config", "--local", "core.commentChar", "#"]).unwrap();
         assert_eq!(test_bed.repo.comment_symbol(), Some("#".to_string()));
 
-        test_bed.run(&["config", "--local", "core.commentString", "//"]).unwrap();
+        test_bed.repo.run(&["config", "--local", "core.commentString", "//"]).unwrap();
         assert_eq!(test_bed.repo.comment_symbol(), Some("//".to_string()));
     }
 
     #[test]
     fn test_trailer_separators() {
-        let test_bed = TestBed::new().unwrap();
-        test_bed.run(&["config", "--local", "trailer.separators", ":#"]).unwrap();
+        let test_bed = TestBed::empty().unwrap();
+        test_bed.repo.run(&["config", "--local", "trailer.separators", ":#"]).unwrap();
         assert_eq!(test_bed.repo.trailer_separators(), Some(":#".to_string()));
     }
 
     #[test]
     fn test_get_config() {
-        let test_bed = TestBed::new().unwrap();
+        let test_bed = TestBed::empty().unwrap();
 
         // Test get_config function with non-existent key
         let result = test_bed.repo.get_config(ConfigKey::TrailerSeparators);

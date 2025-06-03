@@ -8,7 +8,7 @@ use insta::assert_snapshot;
 fn test_lint_correct_range() {
     testing_logger::setup();
 
-    let test_bed = TestBed::new_with_history().unwrap();
+    let test_bed = TestBed::with_default_history().unwrap();
     let commitfmt = Commitfmt::from_path(&test_bed.path()).unwrap();
     let range = ("HEAD~3", "HEAD");
     let result = commitfmt.lint_commit_range(range);
@@ -31,7 +31,7 @@ type-enum = ["feat", "fix", "chore"]
 description-min-length = 10
 # And description-full-stop enabled by default
 "#;
-    let test_bed = TestBed::new_with_commits(&incorrect_commits).unwrap();
+    let test_bed = TestBed::with_history(&incorrect_commits).unwrap();
 
     let config_path = test_bed.path().join(".commitfmt.toml");
     std::fs::write(config_path, config_data).unwrap();
@@ -64,7 +64,7 @@ description-min-length = 10
 fn test_cli_lint_correct_range() {
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
-    let test_bed = TestBed::new_with_history().unwrap();
+    let test_bed = TestBed::with_default_history().unwrap();
 
     let mut cmd = Command::new(exe);
     cmd.arg("--from").arg("HEAD~3").arg("--to").arg("HEAD");
@@ -91,7 +91,7 @@ scope-required = true
 description-max-length = 5
 # And description-full-stop enabled by default
 "#;
-    let test_bed = TestBed::new_with_commits(&incorrect_commits).unwrap();
+    let test_bed = TestBed::with_history(&incorrect_commits).unwrap();
 
     let config_path = test_bed.path().join(".commitfmt.toml");
     std::fs::write(config_path, config_data).unwrap();
@@ -117,7 +117,7 @@ description-max-length = 5
 fn test_cli_only_to() {
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
-    let test_bed = TestBed::new_with_history().unwrap();
+    let test_bed = TestBed::with_default_history().unwrap();
 
     let mut cmd = Command::new(exe);
     cmd.arg("--to").arg("HEAD");

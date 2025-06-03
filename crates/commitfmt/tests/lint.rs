@@ -5,10 +5,11 @@ use std::process::Command;
 
 #[test]
 fn test_cli_lint_configured() {
-    let test_bed = TestBed::new().unwrap();
+    let test_bed = TestBed::empty().unwrap();
     let input = "
 Feat  (  Test   ): Test
-body
+
+body text and more text
 
 Footer: value
 BREAKING CHANGES: test
@@ -22,10 +23,13 @@ description-case = "lower-first"
 scope-min-length = 5
 scope-case = "kebab"
 min-length = 18
+type-max-length = 3
 
 [lint.body]
 case = "upper-first"
 full-stop = true
+max-line-length = 20
+max-length = 20
 
 [lint.footer]
 key-case = "lower"

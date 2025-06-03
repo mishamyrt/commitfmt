@@ -1,0 +1,12 @@
+---
+source: crates/commitfmt/tests/hook.rs
+assertion_line: 79
+expression: "&message"
+---
+- Type is shorter than 4 characters [type-min-length]
+- Scope is longer than 10 characters [scope-max-length]
+- Header is longer than 30 characters [max-length]
+- Body is shorter than 10 characters [min-length]
+- Footer 'BREAKING-CHANGE' contains a line that length is longer than 10 characters [max-line-length]
+
+Message has 5 problems
