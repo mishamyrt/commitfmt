@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1](https://github.com/mishamyrt/commitfmt/compare/v0.4.0..v0.4.1) - 2025-06-03
+
+### 🚀 Features
+
+- Improve error handling
+- *(linter)* Quote footer key at message
+
+### 🐛 Bug Fixes
+
+- *(linter)* Correctly count scope length
+- Correctly output error cause
+
+### 🚜 Refactor
+
+- *(cc)* Move group names to constants
+
+### 📚 Documentation
+
+- Update rules link
+
 ## [0.4.0](https://github.com/mishamyrt/commitfmt/compare/v0.3.0..v0.4.0) - 2025-06-02
 
 ### 🚀 Features

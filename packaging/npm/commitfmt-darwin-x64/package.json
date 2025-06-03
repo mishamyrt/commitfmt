@@ -1,6 +1,6 @@
 {
   "name": "commitfmt-darwin-x64",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Utility for formatting and verifying the commit message.",
   "preferUnplugged": false,
   "repository": {
