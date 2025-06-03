@@ -161,7 +161,7 @@ full-stop = true
 breaking-exclamation = true
 ```
 
-To enable more rules, create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt_linter/docs/rules.md) file.
+To enable more rules, create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt-linter/docs/rules.md) file.
 
 If there is a problem with an enabled rule and it cannot be automatically fixed, the commit process will be aborted.
 
