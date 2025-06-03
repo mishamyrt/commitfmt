@@ -1,19 +1,24 @@
-use std::fs::Permissions;
-
 use commitfmt_git::testing::TestBed;
 use insta::assert_snapshot;
+
+#[cfg(unix)]
+use std::{fs::Permissions, os::unix::fs::PermissionsExt};
 
 fn write_hook(test_bed: &TestBed) {
     let exe: &str = env!("CARGO_BIN_EXE_commitfmt");
     let hook_path = test_bed.path().join(".git/hooks/prepare-commit-msg");
+    let exe_path = {
+        if cfg!(windows) {
+            exe.replace('\\', "/")
+        } else {
+            exe.to_string()
+        }
+    };
 
-    std::fs::write(&hook_path, format!("#!/bin/sh\n\n{exe}")).unwrap();
+    std::fs::write(&hook_path, format!("#!/bin/sh\n\n{exe_path}")).unwrap();
 
     #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&hook_path, Permissions::from_mode(0o755)).unwrap();
-    }
+    std::fs::set_permissions(&hook_path, Permissions::from_mode(0o755)).unwrap();
 }
 
 #[test]
@@ -97,7 +102,7 @@ fn test_hook_append_footers() {
     let config = r#"
 [[additional-footers]]
 key = "Authored-by"
-value-template = "{{ echo 'John Doe' }}"
+value-template = "John Doe"
 
 [[additional-footers]]
 key = "Ticket-ID"
