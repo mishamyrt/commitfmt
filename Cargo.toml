@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.package]
 edition = "2021"
-rust-version = "1.80"
+rust-version = "1.88"
 homepage = "https://github.com/mishamyrt/commitfmt"
 documentation = "https://github.com/mishamyrt/commitfmt"
 repository = "https://github.com/mishamyrt/commitfmt"
