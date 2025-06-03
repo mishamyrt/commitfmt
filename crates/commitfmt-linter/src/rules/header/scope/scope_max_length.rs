@@ -38,7 +38,8 @@ impl Violation for ScopeMaxLength {
 
 /// Checks for scope maximum length
 pub(crate) fn scope_max_length(report: &mut Report, message: &Message, length: usize) {
-    if message.header.scope.str_len() > length {
+    // 2 for parentheses
+    if (message.header.scope.str_len() - 2) > length {
         report.add_violation(Box::new(ScopeMaxLength { length }));
     }
 }
