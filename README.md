@@ -155,7 +155,7 @@ Most of the linting rules are disabled by default. Default config contains 2 rul
 
 ```toml
 [lint.header]
-full-stop = true
+description-full-stop = true
 
 [lint.footer]
 breaking-exclamation = true
@@ -242,7 +242,7 @@ If the ticket number is not found in the branch name, footer will be skipped.
 
 You can use [rustexp](https://rustexp.lpil.uk) to test your pattern.
 
-##### Recipes
+##### Patterns
 
 Examples of patterns for branch names in git flow format:
 
@@ -259,10 +259,10 @@ Examples of patterns for branch names in git flow format:
 If the footer already exists in the commit message, you can specify what to do with it. By default, the footer will be skipped.
 
 ```toml
-[additional-footers]
+[[additional-footers]]
 key = "Ticket-ID"
 branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
-on-conflict = "skip" # skip, append, error
+on-conflict = "skip" # optional. default: skip. available: skip, append, error
 ```
 
 Available options:
@@ -270,6 +270,27 @@ Available options:
 - `skip` - skip the footer if it already exists
 - `append` - append the footer to the end of the footer list
 - `error` - abort the commit
+
+### Recipe
+
+To enforce conventional commits, you can use the following configuration:
+
+```toml
+[lint.header]
+type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs"]
+description-case = "lower-first"
+description-max-length = 72
+description-full-stop = true
+type-required = true
+# scope-enum = ["cc", "config", "git", "linter"] # optional
+
+[lint.body]
+max-line-length = 72
+case = "upper-first"
+
+[lint.footer]
+breaking-exclamation = true
+```
 
 ## Testing
 

@@ -1,9 +1,19 @@
 footer-separators = ":#"
 
 [lint.header]
-scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros"]
-description-max-length = 72
+type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs"]
 type-required = true
+description-case = "lower-first"
+description-max-length = 72
+description-full-stop = true
+scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros"]
+
+[lint.body]
+max-line-length = 72
+case = "upper-first"
+
+[lint.footer]
+breaking-exclamation = true
 
 [[additional-footers]]
 key = "Issue-ID"
