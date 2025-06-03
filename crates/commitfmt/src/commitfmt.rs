@@ -9,7 +9,7 @@ use commitfmt_linter::{Check, FixMode, Rule, Violation};
 use commitfmt_workspace::{open_settings, CommitSettings};
 
 use crate::logging::pluralize;
-use crate::{print_error, print_info, print_warning};
+use crate::{print_error, print_info};
 use crate::{CommitRange, Error, Result};
 
 /// Commitfmt application.
@@ -89,8 +89,6 @@ impl Commitfmt {
                 return Ok(message.to_string());
             }
             let count = report_violations(check.report.violations.iter());
-            print_error!("\n{}", format!("{} problems found", count));
-
             return Err(Error::Lint(count));
         }
 
@@ -103,8 +101,7 @@ impl Commitfmt {
                     if self.settings.lint.unsafe_fixes {
                         violation.fix(message_ptr).expect("Failed to fix violation");
                     } else {
-                        print_violation(violation);
-                        print_warning!("Unsafe fix available");
+                        print_violation(violation, true);
                         unfixable_count += 1;
                     }
                 }
@@ -112,19 +109,13 @@ impl Commitfmt {
                     violation.fix(message_ptr).expect("Failed to fix violation");
                 }
                 FixMode::Unfixable => {
-                    print_violation(violation);
+                    print_violation(violation, false);
                     unfixable_count += 1;
                 }
             }
         }
 
         if unfixable_count > 0 {
-            let problem_pluralization = pluralize(unfixable_count, "problem", "problems");
-            print_error!(
-                "\n{}",
-                format!("{unfixable_count} unfixable {problem_pluralization} found")
-            );
-
             return Err(Error::Unfixable(unfixable_count));
         }
 
@@ -144,18 +135,27 @@ fn report_violations<'a>(violations: impl Iterator<Item = &'a Box<dyn Violation>
     let mut count: usize = 0;
     for violation_box in violations {
         count += 1;
-        print_violation(violation_box.as_ref());
+        print_violation(violation_box.as_ref(), false);
     }
 
     count
 }
 
 /// Prints a single violation to the logger
-fn print_violation(violation: &dyn Violation) {
+fn print_violation(violation: &dyn Violation, fix_available: bool) {
     let Some(rule) = Rule::from_violation(violation) else {
         panic!("Failed to get rule from violation");
     };
     let rule_name = format!("[{}]", rule.as_display());
-    let line = format!("- {} {}", violation.message(), rule_name.dimmed());
+    let line = if fix_available {
+        format!(
+            "- {} {} {}",
+            violation.message(),
+            rule_name.dimmed(),
+            "(unsafe fix available)".bright_yellow()
+        )
+    } else {
+        format!("- {} {}", violation.message(), rule_name.dimmed())
+    };
     print_info!("{line}");
 }

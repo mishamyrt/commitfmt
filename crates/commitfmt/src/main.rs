@@ -160,10 +160,13 @@ fn main() -> process::ExitCode {
     let output = match fmt.format_commit_message(&input, cli.lint) {
         Ok(output) => output,
         Err(err) => {
-            print_error!("{err}");
+            print_error!("\n{err}");
             return process::ExitCode::FAILURE;
         }
     };
+    if cli.lint {
+        return process::ExitCode::SUCCESS;
+    }
 
     match source {
         InputSource::Stdin => {
