@@ -1,0 +1,19 @@
+---
+source: crates/commitfmt/tests/lint.rs
+assertion_line: 51
+expression: result
+---
+- Type case is inconsistent. Expected: lower [type-case]
+- Scope case is inconsistent. Expected: kebab [scope-case]
+- Scope is shorter than 5 characters [scope-min-length]
+- Description case is inconsistent. Expected: lower-first [description-case]
+- Header is shorter than 18 characters [min-length]
+- Body is not ended with a full stop [full-stop]
+- Body case is inconsistent. Expected: upper-first [case]
+- Footer 'Issue-ID' is required but not found [exists]
+- Footer 'BREAKING CHANGES' length is longer than 20 characters [max-length]
+- Message contains breaking changes footer but no exclamation mark [breaking-exclamation]
+- Footer key case is inconsistent. Expected: lower [key-case]
+- Footer 'Footer' length is less than 15 characters [min-length]
+
+Found 12 problems

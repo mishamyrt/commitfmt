@@ -1,9 +1,6 @@
-use std::{
-    io::{pipe, Write},
-    process::{Command, Stdio},
-};
+use std::process::Command;
 
-use commitfmt::Commitfmt;
+use commitfmt::{testing::pipe_from_string, Commitfmt};
 use commitfmt_git::testing::TestBed;
 
 #[test]
@@ -36,11 +33,7 @@ body
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
     let mut cmd = Command::new(exe);
-    cmd.stdin({
-        let (reader, mut writer) = pipe().unwrap();
-        let _ = writer.write(input.as_bytes()).unwrap();
-        Stdio::from(reader)
-    });
+    cmd.stdin(pipe_from_string(input));
     cmd.current_dir(test_bed.path());
 
     let output = cmd.output().unwrap();
@@ -49,4 +42,26 @@ body
     let result = String::from_utf8(output.stdout).unwrap();
 
     assert_eq!(result, "feat(test): test\n\nbody\n");
+}
+
+#[test]
+fn test_cli_format_default_commit() {
+    let input = "
+feat  (  test   ): test
+body
+
+footer-key: value
+"
+    .trim();
+
+    let test_bed = TestBed::new_with_history().unwrap();
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+
+    test_bed.repo.write_commit_message(input).unwrap();
+
+    let mut cmd = Command::new(exe);
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(output.status.success());
 }

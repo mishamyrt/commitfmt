@@ -112,3 +112,23 @@ description-max-length = 5
     assert_snapshot!(output_lines[2], @"- Scope is required [scope-required]");
     assert_snapshot!(output_lines[3], @"- Description is longer than 5 characters [description-max-length]");
 }
+
+#[test]
+fn test_cli_only_to() {
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+
+    let test_bed = TestBed::new_with_history().unwrap();
+
+    let mut cmd = Command::new(exe);
+    cmd.arg("--to").arg("HEAD");
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(!output.status.success());
+
+    let output_text = String::from_utf8(output.stdout).unwrap();
+    let output_lines = output_text.lines().collect::<Vec<&str>>();
+
+    assert_eq!(output_lines.len(), 1);
+    assert_snapshot!(output_lines[0], @"--to requires --from");
+}

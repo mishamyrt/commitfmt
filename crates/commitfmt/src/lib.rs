@@ -1,4 +1,5 @@
 pub(crate) mod logging;
+pub mod testing;
 
 pub use commitfmt::Commitfmt;
 pub(crate) mod commitfmt;
