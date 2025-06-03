@@ -44,7 +44,7 @@ impl Violation for MaxLength {
     fn message(&self) -> String {
         let key = &self.key;
         let length = self.length;
-        format!("Footer {key} length is longer than {length} characters")
+        format!("Footer '{key}' length is longer than {length} characters")
     }
 }
 

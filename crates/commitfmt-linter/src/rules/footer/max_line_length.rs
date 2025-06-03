@@ -39,7 +39,9 @@ impl Violation for MaxLineLength {
     fn message(&self) -> String {
         let key = &self.key;
         let length = self.length;
-        format!("Footer {key} contains a line that length is longer than {length} characters")
+        format!(
+            "Footer '{key}' contains a line that length is longer than {length} characters"
+        )
     }
 }
 

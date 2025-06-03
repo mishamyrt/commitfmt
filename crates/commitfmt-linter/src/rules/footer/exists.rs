@@ -33,7 +33,7 @@ impl Violation for Exists {
 
     fn message(&self) -> String {
         let key = &self.key;
-        format!("Footer {key} is required but not found")
+        format!("Footer '{key}' is required but not found")
     }
 }
 
