@@ -13,19 +13,19 @@ pub enum Error {
     #[error("Git operation failed: {0}")]
     Git(#[from] commitfmt_git::GitError),
 
-    #[error("Failed to parse commit message")]
+    #[error("Failed to parse commit message: {0}")]
     Parse(#[from] commitfmt_cc::ParseError),
 
     #[error("Found {0} problems")]
     Lint(usize),
 
-    #[error("Commit has {0} unfixable problems")]
+    #[error("Message has {0} problems")]
     Unfixable(usize),
 
-    #[error("Failed to append footers")]
+    #[error("Failed to append footers: {0}")]
     AppendFooters(#[from] commitfmt_format::FooterError),
 
-    #[error("Failed to open configuration file")]
+    #[error("Failed to open configuration file: {0}")]
     OpenConfig(#[from] commitfmt_workspace::WorkspaceError),
 }
 

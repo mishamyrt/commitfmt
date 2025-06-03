@@ -20,7 +20,7 @@ pub enum WorkspaceError {
     #[error("File error")]
     FileError(String),
 
-    #[error("IO error")]
+    #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
 
     #[error("Unexpected field type for {0}. Expected {1}")]
@@ -65,7 +65,7 @@ pub enum WorkspaceError {
     #[error("Nested extend is not supported")]
     NestedExtend,
 
-    #[error("Unable to parse TOML")]
+    #[error("Unable to parse TOML: {0}")]
     TomlParseError(#[from] toml::de::Error),
 
     #[error("Unknown on conflict action: {0}")]
