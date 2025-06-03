@@ -60,3 +60,44 @@ impl std::fmt::Display for Box<dyn Violation> {
         write!(f, "{group}::{rule_name}: {message}")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct TestViolation;
+
+    impl ViolationMetadata for TestViolation {
+        fn rule_name(&self) -> &'static str {
+            "test"
+        }
+
+        fn explain(&self) -> Option<&'static str> {
+            unimplemented!()
+        }
+    }
+
+    impl Violation for TestViolation {
+        fn group(&self) -> LinterGroup {
+            LinterGroup::Header
+        }
+
+        fn message(&self) -> String {
+            "test".to_string()
+        }
+    }
+
+    #[test]
+    fn test_default_fix_mode() {
+        let violation = TestViolation;
+        assert_eq!(violation.fix_mode(), FixMode::Unfixable);
+        assert!(violation.fix(&mut Message::default()).is_err());
+    }
+
+    #[test]
+    fn test_display() {
+        let violation = TestViolation;
+        let violation_box = Box::new(violation) as Box<dyn Violation>;
+        assert_eq!(format!("{violation_box}"), "header::test: test");
+    }
+}
