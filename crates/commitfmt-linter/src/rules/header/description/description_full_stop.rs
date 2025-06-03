@@ -77,4 +77,24 @@ mod tests {
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "DescriptionFullStop");
     }
+
+    #[test]
+    fn test_fix() {
+        let mut message = Message {
+            header: Header::from("feat: my feature."),
+            body: None,
+            footers: footer_vec![],
+        };
+
+        let mut report = Report::default();
+
+        description_full_stop(&mut report, &message);
+        assert_eq!(report.len(), 1);
+
+        let violation = report.violations[0].as_ref();
+        assert_eq!(violation.fix_mode(), FixMode::Safe);
+        violation.fix(&mut message).unwrap();
+
+        assert_eq!(message.header.description, "my feature");
+    }
 }
