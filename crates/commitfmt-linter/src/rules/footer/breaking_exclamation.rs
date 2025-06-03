@@ -91,4 +91,29 @@ mod tests {
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "BreakingExclamation");
     }
+
+    #[test]
+    fn test_fix() {
+        let mut message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![
+                {
+                    key: "BREAKING CHANGES".to_string(),
+                    value: "some breaking changes".to_string(),
+                    separator: ':',
+                    alignment: SeparatorAlignment::Left,
+                }
+            ],
+        };
+
+        let mut report = Report::default();
+        breaking_exclamation(&mut report, &message);
+        assert_eq!(report.len(), 1);
+
+        let violation = report.violations[0].as_ref();
+        assert_eq!(violation.fix_mode(), FixMode::Safe);
+        violation.fix(&mut message).unwrap();
+        assert!(message.header.breaking);
+    }
 }
