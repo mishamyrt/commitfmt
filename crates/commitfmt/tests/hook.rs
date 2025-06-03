@@ -1,4 +1,4 @@
-use std::{fs::Permissions, os::unix::fs::PermissionsExt};
+use std::fs::Permissions;
 
 use commitfmt_git::testing::TestBed;
 use insta::assert_snapshot;
@@ -8,7 +8,12 @@ fn write_hook(test_bed: &TestBed) {
     let hook_path = test_bed.path().join(".git/hooks/prepare-commit-msg");
 
     std::fs::write(&hook_path, format!("#!/bin/sh\n\n{exe}")).unwrap();
-    std::fs::set_permissions(&hook_path, Permissions::from_mode(0o755)).unwrap();
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&hook_path, Permissions::from_mode(0o755)).unwrap();
+    }
 }
 
 #[test]
