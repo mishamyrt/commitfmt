@@ -1,6 +1,6 @@
 {
   "name": "commitfmt-windows-arm64",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Utility for formatting and verifying the commit message.",
   "preferUnplugged": false,
   "repository": {
