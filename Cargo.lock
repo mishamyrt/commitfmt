@@ -243,9 +243,9 @@ dependencies = [
  "clap",
  "colored",
  "commitfmt-cc",
- "commitfmt-format",
  "commitfmt-git",
  "commitfmt-linter",
+ "commitfmt-tpl",
  "commitfmt-workspace",
  "criterion",
  "fern",
@@ -275,18 +275,6 @@ dependencies = [
  "test-generator",
  "thiserror",
  "toml",
-]
-
-[[package]]
-name = "commitfmt-format"
-version = "0.0.1"
-dependencies = [
- "commitfmt-cc",
- "commitfmt-git",
- "commitfmt-workspace",
- "nom",
- "regex",
- "thiserror",
 ]
 
 [[package]]
@@ -325,13 +313,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "commitfmt-tpl"
+version = "0.0.0"
+dependencies = [
+ "nom",
+ "thiserror",
+]
+
+[[package]]
 name = "commitfmt-workspace"
 version = "0.0.0"
 dependencies = [
  "commitfmt-cc",
  "commitfmt-linter",
+ "commitfmt-tpl",
  "fern",
  "log",
+ "nom",
+ "regex",
  "serde",
  "serde_derive",
  "tempfile",

@@ -1,18 +1,15 @@
 use std::{cell::RefCell, path::Path};
 
-use commitfmt_linter::{
-    rule_set::RuleSet,
-    rules::{self, Rule},
-};
+use regex::Regex;
 use toml::Table;
 
 use commitfmt_cc::footer::SeparatorAlignment;
+use commitfmt_linter::{rules, Rule, RuleSet};
+use commitfmt_tpl::Template;
 
-use crate::{
-    configuration::{AdditionalFooterConfig, CommitParams},
-    rules::parse_rule_setting,
-    WorkspaceError, WorkspaceResult,
-};
+use crate::configuration::{AdditionalFooterConfig, CommitParams};
+use crate::rules::parse_rule_setting;
+use crate::{Error, Result};
 
 #[derive(Debug, PartialEq, Copy, Clone, Default)]
 pub enum OnConflictAction {
@@ -23,12 +20,12 @@ pub enum OnConflictAction {
 }
 
 impl OnConflictAction {
-    pub fn from_config(s: &str) -> WorkspaceResult<Self> {
+    pub fn from_config(s: &str) -> Result<Self> {
         match s {
             "skip" => Ok(OnConflictAction::Skip),
             "append" => Ok(OnConflictAction::Append),
             "error" => Ok(OnConflictAction::Error),
-            _ => Err(WorkspaceError::UnknownOnConflictAction(s.to_string())),
+            _ => Err(Error::UnknownOnConflictAction(s.to_string())),
         }
     }
 }
@@ -37,37 +34,44 @@ impl OnConflictAction {
 #[derive(Debug, Clone)]
 pub struct AdditionalFooter {
     pub key: String,
-    pub value_template: Option<String>,
-    pub branch_value_pattern: Option<String>,
+    pub value: Template,
+    pub branch_pattern: Option<Regex>,
     pub on_conflict: OnConflictAction,
     pub separator: Option<char>,
     pub alignment: Option<SeparatorAlignment>,
 }
 
 impl AdditionalFooter {
-    pub(crate) fn from_config(config: AdditionalFooterConfig) -> Self {
-        let on_conflict = {
-            match config.on_conflict {
-                Some(on_conflict) => OnConflictAction::from_config(on_conflict.as_str())
-                    .unwrap_or(OnConflictAction::Skip),
-                None => OnConflictAction::Skip,
-            }
+    pub(crate) fn from_config(config: AdditionalFooterConfig) -> Result<Self> {
+        let value = Template::parse(&config.value)?;
+        let branch_pattern: Option<Regex> = match config.branch_pattern {
+            Some(pattern) => Some(Regex::new(&pattern).map_err(Error::InvalidPattern)?),
+            None => None,
         };
 
-        Self {
+        let on_conflict = match config.on_conflict {
+            Some(on_conflict) => OnConflictAction::from_config(on_conflict.as_str())?,
+            None => OnConflictAction::Skip,
+        };
+
+        Ok(Self {
             key: config.key,
-            value_template: config.value_template,
-            branch_value_pattern: config.branch_value_pattern,
+            value,
+            branch_pattern,
             on_conflict,
             separator: config.separator,
             alignment: config.alignment,
-        }
+        })
     }
 }
 
 impl PartialEq for AdditionalFooter {
     fn eq(&self, other: &Self) -> bool {
-        self.key == other.key && self.value_template == other.value_template
+        self.key == other.key
+            && self.value == other.value
+            && self.on_conflict == other.on_conflict
+            && self.separator == other.separator
+            && self.alignment == other.alignment
     }
 }
 
@@ -82,13 +86,13 @@ impl RulesSettings {
         &mut self,
         linter: rules::LinterGroup,
         linter_table: &Table,
-    ) -> WorkspaceResult<(RuleSet, RuleSet)> {
+    ) -> Result<(RuleSet, RuleSet)> {
         let mut enabled_rules = RuleSet::empty();
         let mut disabled_rules = RuleSet::empty();
 
         for key in linter_table.keys() {
             let Some(rule) = Rule::from_name(linter, key) else {
-                return Err(WorkspaceError::UnknownRule(linter, key.to_owned()));
+                return Err(Error::UnknownRule(linter, key.to_owned()));
             };
 
             if parse_rule_setting(rule, &mut self.settings, &linter_table[key])? {
@@ -101,7 +105,7 @@ impl RulesSettings {
         Ok((enabled_rules, disabled_rules))
     }
 
-    pub(crate) fn from_params(params: &CommitParams) -> WorkspaceResult<Self> {
+    pub(crate) fn from_params(params: &CommitParams) -> Result<Self> {
         let mut settings = Self::default();
 
         if params.lint_values.is_empty() {
@@ -113,7 +117,7 @@ impl RulesSettings {
                 continue;
             };
             let Some(linter_table) = table_value.as_table() else {
-                return Err(WorkspaceError::UnexpectedFieldType(
+                return Err(Error::UnexpectedFieldType(
                     linter.as_display().to_string(),
                     "table".to_string(),
                 ));
@@ -156,17 +160,18 @@ pub struct CommitSettings {
 }
 
 impl CommitSettings {
-    pub(crate) fn from_params(params: CommitParams) -> WorkspaceResult<Self> {
+    pub(crate) fn from_params(params: CommitParams) -> Result<Self> {
         let lint = LintSettings::from_params(&params);
         let rules = RulesSettings::from_params(&params)?;
 
-        let footers: Vec<AdditionalFooter> = params
-            .config
-            .additional_footers
-            .unwrap_or_default()
-            .into_iter()
-            .map(AdditionalFooter::from_config)
-            .collect();
+        let footer_configs = params.config.additional_footers.unwrap_or_default();
+
+        let mut footers: Vec<AdditionalFooter> = Vec::with_capacity(footer_configs.len());
+
+        for config in footer_configs {
+            let footer = AdditionalFooter::from_config(config)?;
+            footers.push(footer);
+        }
 
         Ok(Self {
             rules,
@@ -178,7 +183,7 @@ impl CommitSettings {
     }
 }
 
-pub fn open_settings(dir_path: &Path) -> WorkspaceResult<CommitSettings> {
+pub fn open_settings(dir_path: &Path) -> Result<CommitSettings> {
     let Ok(config_path) = CommitParams::find_config_path(dir_path) else {
         return Ok(CommitSettings::default());
     };
@@ -192,6 +197,7 @@ mod tests {
     use toml::map::Map;
 
     use crate::configuration::{CommitConfiguration, LintConfiguration};
+    use commitfmt_tpl::Segment;
 
     use super::*;
 
@@ -208,17 +214,20 @@ mod tests {
         let config = AdditionalFooterConfig {
             key: "Footer".to_string(),
             on_conflict: Some("error".to_string()),
-            value_template: Some("{{ echo $USER }}".to_string()),
-            branch_value_pattern: None,
+            value: "{{ echo $USER }}".to_string(),
+            branch_pattern: None,
             separator: None,
             alignment: None,
         };
 
-        let footer = AdditionalFooter::from_config(config);
+        let footer = AdditionalFooter::from_config(config).unwrap();
         assert_eq!(footer.on_conflict, OnConflictAction::Error);
         assert_eq!(footer.key, "Footer");
-        assert_eq!(footer.value_template, Some("{{ echo $USER }}".to_string()));
-        assert_eq!(footer.branch_value_pattern, None);
+        assert_eq!(footer.value.segments_len(), 1);
+        assert_eq!(
+            footer.value.segments_iter().next().unwrap(),
+            &Segment::Command("echo $USER".to_string())
+        );
     }
 
     #[test]
@@ -232,8 +241,8 @@ mod tests {
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "Footer".to_string(),
                     on_conflict: Some("error".to_string()),
-                    value_template: Some("{{ echo $USER }}".to_string()),
-                    branch_value_pattern: None,
+                    value: "{{ echo $USER }}".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),

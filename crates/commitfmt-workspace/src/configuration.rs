@@ -4,7 +4,7 @@ use commitfmt_cc::footer::SeparatorAlignment;
 use serde_derive::{Deserialize, Serialize};
 use toml::{map::Map, Table, Value};
 
-use crate::{WorkspaceError, WorkspaceResult};
+use crate::{Error, Result};
 
 /// List of known config file names
 const KNOWN_PATHS: &[&str] = &[".commitfmt.toml", "commitfmt.toml"];
@@ -13,16 +13,13 @@ const KNOWN_PATHS: &[&str] = &[".commitfmt.toml", "commitfmt.toml"];
 /// If the file is larger than this, return an error.
 const MAX_CONFIG_SIZE: u64 = 1_000_000;
 
-/// Additional footer configuration.
-///
-/// This is used to add additional footers to the commit message.
-#[derive(Debug, PartialEq, Deserialize, Serialize, Default, Clone)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct AdditionalFooterConfig {
     pub key: String,
+    pub value: String,
+    pub branch_pattern: Option<String>,
     pub on_conflict: Option<String>,
-    pub value_template: Option<String>,
-    pub branch_value_pattern: Option<String>,
     pub separator: Option<char>,
     pub alignment: Option<SeparatorAlignment>,
 }
@@ -58,7 +55,7 @@ pub(crate) struct CommitParams {
 
 impl CommitParams {
     /// Parse a TOML string into a `CommitParams` object
-    fn parse_toml(data: &str) -> WorkspaceResult<Self> {
+    fn parse_toml(data: &str) -> Result<Self> {
         let config: CommitConfiguration = toml::from_str(data)?;
 
         let config_values = data.parse::<Table>()?;
@@ -72,31 +69,29 @@ impl CommitParams {
 
     /// Open a single configuration file without extending it
     /// and parse it into a `CommitParams` object
-    fn open_single(path: &Path) -> WorkspaceResult<Self> {
+    fn open_single(path: &Path) -> Result<Self> {
         if std::fs::metadata(path)?.len() > MAX_CONFIG_SIZE {
-            return Err(WorkspaceError::FileTooLarge);
+            return Err(Error::FileTooLarge);
         }
         let data = std::fs::read_to_string(path)?;
         Self::parse_toml(&data)
     }
 
-    pub(crate) fn find_config_path(dir: &Path) -> WorkspaceResult<PathBuf> {
+    pub(crate) fn find_config_path(dir: &Path) -> Result<PathBuf> {
         for path in KNOWN_PATHS {
             let path = dir.join(path);
             if path.exists() {
                 return Ok(path);
             }
         }
-        Err(WorkspaceError::ConfigNotFound(dir.to_string_lossy().to_string()))
+        Err(Error::ConfigNotFound(dir.to_string_lossy().to_string()))
     }
 
     /// Open configuration from directory
     /// If the file contains an `extends` field, it will be used to extend the configuration.
-    pub(crate) fn open(config_path: &Path) -> WorkspaceResult<CommitParams> {
+    pub(crate) fn open(config_path: &Path) -> Result<CommitParams> {
         if !config_path.is_file() || !config_path.exists() {
-            return Err(WorkspaceError::ConfigNotFound(
-                config_path.to_string_lossy().to_string(),
-            ));
+            return Err(Error::ConfigNotFound(config_path.to_string_lossy().to_string()));
         }
 
         let target_params = Self::open_single(config_path)?;
@@ -170,7 +165,10 @@ full-stop = false
 [[additional-footers]]
 key = \"Footer\"
 on-conflict = \"error\"
-value-template = \"{{ echo $USER }}\"
+value = \"{{ echo $USER }}\"
+branch-pattern = \"(?:.*)/#(?<TASK_ID>[0-9-]+)/?(?:.*)\"
+separator = \"#\"
+alignment = \"right\"
 ",
         )
         .unwrap();
@@ -180,9 +178,16 @@ value-template = \"{{ echo $USER }}\"
         assert!(params.config.additional_footers.is_some());
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "Footer");
-        assert_eq!(footers[0].on_conflict, Some("error".to_string()));
-        assert_eq!(footers[0].value_template, Some("{{ echo $USER }}".to_string()));
+        let footer = &footers[0];
+        assert_eq!(footer.key, "Footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "{{ echo $USER }}".to_string());
+        assert_eq!(
+            footer.branch_pattern,
+            Some("(?:.*)/#(?<TASK_ID>[0-9-]+)/?(?:.*)".to_string())
+        );
+        assert_eq!(footer.separator, Some('#'));
+        assert_eq!(footer.alignment, Some(SeparatorAlignment::Right));
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
@@ -227,8 +232,8 @@ value-template = \"{{ echo $USER }}\"
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "existing".to_string(),
                     on_conflict: Some("error".to_string()),
-                    value_template: Some("existing template".to_string()),
-                    branch_value_pattern: None,
+                    value: "existing template".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),
@@ -245,8 +250,8 @@ value-template = \"{{ echo $USER }}\"
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "new".to_string(),
                     on_conflict: Some("skip".to_string()),
-                    value_template: Some("new template".to_string()),
-                    branch_value_pattern: Some("pattern".to_string()),
+                    value: "new template".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),
@@ -260,8 +265,13 @@ value-template = \"{{ echo $USER }}\"
 
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 2);
-        assert_eq!(footers[0].key, "existing");
-        assert_eq!(footers[1].key, "new");
+        let footer = &footers[0];
+        assert_eq!(footer.key, "existing");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "existing template".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
     }
 
     #[test]
@@ -284,8 +294,8 @@ value-template = \"{{ echo $USER }}\"
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "first".to_string(),
                     on_conflict: None,
-                    value_template: Some("template".to_string()),
-                    branch_value_pattern: None,
+                    value: "template".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),
@@ -299,7 +309,13 @@ value-template = \"{{ echo $USER }}\"
 
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "first");
+        let footer = &footers[0];
+        assert_eq!(footer.key, "first");
+        assert_eq!(footer.on_conflict, None);
+        assert_eq!(footer.value, "template".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
     }
 
     #[test]
@@ -382,8 +398,8 @@ value-template = \"{{ echo $USER }}\"
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "base_footer".to_string(),
                     on_conflict: Some("error".to_string()),
-                    value_template: Some("base template".to_string()),
-                    branch_value_pattern: None,
+                    value: "base template".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),
@@ -404,8 +420,8 @@ value-template = \"{{ echo $USER }}\"
                 additional_footers: Some(vec![AdditionalFooterConfig {
                     key: "other_footer".to_string(),
                     on_conflict: Some("skip".to_string()),
-                    value_template: None,
-                    branch_value_pattern: Some("pattern".to_string()),
+                    value: "base template".to_string(),
+                    branch_pattern: None,
                     separator: None,
                     alignment: None,
                 }]),
@@ -434,8 +450,13 @@ value-template = \"{{ echo $USER }}\"
         // Check footers were appended
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 2);
-        assert_eq!(footers[0].key, "base_footer");
-        assert_eq!(footers[1].key, "other_footer");
+        let footer = &footers[0];
+        assert_eq!(footer.key, "base_footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "base template".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
 
         // Check params were merged with override
         assert_eq!(
@@ -461,9 +482,13 @@ value-template = \"{{ echo $USER }}\"
 
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "Footer");
-        assert_eq!(footers[0].on_conflict, Some("error".to_string()));
-        assert_eq!(footers[0].value_template, Some("{{ echo $USER }}".to_string()));
+        let footer = &footers[0];
+        assert_eq!(footer.key, "Footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "{{ echo $USER }}".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
@@ -490,8 +515,13 @@ value-template = \"{{ echo $USER }}\"
 
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "Footer");
-        assert_eq!(footers[0].on_conflict, Some("error".to_string()));
+        let footer = &footers[0];
+        assert_eq!(footer.key, "Footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "{{ echo $USER }}".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
@@ -508,7 +538,13 @@ value-template = \"{{ echo $USER }}\"
 
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "Footer");
+        let footer = &footers[0];
+        assert_eq!(footer.key, "Footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "{{ echo $USER }}".to_string());
+        assert_eq!(footer.branch_pattern, None);
+        assert_eq!(footer.separator, None);
+        assert_eq!(footer.alignment, None);
     }
 
     #[test]
@@ -541,7 +577,7 @@ unsafe-fixes = true
 [[additional-footers]]
 key = \"Footer\"
 on-conflict = \"error\"
-value-template = \"{{ echo $USER }}\"
+value = \"{{ echo $USER }}\"
 separator = '#'
 alignment = \"right\"
 ",
@@ -551,8 +587,11 @@ alignment = \"right\"
         assert!(params.config.additional_footers.is_some());
         let footers = params.config.additional_footers.as_ref().unwrap();
         assert_eq!(footers.len(), 1);
-        assert_eq!(footers[0].key, "Footer");
-        assert_eq!(footers[0].separator, Some('#'));
-        assert_eq!(footers[0].alignment, Some(SeparatorAlignment::Right));
+        let footer = &footers[0];
+        assert_eq!(footer.key, "Footer");
+        assert_eq!(footer.on_conflict, Some("error".to_string()));
+        assert_eq!(footer.value, "{{ echo $USER }}".to_string());
+        assert_eq!(footer.separator, Some('#'));
+        assert_eq!(footer.alignment, Some(SeparatorAlignment::Right));
     }
 }

@@ -131,6 +131,36 @@ Authored-By: John Doe";
     }
 
     #[test]
+    fn test_parse_with_comments() {
+        let msg = "feat: rework footers config to be unified
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Sun Jun 8 21:57:34 2025 +0300
+#
+# On branch feature/unified-footers
+# Your branch is up to date with 'origin/feature/unified-footers'.
+#
+# Changes to be committed:
+#       modified:   Cargo.lock";
+
+        let parsed = Message::parse(msg, None, None).unwrap();
+        let expected = Message {
+            header: Header {
+                kind: Some("feat".to_string()),
+                scope: Scope::default(),
+                description: "rework footers config to be unified".to_string(),
+                breaking: false,
+            },
+            body: None,
+            footers: footer_vec![],
+        };
+
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
     fn test_display() {
         let commit_msg = Message {
             header: Header {

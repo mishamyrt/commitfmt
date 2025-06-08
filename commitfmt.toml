@@ -17,4 +17,8 @@ breaking-exclamation = true
 
 [[additional-footers]]
 key = "Issue-ID"
-branch-value-pattern = "(?:.*)/#([0-9-]+)/?(?:.*)"
+branch-pattern = "(?:.*)/#(?<TASK_ID>[0-9-]+)/?(?:.*)"
+value = "${{ TASK_ID }} {{ echo 'hello' }}"
+separator = "#"
+alignment = "right"
+on-conflict = "error"

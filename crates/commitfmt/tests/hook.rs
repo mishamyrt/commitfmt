@@ -102,11 +102,12 @@ fn test_hook_append_footers() {
     let config = r#"
 [[additional-footers]]
 key = "Authored-by"
-value-template = "John Doe"
+value = "John Doe"
 
 [[additional-footers]]
 key = "Ticket-ID"
-branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
+branch-pattern = "(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)"
+value = "${{ TICKET_ID }}"
 "#;
     std::fs::write(test_bed.path().join(".commitfmt.toml"), config).unwrap();
 

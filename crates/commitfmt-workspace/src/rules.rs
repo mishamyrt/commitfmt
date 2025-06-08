@@ -4,7 +4,7 @@ use commitfmt_linter::{
 };
 use toml::Value;
 
-use crate::{WorkspaceError, WorkspaceResult};
+use crate::{Error, Result};
 
 /// Parse a rule setting from a TOML value
 ///
@@ -13,7 +13,7 @@ pub(crate) fn parse_rule_setting(
     rule: Rule,
     settings: &mut Settings,
     value: &Value,
-) -> WorkspaceResult<bool> {
+) -> Result<bool> {
     let reader = RuleSettingsReader::new(rule, value);
 
     match rule {
@@ -49,7 +49,7 @@ pub(crate) fn parse_rule_setting(
 
         _ => match value.as_bool() {
             Some(is_enabled) => Ok(is_enabled),
-            None => Err(WorkspaceError::UnexpectedFieldType(
+            None => Err(Error::UnexpectedFieldType(
                 rule.as_display().to_owned(),
                 "bool".to_owned(),
             )),
@@ -67,41 +67,41 @@ impl<'a> RuleSettingsReader<'a> {
         Self { rule, value }
     }
 
-    fn id_case(&self, target: &mut IdentifierCase) -> WorkspaceResult<bool> {
+    fn id_case(&self, target: &mut IdentifierCase) -> Result<bool> {
         let Some(case_str) = self.value.as_str() else {
-            return Err(WorkspaceError::UnexpectedFieldType(
+            return Err(Error::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
                 "string".to_string(),
             ));
         };
 
         let Some(case) = IdentifierCase::from_name(case_str) else {
-            return Err(WorkspaceError::InvalidWordCase(case_str.to_string()));
+            return Err(Error::InvalidWordCase(case_str.to_string()));
         };
 
         *target = case;
         Ok(true)
     }
 
-    fn text_case(&self, target: &mut TextCase) -> WorkspaceResult<bool> {
+    fn text_case(&self, target: &mut TextCase) -> Result<bool> {
         let Some(case_str) = self.value.as_str() else {
-            return Err(WorkspaceError::UnexpectedFieldType(
+            return Err(Error::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
                 "string".to_string(),
             ));
         };
 
         let Some(case) = TextCase::from_name(case_str) else {
-            return Err(WorkspaceError::InvalidTextCase(case_str.to_string()));
+            return Err(Error::InvalidTextCase(case_str.to_string()));
         };
 
         *target = case;
         Ok(true)
     }
 
-    fn usize(&self, target: &mut usize) -> WorkspaceResult<bool> {
+    fn usize(&self, target: &mut usize) -> Result<bool> {
         let Some(parsed) = self.value.as_integer() else {
-            return Err(WorkspaceError::UnexpectedFieldType(
+            return Err(Error::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
                 "integer".to_string(),
             ));
@@ -109,7 +109,7 @@ impl<'a> RuleSettingsReader<'a> {
 
         let parsed = match usize::try_from(parsed) {
             Ok(parsed) => parsed,
-            Err(err) => return Err(WorkspaceError::ParseError(err.to_string())),
+            Err(err) => return Err(Error::ParseError(err.to_string())),
         };
 
         if parsed == 0 {
@@ -120,9 +120,9 @@ impl<'a> RuleSettingsReader<'a> {
         Ok(true)
     }
 
-    fn str_vec(&self, target: &mut Vec<Box<str>>) -> WorkspaceResult<bool> {
+    fn str_vec(&self, target: &mut Vec<Box<str>>) -> Result<bool> {
         let Some(parsed) = self.value.as_array() else {
-            return Err(WorkspaceError::UnexpectedFieldType(
+            return Err(Error::UnexpectedFieldType(
                 self.rule.as_display().to_string(),
                 "array".to_string(),
             ));
@@ -132,7 +132,7 @@ impl<'a> RuleSettingsReader<'a> {
 
         for item in parsed {
             let Some(value) = item.as_str() else {
-                return Err(WorkspaceError::UnexpectedValueType("string".to_string()));
+                return Err(Error::UnexpectedValueType("string".to_string()));
             };
             result.push(Box::from(value));
         }
