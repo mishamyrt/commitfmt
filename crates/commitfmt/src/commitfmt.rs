@@ -1,12 +1,12 @@
+use std::collections::HashMap;
 use std::path::Path;
 
 use colored::Colorize;
 
-use commitfmt_cc::Message;
-use commitfmt_format::append_footers;
+use commitfmt_cc::{Footer, Message};
 use commitfmt_git::Repository;
 use commitfmt_linter::{Check, FixMode, Rule, Violation};
-use commitfmt_workspace::{open_settings, CommitSettings};
+use commitfmt_workspace::{open_settings, AdditionalFooter, CommitSettings, OnConflictAction};
 
 use crate::logging::pluralize;
 use crate::{print_error, print_info};
@@ -119,9 +119,11 @@ impl Commitfmt {
             return Err(Error::Unfixable(unfixable_count));
         }
 
-        if let Some(branch) = self.repo.get_branch_name() {
-            append_footers(&mut message, &self.settings.footers.borrow(), &branch)?;
-        }
+        let Some(branch) = self.repo.get_branch_name() else {
+            return Ok(message.to_string());
+        };
+
+        append_footers(&self.settings.footers.borrow(), &mut message, &branch)?;
 
         Ok(message.to_string())
     }
@@ -158,4 +160,49 @@ fn print_violation(violation: &dyn Violation, fix_available: bool) {
         format!("- {} {}", violation.message(), rule_name.dimmed())
     };
     print_info!("{line}");
+}
+
+/// Appends footers to the message
+///
+/// This function iterates through the provided footers, renders their values with the given branch,
+/// and appends them to the message.
+fn append_footers(
+    footers: &[AdditionalFooter],
+    message: &mut Message,
+    branch: &str,
+) -> Result<()> {
+    for footer in footers {
+        if message.footers.contains_key(&footer.key) {
+            match footer.on_conflict {
+                OnConflictAction::Append => {
+                    // Do nothing there, the footer will be added later
+                }
+                OnConflictAction::Skip => {
+                    continue;
+                }
+                OnConflictAction::Error => {
+                    return Err(Error::AlreadyExists(footer.key.clone()));
+                }
+            }
+        }
+
+        let mut variables = HashMap::new();
+        if let Some(branch_pattern) = &footer.branch_pattern {
+            let Some(caps) = branch_pattern.captures(branch) else {
+                continue;
+            };
+            for (i, name) in branch_pattern.capture_names().enumerate() {
+                if let Some(name) = name {
+                    variables.insert(name.to_string(), caps[i].to_string());
+                }
+            }
+        }
+
+        let separator = footer.separator.unwrap_or(Footer::DEFAULT_SEPARATOR_CHAR);
+        let alignment = footer.alignment.unwrap_or_default();
+
+        let value = footer.value.render(&variables)?;
+        message.footers.push(Footer { key: footer.key.clone(), value, separator, alignment });
+    }
+    Ok(())
 }

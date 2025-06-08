@@ -10,7 +10,7 @@ use thiserror::Error;
 pub use settings::{open_settings, CommitSettings, OnConflictAction};
 
 #[derive(Error, Debug)]
-pub enum WorkspaceError {
+pub enum Error {
     #[error("Config file not found in {0}")]
     ConfigNotFound(String),
 
@@ -56,12 +56,6 @@ pub enum WorkspaceError {
     #[error("Footer '{0}' has Invalid on conflict action: {1}")]
     InvalidOnConflictAction(String, String),
 
-    #[error("Circular dependency detected in config inheritance: {0}")]
-    CircularDependency(String),
-
-    #[error("Extended config file not found: {0}")]
-    ExtendedConfigNotFound(String),
-
     #[error("Nested extend is not supported")]
     NestedExtend,
 
@@ -76,6 +70,12 @@ pub enum WorkspaceError {
 
     #[error("Invalid text case: {0}")]
     InvalidTextCase(String),
+
+    #[error("Invalid pattern: {0}")]
+    InvalidPattern(#[from] regex::Error),
+
+    #[error("Template parsing failed: {0}")]
+    TemplateParseError(#[from] commitfmt_tpl::Error),
 }
 
-pub type WorkspaceResult<T> = std::result::Result<T, WorkspaceError>;
+pub type Result<T> = std::result::Result<T, Error>;

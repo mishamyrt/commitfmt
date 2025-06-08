@@ -17,7 +17,7 @@ commitfmt-git = { path = "crates/commitfmt-git" }
 commitfmt-cc = { path = "crates/commitfmt-cc" }
 commitfmt-linter = { path = "crates/commitfmt-linter" }
 commitfmt-workspace = { path = "crates/commitfmt-workspace" }
-commitfmt-format = { path = "crates/commitfmt-format" }
+commitfmt-tpl = { path = "crates/commitfmt-tpl" }
 commitfmt = { path = "crates/commitfmt" }
 
 once_cell = "1.20.3"

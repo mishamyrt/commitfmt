@@ -15,7 +15,7 @@ commitfmt-cc = { workspace = true }
 commitfmt-linter = { workspace = true }
 commitfmt-workspace = { workspace = true }
 commitfmt-git = { workspace = true }
-commitfmt-format = { workspace = true }
+commitfmt-tpl = { workspace = true }
 
 thiserror = { workspace = true }
 tempfile = { workspace = true }

@@ -23,11 +23,17 @@ pub enum Error {
     #[error("Message has {0} problems")]
     Unfixable(usize),
 
-    #[error("Failed to append footers: {0}")]
-    AppendFooters(#[from] commitfmt_format::FooterError),
+    #[error("Footer with key '{0}' already exists")]
+    AlreadyExists(String),
+
+    #[error("Failed to render footer template: {0}")]
+    AppendFooters(#[from] commitfmt_tpl::Error),
 
     #[error("Failed to open configuration file: {0}")]
-    OpenConfig(#[from] commitfmt_workspace::WorkspaceError),
+    OpenConfig(#[from] commitfmt_workspace::Error),
+
+    #[error("The repository is in a detached HEAD state")]
+    DetachedHead,
 }
 
 /// Application result.

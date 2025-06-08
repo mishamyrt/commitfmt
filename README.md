@@ -214,26 +214,37 @@ Lines starting with the comment symbol will be ignored during parsing.
 
 commitfmt can add additional footers to the commit message.
 
-#### Value template
+#### Static value
 
-You can use a template to format the value of the footer. Inside of template expression you can use any shell command available at the `PATH`.
-
-For example, to add the `Authored-By` footer with the current user name, add the following to your config file:
+You can add a footer with a static value:
 
 ```toml
-[additional-footers]
+[[additional-footers]]
 key = "Authored-By"
-value-template = "{{ echo $USER }}"
+value = "John Doe"
 ```
+
+#### Shell commands
+
+You can use shell commands to dynamically generate footer values:
+
+```toml
+[[additional-footers]]
+key = "Authored-By"
+value = "{{ echo $USER }}"
+```
+
+Inside the template expression you can use any shell command available in the `PATH`.
 
 #### Branch value pattern
 
 You can also add the ticket number from the task tracker to the footer if it is in the branch name:
 
 ```toml
-[additional-footers]
+[[additional-footers]]
 key = "Ticket-ID"
-branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
+branch-pattern = "(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)"
+value = "${{ TICKET_ID }}"
 ```
 
 For example, if your branch name is `feature/CC-123/add-new-feature` or `feature/CC-123`, the `Ticket-ID` footer will be added to the commit message with the value `CC-123`.
@@ -246,13 +257,12 @@ You can use [rustexp](https://rustexp.lpil.uk) to test your pattern.
 
 Examples of patterns for branch names in git flow format:
 
-- Jira/YouTrack: `(?:.*)/([A-Z0-9-]+)/?(?:.*)`
+- Jira/YouTrack: `(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)`
   - `feature/CFMT-123`
   - `feature/CFMT-123/add-new-feature`
-- GitHub: `(?:.*)/#?([0-9-]+)/?(?:.*)`
-  - `feature/#123`
+- GitHub: `(?:.*)/(?<ISSUE_ID>[0-9-]+)/?(?:.*)`
   - `feature/123`
-  - `feature/#123/add-new-feature`
+  - `feature/123/add-new-feature`
 
 #### On conflict
 
@@ -261,8 +271,9 @@ If the footer already exists in the commit message, you can specify what to do w
 ```toml
 [[additional-footers]]
 key = "Ticket-ID"
-branch-value-pattern = "(?:.*)/([A-Z0-9-]+)/?(?:.*)"
-on-conflict = "skip" # optional. default: skip. available: skip, append, error
+branch-pattern = "(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)"
+value = "${{ TICKET_ID }}"
+on-conflict = "error" # optional. default: skip. available: skip, append, error
 ```
 
 Available options:
@@ -270,6 +281,23 @@ Available options:
 - `skip` - skip the footer if it already exists
 - `append` - append the footer to the end of the footer list
 - `error` - abort the commit
+
+#### Footer formatting
+
+You can customize how footers are formatted using `separator` and `alignment` options:
+
+```toml
+[[additional-footers]]
+key = "Ticket-ID"
+value = "CFMT-123"
+separator = "#"
+alignment = "right"
+```
+
+Available alignment options:
+
+- `left` - align separator to the left (default)
+- `right` - align separator to the right
 
 ### Recipe
 

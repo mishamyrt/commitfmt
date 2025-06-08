@@ -20,6 +20,10 @@ pub(crate) fn parse_body(
     let last_block_index: usize = meaningful_input.rfind("\n\n").unwrap_or(0);
     if last_block_index == 0 {
         let meaningful_input = trim_meaningless_start(meaningful_input, comment_symbol);
+        if meaningful_input.is_empty() {
+            return (None, None);
+        }
+
         match Footers::parse(meaningful_input, footer_separators) {
             Ok((_rest, footers)) => return (None, Some(footers)),
             Err(_) => return (Some(meaningful_input.to_string()), None),

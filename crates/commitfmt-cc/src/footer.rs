@@ -47,6 +47,9 @@ impl Footer {
     /// Default key and value separator
     pub const DEFAULT_SEPARATOR: &'static str = ":";
 
+    /// Default key and value separator character
+    pub const DEFAULT_SEPARATOR_CHAR: char = ':';
+
     /// Returns the number of characters in the right formatted footer
     pub fn len(&self) -> usize {
         let mut value_len = self.value.len();
