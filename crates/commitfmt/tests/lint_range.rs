@@ -132,3 +132,37 @@ fn test_cli_only_to() {
     assert_eq!(output_lines.len(), 1);
     assert_snapshot!(output_lines[0], @"--to requires --from");
 }
+
+#[test]
+fn test_cli_lint_skip_merge() {
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+    let config_data = r#"
+[lint.header]
+type-required = true
+scope-required = true
+description-max-length = 5
+"#;
+
+    let test_bed = TestBed::with_history(&[
+        "Merge branch 'main' into test",
+        "feat(core): test",
+        "fix(core): lol",
+    ])
+    .unwrap();
+
+    let config_path = test_bed.path().join(".commitfmt.toml");
+    std::fs::write(config_path, config_data).unwrap();
+
+    let mut cmd = Command::new(exe);
+    cmd.arg("--from").arg("HEAD~2").arg("--to").arg("HEAD");
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(output.status.success());
+
+    let output_text = String::from_utf8(output.stdout).unwrap();
+    let output_lines = output_text.lines().collect::<Vec<&str>>();
+
+    assert_eq!(output_lines.len(), 1);
+    assert_snapshot!(output_lines[0], @"No problems found in 2 commits");
+}

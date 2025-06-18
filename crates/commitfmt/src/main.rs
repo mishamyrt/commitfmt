@@ -153,6 +153,11 @@ fn main() -> process::ExitCode {
         }
     };
 
+    if input.starts_with("Merge") {
+        print_warning!("Skipping merge commit");
+        return process::ExitCode::SUCCESS;
+    }
+
     let output = match fmt.format_commit_message(&input, cli.lint) {
         Ok(output) => output,
         Err(err) => {

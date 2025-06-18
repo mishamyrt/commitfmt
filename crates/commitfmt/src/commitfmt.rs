@@ -42,6 +42,10 @@ impl Commitfmt {
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
 
         for commit in &commits {
+            if commit.message.starts_with("Merge") {
+                // Skip merge commits.
+                continue;
+            }
             let message = Message::parse(
                 &commit.message,
                 self.settings.footer_separators.as_deref(),
