@@ -33,10 +33,11 @@ tempfile = { workspace = true }
 criterion = { workspace = true, features = ["html_reports"] }
 insta = "1.43.1"
 testing_logger = "0.1.1"
+codspeed-criterion-compat = { workspace = true }
 
-# [[bench]]
-# name = "compare"
-# harness = false
+[[bench]]
+name = "lint"
+harness = false
 
 [lints]
 workspace = true

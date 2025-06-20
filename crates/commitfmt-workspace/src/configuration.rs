@@ -55,7 +55,7 @@ pub(crate) struct CommitParams {
 
 impl CommitParams {
     /// Parse a TOML string into a `CommitParams` object
-    fn parse_toml(data: &str) -> Result<Self> {
+    pub(crate) fn parse_toml(data: &str) -> Result<Self> {
         let config: CommitConfiguration = toml::from_str(data)?;
 
         let config_values = data.parse::<Table>()?;

@@ -160,6 +160,11 @@ pub struct CommitSettings {
 }
 
 impl CommitSettings {
+    pub fn from_toml(data: &str) -> Result<Self> {
+        let params = CommitParams::parse_toml(data)?;
+        Self::from_params(params)
+    }
+
     pub(crate) fn from_params(params: CommitParams) -> Result<Self> {
         let lint = LintSettings::from_params(&params);
         let rules = RulesSettings::from_params(&params)?;
