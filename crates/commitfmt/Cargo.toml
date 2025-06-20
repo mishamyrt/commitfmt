@@ -39,6 +39,10 @@ codspeed-criterion-compat = { workspace = true }
 name = "lint"
 harness = false
 
+[[bench]]
+name = "comparison"
+harness = false
+
 [lints]
 workspace = true
 
