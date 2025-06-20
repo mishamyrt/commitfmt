@@ -30,9 +30,7 @@ regex = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
-lazy_static = { workspace = true }
 criterion = { workspace = true, features = ["html_reports"] }
-tokio = { workspace = true, features = ["full"] }
 insta = "1.43.1"
 testing_logger = "0.1.1"
 
