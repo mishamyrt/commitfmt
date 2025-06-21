@@ -23,7 +23,12 @@ description-max-length = 15
 }
 
 pub fn lint_message_benchmark(c: &mut Criterion) {
-    c.bench_function("lint message", |b| b.iter(lint_message));
+    c.bench_function("lint message", |b| {
+        b.iter(|| {
+            let result = lint_message();
+            std::hint::black_box(result)
+        })
+    });
 }
 
 criterion_group!(benches, lint_message_benchmark);
