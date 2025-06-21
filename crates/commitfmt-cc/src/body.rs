@@ -1,3 +1,5 @@
+use memchr::memmem;
+
 use crate::footer::Footers;
 
 pub(crate) const DEFAULT_COMMENT_SYMBOL: &str = "#";
@@ -17,7 +19,8 @@ pub(crate) fn parse_body(
 
     // Try to find last block of text.
     // If no block is found, than input is single block.
-    let last_block_index: usize = meaningful_input.rfind("\n\n").unwrap_or(0);
+    let last_block_index: usize =
+        memmem::rfind(meaningful_input.as_bytes(), b"\n\n").unwrap_or(0);
     if last_block_index == 0 {
         let meaningful_input = trim_meaningless_start(meaningful_input, comment_symbol);
         if meaningful_input.is_empty() {
