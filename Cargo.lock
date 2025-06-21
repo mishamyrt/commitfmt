@@ -286,6 +286,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "commitfmt-benchmark"
+version = "0.0.0"
+dependencies = [
+ "codspeed-criterion-compat",
+ "commitfmt-cc",
+ "commitfmt-git",
+ "commitfmt-linter",
+ "commitfmt-workspace",
+]
+
+[[package]]
 name = "commitfmt-cc"
 version = "0.0.0"
 dependencies = [

@@ -35,14 +35,6 @@ insta = "1.43.1"
 testing_logger = "0.1.1"
 codspeed-criterion-compat = { workspace = true }
 
-[[bench]]
-name = "lint"
-harness = false
-
-[[bench]]
-name = "comparison"
-harness = false
-
 [lints]
 workspace = true
 

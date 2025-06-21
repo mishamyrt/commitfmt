@@ -6,7 +6,7 @@ type-required = true
 description-case = "lower-first"
 description-max-length = 72
 description-full-stop = true
-scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros"]
+scope-enum = ["cli", "cc", "git", "linter", "workspace", "format", "macros", "benchmark"]
 
 [lint.body]
 max-line-length = 72

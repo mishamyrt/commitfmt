@@ -1,0 +1,33 @@
+[package]
+name = "commitfmt-benchmark"
+version = "0.0.0"
+publish = false
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+documentation = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+
+[dependencies]
+commitfmt-git = { workspace = true }
+commitfmt-cc = { workspace = true }
+commitfmt-linter = { workspace = true }
+commitfmt-workspace = { workspace = true }
+codspeed-criterion-compat = { workspace = true }
+
+[[bench]]
+name = "comparison"
+harness = false
+required-features = ["comparison-benchmark"]
+
+[[bench]]
+name = "lint"
+harness = false
+
+[lints]
+workspace = true
+
+[features]
+comparison-benchmark = []
