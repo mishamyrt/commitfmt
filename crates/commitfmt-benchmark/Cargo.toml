@@ -26,6 +26,10 @@ required-features = ["comparison-benchmark"]
 name = "lint"
 harness = false
 
+[[bench]]
+name = "parser"
+harness = false
+
 [lints]
 workspace = true
 

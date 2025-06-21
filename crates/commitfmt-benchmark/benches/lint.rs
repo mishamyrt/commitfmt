@@ -27,7 +27,7 @@ pub fn lint_message_benchmark(c: &mut Criterion) {
         b.iter(|| {
             let result = lint_message();
             std::hint::black_box(result)
-        })
+        });
     });
 }
 
