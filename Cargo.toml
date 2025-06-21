@@ -32,6 +32,7 @@ regex = "1.11.1"
 nom = "8.0.0"
 toml = "0.8.20"
 build-deps = "0.1.4"
+memchr = "2.7.5"
 
 clap = { version = "4.5.30", features = ["derive"] }
 log = "0.4.26"
