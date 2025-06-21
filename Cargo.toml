@@ -18,6 +18,7 @@ commitfmt-cc = { path = "crates/commitfmt-cc" }
 commitfmt-linter = { path = "crates/commitfmt-linter" }
 commitfmt-workspace = { path = "crates/commitfmt-workspace" }
 commitfmt-tpl = { path = "crates/commitfmt-tpl" }
+commitfmt-benchmark = { path = "crates/commitfmt-benchmark" }
 commitfmt = { path = "crates/commitfmt" }
 
 thiserror = "2.0.11"
