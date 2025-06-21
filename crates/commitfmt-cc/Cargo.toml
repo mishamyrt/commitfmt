@@ -18,6 +18,7 @@ tempfile = { workspace = true }
 nom = { workspace = true }
 serde = { workspace = true }
 serde_derive = { workspace = true }
+memchr = { workspace = true }
 
 [dev-dependencies]
 serde_derive = { workspace = true }
