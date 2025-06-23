@@ -1,0 +1,18 @@
+feat: add support for custom config files
+
+Allow users to specify a custom configuration file path via CLI.
+This enables more flexible project setups and easier integration
+with CI pipelines.
+
+# Conflicts:
+#	src/config.rs
+#	src/cli.rs
+#	src/main.rs
+#	src/settings.rs
+#	src/utils.rs
+#	src/args.rs
+#	src/formatter.rs
+#	src/git.rs
+#	src/linter.rs
+#	src/message.rs
+#	src/workspace.rs

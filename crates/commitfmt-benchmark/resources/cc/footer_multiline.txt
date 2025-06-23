@@ -1,0 +1,7 @@
+feat(parser): improve error handling for invalid input
+
+Add detailed error messages and context for parsing failures.
+This helps users quickly identify and fix issues in their commit messages.
+
+BREAKING CHANGE: error messages now include line numbers and context
+ to aid debugging. Update your tooling if you rely on previous formats.

@@ -1,0 +1,10 @@
+refactor: extract validation logic into separate module
+
+Move all input validation routines from main.rs to a new
+validation.rs module. This improves code readability and
+makes it easier to maintain validation rules in the future.
+
+# This is a refactor commit to improve code structure
+
+Reviewed-by: A. Developer
+Refs: #456

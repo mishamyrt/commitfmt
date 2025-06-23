@@ -1,0 +1,3 @@
+fix: correctly create project
+
+Fixes issue with project creation logic

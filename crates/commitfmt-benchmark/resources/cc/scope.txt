@@ -1,0 +1,1 @@
+chore(benchmark): avoid possible compiler optimization
