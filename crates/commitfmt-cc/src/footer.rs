@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::{line_ending, space0, space1};
@@ -171,35 +169,31 @@ impl std::fmt::Display for Footer {
 }
 
 #[derive(Debug, Default, PartialEq, Clone)]
-pub struct Footers {
-    values: Vec<Footer>,
-    keys: HashSet<String>,
-}
+pub struct Footers(Vec<Footer>);
 
 impl Footers {
     pub fn contains_key(&self, key: &str) -> bool {
-        self.keys.contains(key)
+        self.0.iter().any(|footer| footer.key == key)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Footer> {
-        self.values.iter()
+        self.0.iter()
     }
 
     pub fn len(&self) -> usize {
-        self.values.len()
+        self.0.len()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.values.is_empty()
+        self.0.is_empty()
     }
 
     pub fn get(&self, index: usize) -> Option<&Footer> {
-        self.values.get(index)
+        self.0.get(index)
     }
 
     pub fn push(&mut self, footer: Footer) {
-        self.keys.insert(footer.key.clone());
-        self.values.push(footer);
+        self.0.push(footer);
     }
 
     /// Takes all footers from the input
@@ -218,14 +212,7 @@ impl Footers {
 
 impl FromIterator<Footer> for Footers {
     fn from_iter<T: IntoIterator<Item = Footer>>(iter: T) -> Self {
-        let mut keys = HashSet::new();
-        let values = iter
-            .into_iter()
-            .inspect(|f| {
-                keys.insert(f.key.clone());
-            })
-            .collect();
-        Self { values, keys }
+        Self(iter.into_iter().collect())
     }
 }
 
@@ -245,8 +232,8 @@ macro_rules! footer_vec {
 
 impl std::fmt::Display for Footers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let len = self.values.len();
-        for (i, footer) in self.values.iter().enumerate() {
+        let len = self.0.len();
+        for (i, footer) in self.0.iter().enumerate() {
             write!(f, "{footer}")?;
             if i + 1 != len {
                 writeln!(f)?;
