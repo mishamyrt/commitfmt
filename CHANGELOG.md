@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3](https://github.com/mishamyrt/commitfmt/compare/v1.0.2..v1.0.3) - 2025-06-24
+
+### ⚡ Performance
+
+- *(cc)* Early exit on breaking changes detection
+- *(cc)* Speed up last block search
+- *(cc)* Speed up header end search
+- *(cc)* Simplify footer
+
 ## [1.0.2](https://github.com/mishamyrt/commitfmt/compare/v1.0.1..v1.0.2) - 2025-06-21
 
 ### ⚡ Performance
