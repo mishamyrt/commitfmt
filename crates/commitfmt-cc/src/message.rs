@@ -1,3 +1,4 @@
+use memchr::memmem;
 use thiserror::Error;
 
 use crate::body::{parse_body, DEFAULT_COMMENT_SYMBOL};
@@ -25,7 +26,7 @@ impl Message {
         footer_separators: Option<&str>,
         comment_symbol: Option<&str>,
     ) -> Result<Self, ParseError> {
-        let header_end = input.find('\n').unwrap_or(input.len());
+        let header_end = memmem::find(input.as_bytes(), b"\n").unwrap_or(input.len());
         let header = Header::from(&input[..header_end]);
 
         if header_end == input.len() {
