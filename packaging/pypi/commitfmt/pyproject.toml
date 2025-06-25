@@ -4,7 +4,7 @@ authors = [
     {name = "Mikhael Khrustik", email = "misha@myrt.co"},
 ]
 description = "Utility for formatting and verifying the commit message."
-version = "1.0.3"
+version = "1.0.4"
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["git", "hook"]

@@ -1,6 +1,6 @@
 {
   "name": "commitfmt",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Utility for formatting and verifying the commit message.",
   "main": "bin/index.js",
   "bin": {
@@ -22,15 +22,15 @@
   },
   "homepage": "https://github.com/mishamyrt/commitfmt#readme",
   "optionalDependencies": {
-    "commitfmt-darwin-arm64": "1.0.3",
-    "commitfmt-darwin-x64": "1.0.3",
-    "commitfmt-linux-arm64": "1.0.3",
-    "commitfmt-linux-x64": "1.0.3",
-    "commitfmt-freebsd-arm64": "1.0.3",
-    "commitfmt-freebsd-x64": "1.0.3",
-    "commitfmt-openbsd-arm64": "1.0.3",
-    "commitfmt-openbsd-x64": "1.0.3",
-    "commitfmt-windows-arm64": "1.0.3",
-    "commitfmt-windows-x64": "1.0.3"
+    "commitfmt-darwin-arm64": "1.0.4",
+    "commitfmt-darwin-x64": "1.0.4",
+    "commitfmt-linux-arm64": "1.0.4",
+    "commitfmt-linux-x64": "1.0.4",
+    "commitfmt-freebsd-arm64": "1.0.4",
+    "commitfmt-freebsd-x64": "1.0.4",
+    "commitfmt-openbsd-arm64": "1.0.4",
+    "commitfmt-openbsd-x64": "1.0.4",
+    "commitfmt-windows-arm64": "1.0.4",
+    "commitfmt-windows-x64": "1.0.4"
   }
 }

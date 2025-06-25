@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4](https://github.com/mishamyrt/commitfmt/compare/v1.0.3..v1.0.4) - 2025-06-25
+
+### 🐛 Bug Fixes
+
+- Correctly handle reverts
+
 ## [1.0.3](https://github.com/mishamyrt/commitfmt/compare/v1.0.2..v1.0.3) - 2025-06-24
 
 ### ⚡ Performance

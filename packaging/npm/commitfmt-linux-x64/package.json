@@ -1,6 +1,6 @@
 {
   "name": "commitfmt-linux-x64",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Utility for formatting and verifying the commit message.",
   "preferUnplugged": false,
   "repository": {
