@@ -21,6 +21,11 @@ pub struct Commitfmt {
 
 impl Commitfmt {
     /// Creates a new Commitfmt application with workspace from the given path.
+    pub fn new(repo: Repository, settings: CommitSettings) -> Self {
+        Self { repo, settings }
+    }
+
+    /// Creates a new Commitfmt application with workspace from the given path.
     pub fn from_path(path: &Path) -> Result<Self> {
         let repo = Repository::open(path)?;
         let mut settings = open_settings(path)?;
@@ -31,7 +36,7 @@ impl Commitfmt {
             settings.footer_separators = repo.trailer_separators();
         }
 
-        Ok(Self { repo, settings })
+        Ok(Self::new(repo, settings))
     }
 
     /// Lint a commit range (from..to).

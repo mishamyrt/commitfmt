@@ -290,6 +290,7 @@ name = "commitfmt-benchmark"
 version = "0.0.0"
 dependencies = [
  "codspeed-criterion-compat",
+ "commitfmt",
  "commitfmt-cc",
  "commitfmt-git",
  "commitfmt-linter",

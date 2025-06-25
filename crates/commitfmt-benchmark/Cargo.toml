@@ -11,6 +11,7 @@ repository = { workspace = true }
 license = { workspace = true }
 
 [dependencies]
+commitfmt = { workspace = true }
 commitfmt-git = { workspace = true }
 commitfmt-cc = { workspace = true }
 commitfmt-linter = { workspace = true }
@@ -28,6 +29,10 @@ harness = false
 
 [[bench]]
 name = "parser"
+harness = false
+
+[[bench]]
+name = "formatter"
 harness = false
 
 [lints]
