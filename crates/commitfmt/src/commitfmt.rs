@@ -8,6 +8,7 @@ use commitfmt_git::Repository;
 use commitfmt_linter::{Check, FixMode, Rule, Violation};
 use commitfmt_workspace::{open_settings, AdditionalFooter, CommitSettings, OnConflictAction};
 
+use crate::ignore::is_ignored_message;
 use crate::logging::pluralize;
 use crate::{print_error, print_info};
 use crate::{CommitRange, Error, Result};
@@ -42,8 +43,8 @@ impl Commitfmt {
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
 
         for commit in &commits {
-            if commit.message.starts_with("Merge") {
-                // Skip merge commits.
+            if is_ignored_message(&commit.message) {
+                // Skip ignored commits.
                 continue;
             }
             let message = Message::parse(

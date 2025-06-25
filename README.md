@@ -305,7 +305,7 @@ To enforce conventional commits, you can use the following configuration:
 
 ```toml
 [lint.header]
-type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs"]
+type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs", "revert"]
 description-case = "lower-first"
 description-max-length = 72
 description-full-stop = true
@@ -339,3 +339,9 @@ commitfmt --from HEAD~20
 # or
 commitfmt --from 1234567890 --to 1234567890
 ```
+
+## Ignoring commits
+
+commitfmt ignores commit messages that start with `Merge` or `Revert` to avoid breaking standard git processes.
+
+This happens both when formatting a single commit and when linting a history.

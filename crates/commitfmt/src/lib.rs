@@ -3,6 +3,7 @@ pub mod testing;
 
 pub use commitfmt::Commitfmt;
 pub(crate) mod commitfmt;
+pub mod ignore;
 
 pub use logging::setup_logger;
 

@@ -3,6 +3,7 @@ use clap::{CommandFactory, Parser};
 use colored::Colorize;
 use std::{io::Read, process};
 
+use commitfmt::ignore::is_ignored_message;
 use commitfmt::{
     print_debug, print_error, print_info, print_warning, setup_logger, Commitfmt,
 };
@@ -153,7 +154,7 @@ fn main() -> process::ExitCode {
         }
     };
 
-    if input.starts_with("Merge") {
+    if is_ignored_message(&input) {
         print_warning!("Skipping merge commit");
         return process::ExitCode::SUCCESS;
     }
