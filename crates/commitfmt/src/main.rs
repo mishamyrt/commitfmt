@@ -113,15 +113,14 @@ fn main() -> process::ExitCode {
         return process::ExitCode::FAILURE;
     }
 
-    if cli.from.is_some() {
+    if let Some(from) = cli.from {
         if cli.lint {
             print_warning!("--lint is ignored when --from is set");
         }
 
         let to = cli.to.as_deref().unwrap_or("HEAD");
-        let from = cli.from.as_ref().unwrap();
 
-        if let Err(err) = fmt.lint_commit_range((from, to)) {
+        if let Err(err) = fmt.lint_commit_range((&from, to)) {
             print_error!("{err}");
             return process::ExitCode::FAILURE;
         }
