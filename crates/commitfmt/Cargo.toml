@@ -31,7 +31,7 @@ regex = { workspace = true }
 [dev-dependencies]
 tempfile = { workspace = true }
 criterion = { workspace = true, features = ["html_reports"] }
-insta = "1.43.1"
+insta = "1.47.2"
 testing_logger = "0.1.1"
 codspeed-criterion-compat = { workspace = true }
 
