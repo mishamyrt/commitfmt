@@ -47,6 +47,7 @@ impl TestBed {
         run_git(&["init"], dir_path)?;
         run_git(&["config", "user.name", Self::DEFAULT_USER_NAME], dir_path)?;
         run_git(&["config", "user.email", Self::DEFAULT_USER_EMAIL], dir_path)?;
+        run_git(&["config", "--local", "commit.gpgsign", "false"], dir_path)?;
         run_git(&["switch", "-c", Self::DEFAULT_BRANCH_NAME], dir_path)?;
 
         let repo = Repository::from_root(dir_path);
