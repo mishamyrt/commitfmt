@@ -20,8 +20,7 @@ pub fn benchmark_parser(c: &mut Criterion) {
                     &case.message,
                     std::hint::black_box(Some(":")),
                     std::hint::black_box(Some("#")),
-                )
-                .expect("Failed to parse message");
+                );
 
                 std::hint::black_box(parsed)
             });

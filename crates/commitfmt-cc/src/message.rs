@@ -25,12 +25,12 @@ impl Message {
         input: &str,
         footer_separators: Option<&str>,
         comment_symbol: Option<&str>,
-    ) -> Result<Self, ParseError> {
+    ) -> Self {
         let header_end = memmem::find(input.as_bytes(), b"\n").unwrap_or(input.len());
         let header = Header::from(&input[..header_end]);
 
         if header_end == input.len() {
-            return Ok(Message { header, body: None, footers: Footers::default() });
+            return Message { header, body: None, footers: Footers::default() };
         }
 
         let footer_separators = footer_separators.unwrap_or(Footer::DEFAULT_SEPARATOR);
@@ -39,7 +39,7 @@ impl Message {
         let body_input = &input[header_end + 1..];
         let (body, footers) = parse_body(body_input, footer_separators, comment_symbol);
 
-        Ok(Message { header, body, footers: footers.unwrap_or_default() })
+        Message { header, body, footers: footers.unwrap_or_default() }
     }
 }
 
@@ -88,17 +88,14 @@ Authored-By: John Doe";
             }],
         };
 
-        match parsed {
-            Ok(parsed) => assert_eq!(parsed, expected),
-            Err(e) => panic!("Unable to parse commit message: {e}"),
-        }
+        assert_eq!(parsed, expected);
     }
 
     #[test]
     fn test_parse_without_body() {
         let commit_msg = "feat: my feature\n\nAuthored-By: John Doe";
 
-        let parsed = Message::parse(commit_msg, Some(":"), Some("#")).unwrap();
+        let parsed = Message::parse(commit_msg, Some(":"), Some("#"));
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
@@ -123,10 +120,8 @@ Authored-By: John Doe";
         let commit_msg_with_newlines = "feat: my feature\n\nbody";
         let commit_msg_without_newlines = "feat: my feature\nbody";
 
-        let parsed_with_newlines =
-            Message::parse(commit_msg_with_newlines, None, None).unwrap();
-        let parsed_without_newlines =
-            Message::parse(commit_msg_without_newlines, None, None).unwrap();
+        let parsed_with_newlines = Message::parse(commit_msg_with_newlines, None, None);
+        let parsed_without_newlines = Message::parse(commit_msg_without_newlines, None, None);
 
         assert_eq!(parsed_with_newlines, parsed_without_newlines);
     }
@@ -146,7 +141,7 @@ Authored-By: John Doe";
 # Changes to be committed:
 #       modified:   Cargo.lock";
 
-        let parsed = Message::parse(msg, None, None).unwrap();
+        let parsed = Message::parse(msg, None, None);
         let expected = Message {
             header: Header {
                 kind: Some("feat".to_string()),
@@ -250,7 +245,7 @@ Authored-By: John Doe";
         ];
 
         for (input, expected) in tests {
-            let message = Message::parse(input, None, None).unwrap();
+            let message = Message::parse(input, None, None);
             assert_eq!(message.to_string(), expected);
         }
     }

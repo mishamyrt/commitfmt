@@ -198,8 +198,7 @@ mod tests {
     BREAKING CHANGES: test",
             None,
             None,
-        )
-        .unwrap();
+        );
 
         check.lint(&message);
     }

@@ -332,8 +332,7 @@ value = "${{ BUILD_ID }}"
                     std::hint::black_box(input),
                     std::hint::black_box(Some(":")),
                     std::hint::black_box(Some("#")),
-                )
-                .unwrap();
+                );
 
                 for footer in footers.iter() {
                     let value = match footer.value.render(&setup.variables) {

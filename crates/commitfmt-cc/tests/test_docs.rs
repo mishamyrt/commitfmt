@@ -200,7 +200,7 @@ fn verify_resource(resource: &str) {
 
         println!("Case: {}", case.id);
         let expected = case.expected;
-        let actual = Message::parse(&case.input, separators, comment_symbol).unwrap();
+        let actual = Message::parse(&case.input, separators, comment_symbol);
 
         assert_eq!(actual.header.kind, expected.header.kind, "kind at {case_path}");
         assert_eq!(actual.header.scope, expected.header.scope, "scope at {case_path}");

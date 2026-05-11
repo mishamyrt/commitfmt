@@ -14,7 +14,7 @@ description-max-length = 15
     let settings = CommitSettings::from_toml(config_data).unwrap();
 
     let input = "feat(scope): description";
-    let message = Message::parse(input, Some(":"), Some("#")).unwrap();
+    let message = Message::parse(input, Some(":"), Some("#"));
 
     let mut check = Check::new(&settings.rules.settings, settings.rules.set);
     check.lint(&message);

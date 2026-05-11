@@ -56,7 +56,7 @@ impl Commitfmt {
                 &commit.message,
                 self.settings.footer_separators.as_deref(),
                 self.settings.comment_symbol.as_deref(),
-            )?;
+            );
 
             check.lint(&message);
             if !check.report.violations.is_empty() {
@@ -89,7 +89,7 @@ impl Commitfmt {
             input,
             self.settings.footer_separators.as_deref(),
             self.settings.comment_symbol.as_deref(),
-        )?;
+        );
 
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
         check.lint(&message);
