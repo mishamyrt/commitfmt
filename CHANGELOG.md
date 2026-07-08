@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5](https://github.com/mishamyrt/commitfmt/compare/v1.0.4..v1.0.5) - 2026-07-08
+
+### 🐛 Bug Fixes
+
+- Avoid gpg signing on tests
+
+### 🚜 Refactor
+
+- Avoid unwrap
+- Avoid shallow cloning
+- Avoid meaningless result wrap
+
 ## [1.0.4](https://github.com/mishamyrt/commitfmt/compare/v1.0.3..v1.0.4) - 2025-06-25
 
 ### 🐛 Bug Fixes
