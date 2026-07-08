@@ -27,7 +27,7 @@ jobs:
             mkdir -p "$dir" && unzip -o "$1" -d "$dir"' _ {} \;
           cd ../..
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@v8
+        uses: astral-sh/setup-uv@8.3.2
         with:
           version: "latest"
       - name: Setup deployment environment
