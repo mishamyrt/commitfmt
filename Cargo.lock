@@ -262,7 +262,7 @@ dependencies = [
 
 [[package]]
 name = "commitfmt"
-version = "1.0.7"
+version = "1.0.8"
 dependencies = [
  "atty",
  "clap",
