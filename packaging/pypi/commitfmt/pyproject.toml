@@ -21,10 +21,10 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "commitfmt_windows==0.1.5; sys_platform == 'win32'",
-    "commitfmt_openbsd==0.1.5; sys_platform == 'openbsd'",
-    "commitfmt_freebsd==0.1.5; sys_platform == 'freebsd'",
-    "commitfmt_darwin==0.1.5; sys_platform == 'darwin'",
-    "commitfmt_linux==0.1.5; sys_platform == 'linux'",
+    "commitfmt-windows==0.1.5; sys_platform == 'win32'",
+    "commitfmt-openbsd==0.1.5; sys_platform == 'openbsd'",
+    "commitfmt-freebsd==0.1.5; sys_platform == 'freebsd'",
+    "commitfmt-darwin==0.1.5; sys_platform == 'darwin'",
+    "commitfmt-linux==0.1.5; sys_platform == 'linux'",
 ]
 scripts = { "commitfmt"="commitfmt.__main__:main" }
