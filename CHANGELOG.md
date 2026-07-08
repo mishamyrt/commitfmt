@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.6](https://github.com/mishamyrt/commitfmt/compare/v1.0.5..v1.0.6) - 2026-07-08
+
+### 🐛 Bug Fixes
+
+- Set correct python deps
+
 ## [1.0.5](https://github.com/mishamyrt/commitfmt/compare/v1.0.4..v1.0.5) - 2026-07-08
 
 ### 🐛 Bug Fixes
