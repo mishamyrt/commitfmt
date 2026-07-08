@@ -23,19 +23,19 @@ commitfmt = { path = "crates/commitfmt" }
 
 thiserror = "2.0.18"
 serde = "1.0.228"
-serde_json = "1.0.149"
+serde_json = "1.0.150"
 serde_yaml_ng = "0.10"
 serde_derive = "1.0.228"
-regex = "1.12.3"
+regex = "1.12.4"
 
 # Parsing
 nom = "8.0.0"
 toml = "0.8.23"
 build-deps = "0.1.4"
-memchr = "2.8.0"
+memchr = "2.8.3"
 
 clap = { version = "4.6.1", features = ["derive"] }
-log = "0.4.29"
+log = "0.4.33"
 fern = "0.7.1"
 colored = "3.1.1"
 
@@ -43,13 +43,15 @@ atty = "0.2.14"
 same-file = "1.0.6"
 winapi-util = "0.1.11"
 proc-macro2 = "1.0.106"
-quote = "1.0.45"
-syn = { version = "2.0.117", features = ["derive", "parsing", "extra-traits", "full"] }
+quote = "1.0.46"
+syn = { version = "2.0.118", features = ["derive", "parsing", "extra-traits", "full"] }
 itertools = "0.14.0"
 paste = "1.0.15"
 
 test-generator = { git = "https://github.com/JamesGuthrie/test-generator.git", rev = "82e799979980962aec1aa324ec6e0e4cad781f41" }
 tempfile = "3.27.0"
+insta = "1.48.0"
+testing_logger = "0.1.1"
 criterion = { version = "0.6", features = ["html_reports"] }
 codspeed-criterion-compat = "2.10.1"
 
