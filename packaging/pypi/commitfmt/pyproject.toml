@@ -23,7 +23,6 @@ classifiers = [
 dependencies = [
     "commitfmt-windows==0.1.5; sys_platform == 'win32'",
     "commitfmt-openbsd==0.1.5; sys_platform == 'openbsd'",
-    "commitfmt-freebsd==0.1.5; sys_platform == 'freebsd'",
     "commitfmt-darwin==0.1.5; sys_platform == 'darwin'",
     "commitfmt-linux==0.1.5; sys_platform == 'linux'",
 ]
