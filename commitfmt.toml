@@ -1,7 +1,7 @@
 footer-separators = ":#"
 
 [lint.header]
-type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs"]
+type-enum = ["chore", "ci", "feat", "fix", "refactor", "style", "test", "docs", "perf"]
 type-required = true
 description-case = "lower-first"
 description-max-length = 72

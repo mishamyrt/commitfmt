@@ -1,8 +1,6 @@
 use nom::{
     bytes::complete::take_while1,
-    character::complete::char,
     combinator::{all_consuming, recognize},
-    multi::separated_list1,
     sequence::pair,
     IResult, Parser,
 };
@@ -48,11 +46,9 @@ impl IdentifierCase {
         match self {
             IdentifierCase::Any => true,
             IdentifierCase::Camel => all_consuming(Self::camel_case).parse(word).is_ok(),
-            IdentifierCase::Kebab => all_consuming(Self::kebab_case).parse(word).is_ok(),
+            IdentifierCase::Kebab => Self::kebab_case(word),
             IdentifierCase::Pascal => all_consuming(Self::pascal_case).parse(word).is_ok(),
-            IdentifierCase::CapitalizedKebab => {
-                all_consuming(Self::capitalized_kebab_case).parse(word).is_ok()
-            }
+            IdentifierCase::CapitalizedKebab => Self::capitalized_kebab_case(word),
             IdentifierCase::Lower => word.chars().all(char::is_lowercase),
             IdentifierCase::Upper => word.chars().all(char::is_uppercase),
         }
@@ -85,22 +81,32 @@ impl IdentifierCase {
 
     /// Matches lower-kebab-case
     /// e.g. `foo-bar`
-    fn kebab_case(input: &str) -> IResult<&str, &str> {
-        recognize(separated_list1(char('-'), take_while1(|c: char| c.is_lowercase())))
-            .parse(input)
+    fn kebab_case(input: &str) -> bool {
+        input
+            .split('-')
+            .all(|segment| !segment.is_empty() && segment.chars().all(char::is_lowercase))
     }
 
     /// Matches capitalized-kebab-case
     /// e.g. `Foo-Bar`
-    fn capitalized_kebab_case(input: &str) -> IResult<&str, &str> {
-        recognize(separated_list1(
-            char('-'),
-            pair(
-                take_while1(|c: char| c.is_uppercase()),
-                take_while1(|c: char| c.is_lowercase()),
-            ),
-        ))
-        .parse(input)
+    fn capitalized_kebab_case(input: &str) -> bool {
+        input.split('-').all(|segment| {
+            let mut has_uppercase = false;
+            let mut has_lowercase = false;
+            let valid = segment.chars().all(|c| {
+                if c.is_uppercase() && !has_lowercase {
+                    has_uppercase = true;
+                    true
+                } else if c.is_lowercase() {
+                    has_lowercase = true;
+                    true
+                } else {
+                    false
+                }
+            });
+
+            valid && has_uppercase && has_lowercase
+        })
     }
 
     /// Matches pascal-case
@@ -178,16 +184,27 @@ mod tests {
     #[test]
     fn test_id_match_capitalized_kebab() {
         assert!(IdentifierCase::CapitalizedKebab.is_match("Foo-Bar"));
+        assert!(IdentifierCase::CapitalizedKebab.is_match("FOo-Bar"));
         assert!(!IdentifierCase::CapitalizedKebab.is_match("foo-bar"));
         assert!(!IdentifierCase::CapitalizedKebab.is_match("fooBar"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match("F-Bar"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match("Foo-BAR"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match("Foo--Bar"));
+        assert!(!IdentifierCase::CapitalizedKebab.is_match(""));
     }
 
     #[test]
     fn test_id_match_kebab() {
         assert!(IdentifierCase::Kebab.is_match("foo-bar"));
         assert!(IdentifierCase::Kebab.is_match("foobar"));
+        assert!(IdentifierCase::Kebab.is_match("привет-мир"));
         assert!(!IdentifierCase::Kebab.is_match("FooBar"));
         assert!(!IdentifierCase::Kebab.is_match("foo_bar"));
+        assert!(!IdentifierCase::Kebab.is_match("foo-123"));
+        assert!(!IdentifierCase::Kebab.is_match("-foo"));
+        assert!(!IdentifierCase::Kebab.is_match("foo-"));
+        assert!(!IdentifierCase::Kebab.is_match("foo--bar"));
+        assert!(!IdentifierCase::Kebab.is_match(""));
     }
 
     #[test]
