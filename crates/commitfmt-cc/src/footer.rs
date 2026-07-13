@@ -2,7 +2,7 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while1};
 use nom::character::complete::{line_ending, space0, space1};
 use nom::character::one_of;
-use nom::combinator::{all_consuming, map, recognize};
+use nom::combinator::{all_consuming, map};
 use nom::error::Error;
 use nom::multi::{fold_many1, separated_list1};
 use nom::sequence::preceded;
@@ -81,44 +81,17 @@ impl Footer {
         Self::is_breaking_key(&self.key)
     }
 
-    /// Parses a separator and its alignment.
-    /// Returns `None` if the input is not a valid separator string.
-    fn parse_separator(separator_with_spaces: &str) -> Option<(char, SeparatorAlignment)> {
-        let mut balance: i16 = 0;
-        let mut separator: char = '\0';
-        for ch in separator_with_spaces.chars() {
-            if ch.is_whitespace() {
-                if separator == '\0' {
-                    balance += 1;
-                } else {
-                    balance -= 1;
-                }
-            } else if separator == '\0' {
-                separator = ch;
-            } else {
-                return None;
-            }
-        }
-
-        let alignment =
-            if balance > 0 { SeparatorAlignment::Right } else { SeparatorAlignment::Left };
-
-        Some((separator, alignment))
-    }
-
     /// Parses one footer (trailer) from the input.
     /// Returns it and the rest of the input.
     fn take(separators: &str) -> impl Parser<&str, Output = Footer, Error = Error<&str>> {
         map(
-            (
-                Self::key_parser,
-                recognize((preceded(space0, one_of(separators)), space0)),
-                Self::value_parser,
-            ),
-            |(key, separator_with_spaces, value)| {
-                let (separator, alignment) =
-                    Self::parse_separator(separator_with_spaces).unwrap();
-
+            (Self::key_parser, (space0, one_of(separators), space0), Self::value_parser),
+            |(key, (leading, separator, trailing), value)| {
+                let alignment = if leading.len() > trailing.len() {
+                    SeparatorAlignment::Right
+                } else {
+                    SeparatorAlignment::Left
+                };
                 Self { key: key.to_string(), value, separator, alignment }
             },
         )
@@ -328,8 +301,15 @@ mod tests {
         let (_, footer) = parser.parse("Authored-By : John Doe").unwrap();
         assert_eq!(footer.alignment, SeparatorAlignment::Left);
 
+        let (_, footer) = parser.parse("Authored-By  : John Doe").unwrap();
+        assert_eq!(footer.alignment, SeparatorAlignment::Right);
+
+        let (_, footer) = parser.parse("Authored-By :  John Doe").unwrap();
+        assert_eq!(footer.alignment, SeparatorAlignment::Left);
+
         let (_, footer) = parser.parse("Issue #123").unwrap();
         assert_eq!(footer.alignment, SeparatorAlignment::Right);
+        assert_eq!(footer.separator, '#');
     }
 
     #[test]
