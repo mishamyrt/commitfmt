@@ -56,13 +56,10 @@ pub(crate) struct CommitParams {
 impl CommitParams {
     /// Parse a TOML string into a `CommitParams` object
     pub(crate) fn parse_toml(data: &str) -> Result<Self> {
-        let config: CommitConfiguration = toml::from_str(data)?;
-
         let config_values = data.parse::<Table>()?;
-        let mut lint_values = Map::new();
-        if let Some(lint_table) = config_values.get("lint") {
-            lint_values = lint_table.as_table().unwrap().clone();
-        }
+        let lint_values =
+            config_values.get("lint").and_then(Value::as_table).cloned().unwrap_or_default();
+        let config = config_values.try_into()?;
 
         Ok(Self { config, lint_values })
     }
@@ -191,6 +188,12 @@ alignment = \"right\"
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
+    }
+
+    #[test]
+    fn test_parse_toml_rejects_non_table_lint() {
+        let result = CommitParams::parse_toml("lint = true");
+        assert!(matches!(result, Err(Error::TomlParseError(_))));
     }
 
     #[test]
