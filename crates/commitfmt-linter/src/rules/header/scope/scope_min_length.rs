@@ -37,8 +37,12 @@ impl Violation for ScopeMinLength {
 
 /// Checks for scope minimum length
 pub(crate) fn scope_min_length(report: &mut Report, message: &Message, length: usize) {
-    // 2 for parentheses
-    if (message.header.scope.str_len() - 2) < length {
+    if length == 0 || message.header.scope.is_empty() {
+        return;
+    }
+
+    let scope_length = message.header.scope.iter().map(|scope| scope.len()).sum::<usize>();
+    if scope_length < length {
         report.add_violation(Box::new(ScopeMinLength { length }));
     }
 }
@@ -61,12 +65,23 @@ mod tests {
         scope_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 0);
 
+        scope_min_length(&mut report, &message, 0);
+        assert_eq!(report.len(), 0);
+
+        let message: Message = Message {
+            header: Header::from("feat: my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
+        scope_min_length(&mut report, &message, 5);
+        assert_eq!(report.len(), 0);
+
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
             body: None,
             footers: footer_vec![],
         };
-        scope_min_length(&mut report, &message, 10);
+        scope_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "ScopeMinLength");
     }

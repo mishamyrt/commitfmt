@@ -38,8 +38,12 @@ impl Violation for ScopeMaxLength {
 
 /// Checks for scope maximum length
 pub(crate) fn scope_max_length(report: &mut Report, message: &Message, length: usize) {
-    // 2 for parentheses
-    if (message.header.scope.str_len() - 2) > length {
+    if length == 0 || message.header.scope.is_empty() {
+        return;
+    }
+
+    let scope_length = message.header.scope.iter().map(|scope| scope.len()).sum::<usize>();
+    if scope_length > length {
         report.add_violation(Box::new(ScopeMaxLength { length }));
     }
 }
@@ -56,6 +60,17 @@ mod tests {
 
         let message: Message = Message {
             header: Header::from("feat(db, ui): my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
+        scope_max_length(&mut report, &message, 4);
+        assert_eq!(report.len(), 0);
+
+        scope_max_length(&mut report, &message, 0);
+        assert_eq!(report.len(), 0);
+
+        let message: Message = Message {
+            header: Header::from("feat: my feature"),
             body: None,
             footers: footer_vec![],
         };
