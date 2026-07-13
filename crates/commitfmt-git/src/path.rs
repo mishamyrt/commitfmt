@@ -74,7 +74,7 @@ pub(crate) fn hooks_dir(repo_dir: &Path) -> GitResult<PathBuf> {
     }
 }
 
-#[allow(unused_imports)]
+#[cfg(test)]
 mod tests {
     use crate::path::hooks_dir;
     use std::{fs::create_dir_all, process::Command};
