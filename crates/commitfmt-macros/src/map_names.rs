@@ -109,16 +109,37 @@ pub(crate) fn map_names(func: &ItemFn) -> syn::Result<TokenStream> {
         }
     });
 
+    let rule_count = u8::try_from(rules.len())
+        .map_err(|_| Error::new(func.span(), "expected at most 255 rules"))?;
+    let rule_count = proc_macro2::Literal::u8_unsuffixed(rule_count);
+    let index_to_rule_matches = (0u8..).zip(rules.iter()).map(|(index, rule)| {
+        let index = proc_macro2::Literal::u8_unsuffixed(index);
+        let variant_ident = &rule.variant_name;
+        quote! {
+            #index => Some(Self::#variant_ident)
+        }
+    });
+
     let expanded = quote! {
         /// An enum containing all named rules, with each variant prefixed
         /// by the Linter variant name and suffixed by the last path segment.
         #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+        #[repr(u8)]
         pub enum Rule {
             #(#variants),*
         }
 
 
         impl Rule {
+            pub(crate) const COUNT: u8 = #rule_count;
+
+            pub(crate) const fn from_u8(value: u8) -> Option<Self> {
+                match value {
+                    #(#index_to_rule_matches),*,
+                    _ => None,
+                }
+            }
+
             pub fn as_display(&self) -> &'static str {
                 match self {
                     #(#rule_to_lit_matches),*

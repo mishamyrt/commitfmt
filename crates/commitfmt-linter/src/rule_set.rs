@@ -5,12 +5,13 @@ use crate::rules::Rule;
 /// Default set of rules
 const DEFAULT_RULES: RuleSet =
     RuleSet::from_rules(&[Rule::HeaderDescriptionFullStop, Rule::FooterBreakingExclamation]);
+const _: () = assert!(Rule::COUNT <= 64);
 
 /// Rule Set implements a set of rules using bit sets in a u64.
 /// Each bit corresponds to a rule.
 /// For now it has a maximum of 64 rules.
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RuleSet(pub u64);
+pub struct RuleSet(u64);
 
 /// Iterator over the rules in a `RuleSet`
 pub struct RuleSetIter {
@@ -22,12 +23,12 @@ impl Iterator for RuleSetIter {
     type Item = Rule;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while self.current_bit < 64 {
+        while self.current_bit < Rule::COUNT {
             let bit_mask = 1u64 << self.current_bit;
             if self.bits & bit_mask != 0 {
-                let rule = unsafe { std::mem::transmute::<u8, Rule>(self.current_bit) };
+                let rule = Rule::from_u8(self.current_bit);
                 self.current_bit += 1;
-                return Some(rule);
+                return rule;
             }
             self.current_bit += 1;
         }
@@ -177,9 +178,16 @@ mod tests {
     #[test]
     fn test_empty() {
         let empty_set = RuleSet::empty();
-        assert_eq!(empty_set.0, 0);
         assert_eq!(empty_set.len(), 0);
         assert!(empty_set.is_empty());
+    }
+
+    #[test]
+    fn test_rule_from_u8() {
+        for index in 0..Rule::COUNT {
+            assert_eq!(Rule::from_u8(index).map(|rule| rule as u8), Some(index));
+        }
+        assert_eq!(Rule::from_u8(Rule::COUNT), None);
     }
 
     #[test]
@@ -266,6 +274,14 @@ mod tests {
         let set = RuleSet::empty();
         let rules: Vec<Rule> = set.into_iter().collect();
         assert!(rules.is_empty());
+    }
+
+    #[test]
+    fn test_iterator_ignores_bits_outside_rule_count() {
+        if Rule::COUNT < 64 {
+            let set = RuleSet(1u64 << Rule::COUNT);
+            assert_eq!(set.into_iter().next(), None);
+        }
     }
 
     #[test]
