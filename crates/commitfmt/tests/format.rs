@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use commitfmt::{testing::pipe_from_string, Commitfmt};
 use commitfmt_git::testing::TestBed;
@@ -60,6 +60,7 @@ footer-key: value
     test_bed.repo.write_commit_message(input).unwrap();
 
     let mut cmd = Command::new(exe);
+    cmd.stdin(Stdio::null());
     cmd.current_dir(test_bed.path());
 
     let output = cmd.output().unwrap();

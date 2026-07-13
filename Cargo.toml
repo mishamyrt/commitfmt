@@ -39,8 +39,6 @@ log = "0.4.33"
 fern = "0.7.1"
 colored = "3.1.1"
 
-atty = "0.2.14"
-same-file = "1.0.6"
 winapi-util = "0.1.11"
 proc-macro2 = "1.0.106"
 quote = "1.0.46"

@@ -1,7 +1,10 @@
 use clap::{CommandFactory, Parser};
 
 use colored::Colorize;
-use std::{io::Read, process};
+use std::{
+    io::{IsTerminal, Read},
+    process,
+};
 
 use commitfmt::ignore::is_ignored_message;
 use commitfmt::{
@@ -51,10 +54,16 @@ struct Cli {
 fn is_readable() -> bool {
     #[cfg(unix)]
     fn imp() -> bool {
-        use same_file::Handle;
+        use std::fs::File;
+        use std::os::fd::AsFd;
         use std::os::unix::fs::FileTypeExt;
 
-        let ft = match Handle::stdin().and_then(|h| h.as_file().metadata()) {
+        let stdin = std::io::stdin();
+        let ft = match stdin
+            .as_fd()
+            .try_clone_to_owned()
+            .and_then(|fd| File::from(fd).metadata())
+        {
             Err(_) => return false,
             Ok(md) => md.file_type(),
         };
@@ -70,7 +79,8 @@ fn is_readable() -> bool {
             .unwrap_or(false)
     }
 
-    !atty::is(atty::Stream::Stdin) && imp()
+    // Non-terminal character devices such as /dev/null must not override COMMIT_EDITMSG.
+    !std::io::stdin().is_terminal() && imp()
 }
 
 /// Returns the input source for the commit message.
