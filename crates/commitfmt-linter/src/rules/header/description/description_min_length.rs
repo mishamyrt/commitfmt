@@ -1,5 +1,5 @@
 use crate::report::Report;
-use crate::rules::LinterGroup;
+use crate::rules::{shorter_than_chars, LinterGroup};
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -37,7 +37,7 @@ impl Violation for DescriptionMinLength {
 
 /// Checks for scope maximum length
 pub(crate) fn description_min_length(report: &mut Report, message: &Message, length: usize) {
-    if message.header.description.len() < length {
+    if shorter_than_chars(&message.header.description, length) {
         report.add_violation(Box::new(DescriptionMinLength { length }));
     }
 }

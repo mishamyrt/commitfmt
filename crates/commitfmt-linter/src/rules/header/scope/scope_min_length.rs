@@ -41,7 +41,8 @@ pub(crate) fn scope_min_length(report: &mut Report, message: &Message, length: u
         return;
     }
 
-    let scope_length = message.header.scope.iter().map(|scope| scope.len()).sum::<usize>();
+    let scope_length =
+        message.header.scope.iter().map(|scope| scope.chars().count()).sum::<usize>();
     if scope_length < length {
         report.add_violation(Box::new(ScopeMinLength { length }));
     }
@@ -84,5 +85,21 @@ mod tests {
         scope_min_length(&mut report, &message, 5);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "ScopeMinLength");
+    }
+
+    #[test]
+    fn test_scope_min_length_counts_unicode_characters() {
+        let message = Message {
+            header: Header::from("feat(é, 界): my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
+        let mut report = Report::default();
+
+        scope_min_length(&mut report, &message, 2);
+        assert_eq!(report.len(), 0);
+
+        scope_min_length(&mut report, &message, 3);
+        assert_eq!(report.len(), 1);
     }
 }

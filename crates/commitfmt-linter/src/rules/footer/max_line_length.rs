@@ -1,5 +1,5 @@
 use crate::report::Report;
-use crate::rules::LinterGroup;
+use crate::rules::{longer_than_chars, LinterGroup};
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -53,7 +53,7 @@ pub(crate) fn max_line_length(report: &mut Report, message: &Message, length: us
 
     for footer in message.footers.iter() {
         for line in footer.value.lines() {
-            if line.len() > length {
+            if longer_than_chars(line, length) {
                 let violation = Box::new(MaxLineLength { key: footer.key.clone(), length });
                 report.add_violation(violation);
                 break;

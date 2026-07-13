@@ -7,6 +7,8 @@ use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, Parser};
 
+use crate::char_count;
+
 /// Scope of a commit is a list of strings
 /// Example: (scope1, scope2)
 #[derive(Debug, Default, PartialEq, Clone)]
@@ -49,15 +51,14 @@ impl Scope {
         self.0.len()
     }
 
-    /// Returns the number of characters in the scopes.
-    /// It's like formatted string length
+    /// Returns the number of Unicode scalar values in the formatted scopes.
     pub fn str_len(&self) -> usize {
         if self.0.is_empty() {
             return 0;
         }
         let mut len: usize = 2; // parentheses
         len += Self::SEPARATOR_DISPLAY.len() * (self.0.len() - 1); // comma and space
-        len += self.0.iter().map(|c| c.len()).reduce(|a, b| a + b).unwrap_or(0); // scopes
+        len += self.0.iter().map(|scope| char_count(scope)).sum::<usize>();
         len
     }
 
@@ -122,14 +123,14 @@ impl Header {
         Self { kind: Some(kind.to_string()), scope, breaking, description }
     }
 
-    /// Returns the number of characters in the header
+    /// Returns the number of Unicode scalar values in the formatted header.
     pub fn len(&self) -> usize {
         // Description
-        let mut len: usize = self.description.len();
+        let mut len = char_count(&self.description);
 
         if let Some(kind) = &self.kind {
             // Kind + colon + space
-            len += kind.len() + 2;
+            len += char_count(kind) + 2;
         }
 
         if !self.scope.is_empty() {
@@ -230,13 +231,17 @@ mod tests {
     #[test]
     fn test_scope_len() {
         let scope = Scope::from(vec!["scope1".to_string(), "scope2".to_string()]);
-        assert_eq!(scope.str_len(), scope.to_string().len());
+        assert_eq!(scope.str_len(), scope.to_string().chars().count());
 
         let scope = Scope::from(vec!["scope1".to_string()]);
-        assert_eq!(scope.str_len(), scope.to_string().len());
+        assert_eq!(scope.str_len(), scope.to_string().chars().count());
 
         let scope = Scope::from::<_, String>(vec![]);
-        assert_eq!(scope.str_len(), scope.to_string().len());
+        assert_eq!(scope.str_len(), scope.to_string().chars().count());
+
+        let scope = Scope::from(["é", "界"]);
+        assert_eq!(scope.str_len(), 6);
+        assert_eq!(scope.str_len(), scope.to_string().chars().count());
     }
 
     #[test]
@@ -293,13 +298,18 @@ mod tests {
     #[test]
     fn test_header_len() {
         let header = Header::from("feat: my feature");
-        assert_eq!(header.len(), header.to_string().len());
+        assert_eq!(header.len(), header.to_string().chars().count());
 
         let header = Header::from("feat(my_scope): my feature");
-        assert_eq!(header.len(), header.to_string().len());
+        assert_eq!(header.len(), header.to_string().chars().count());
 
         let header = Header::from("fix(scope1, scope2)!: my fix");
-        assert_eq!(header.len(), header.to_string().len());
+        assert_eq!(header.len(), header.to_string().chars().count());
+
+        let header = Header::from("fëat ( é,    界 ) ! : café");
+        assert_eq!(header.to_string(), "fëat(é, 界)!: café");
+        assert_eq!(header.len(), 17);
+        assert_eq!(header.len(), header.to_string().chars().count());
     }
 
     #[test]

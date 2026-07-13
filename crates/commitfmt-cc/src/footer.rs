@@ -9,6 +9,8 @@ use nom::sequence::preceded;
 use nom::{IResult, Parser};
 use serde_derive::{Deserialize, Serialize};
 
+use crate::char_count;
+
 /// Indicates on which side of the separator the space should be
 #[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -48,17 +50,12 @@ impl Footer {
     /// Default key and value separator character
     pub const DEFAULT_SEPARATOR_CHAR: char = ':';
 
-    /// Returns the number of characters in the right formatted footer
+    /// Returns the number of Unicode scalar values in the formatted footer.
     pub fn len(&self) -> usize {
-        let mut value_len = self.value.len();
-        for ch in self.value.chars() {
-            if ch == '\n' {
-                // Add one for the space after newline
-                value_len += 1;
-            }
-        }
+        let value_len =
+            self.value.chars().map(|ch| if ch == '\n' { 2 } else { 1 }).sum::<usize>();
 
-        self.key.len() + value_len + 2
+        char_count(&self.key) + value_len + 2
     }
 
     /// Returns `true` if the footer is empty.
@@ -229,7 +226,7 @@ mod tests {
             alignment: SeparatorAlignment::Left,
         };
 
-        assert_eq!(footer.len(), footer.to_string().len());
+        assert_eq!(footer.len(), footer.to_string().chars().count());
 
         let footer = Footer {
             key: "foo".into(),
@@ -238,7 +235,18 @@ mod tests {
             alignment: SeparatorAlignment::Left,
         };
 
-        assert_eq!(footer.len(), footer.to_string().len());
+        assert_eq!(footer.len(), footer.to_string().chars().count());
+
+        let footer = Footer {
+            key: "Réf".into(),
+            value: "café\n界".into(),
+            separator: '→',
+            alignment: SeparatorAlignment::Left,
+        };
+
+        assert_eq!(footer.to_string(), "Réf→ café\n 界");
+        assert_eq!(footer.len(), 12);
+        assert_eq!(footer.len(), footer.to_string().chars().count());
     }
 
     #[test]

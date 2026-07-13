@@ -42,7 +42,8 @@ pub(crate) fn scope_max_length(report: &mut Report, message: &Message, length: u
         return;
     }
 
-    let scope_length = message.header.scope.iter().map(|scope| scope.len()).sum::<usize>();
+    let scope_length =
+        message.header.scope.iter().map(|scope| scope.chars().count()).sum::<usize>();
     if scope_length > length {
         report.add_violation(Box::new(ScopeMaxLength { length }));
     }
@@ -85,5 +86,21 @@ mod tests {
         scope_max_length(&mut report, &message, 10);
         assert_eq!(report.len(), 1);
         assert_eq!(report.violations[0].rule_name(), "ScopeMaxLength");
+    }
+
+    #[test]
+    fn test_scope_max_length_counts_unicode_characters() {
+        let message = Message {
+            header: Header::from("feat(é, 界): my feature"),
+            body: None,
+            footers: footer_vec![],
+        };
+        let mut report = Report::default();
+
+        scope_max_length(&mut report, &message, 2);
+        assert_eq!(report.len(), 0);
+
+        scope_max_length(&mut report, &message, 1);
+        assert_eq!(report.len(), 1);
     }
 }

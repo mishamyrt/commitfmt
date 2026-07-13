@@ -1,5 +1,5 @@
 use crate::report::Report;
-use crate::rules::LinterGroup;
+use crate::rules::{longer_than_chars, LinterGroup};
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -37,7 +37,7 @@ impl Violation for DescriptionMaxLength {
 
 /// Checks for scope maximum length
 pub(crate) fn description_max_length(report: &mut Report, message: &Message, length: usize) {
-    if message.header.description.len() > length {
+    if longer_than_chars(&message.header.description, length) {
         report.add_violation(Box::new(DescriptionMaxLength { length }));
     }
 }

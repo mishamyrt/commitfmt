@@ -1,5 +1,5 @@
 use crate::report::Report;
-use crate::rules::LinterGroup;
+use crate::rules::{shorter_than_chars, LinterGroup};
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -42,7 +42,7 @@ pub(crate) fn type_min_length(report: &mut Report, message: &Message, length: us
         return;
     };
 
-    if kind.len() < length {
+    if shorter_than_chars(kind, length) {
         report.add_violation(Box::new(TypeMinLength { length }));
     }
 }

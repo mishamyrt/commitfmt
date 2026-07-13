@@ -9,3 +9,8 @@ pub use {
     header::{Header, Scope},
     message::{Message, ParseError},
 };
+
+#[inline]
+pub(crate) fn char_count(value: &str) -> usize {
+    value.chars().count()
+}
