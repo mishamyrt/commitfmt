@@ -29,11 +29,14 @@ impl Commitfmt {
     pub fn from_path(path: &Path) -> Result<Self> {
         let repo = Repository::open(path)?;
         let mut settings = open_settings(path)?;
-        if settings.comment_symbol.is_none() {
-            settings.comment_symbol = repo.comment_symbol();
-        }
-        if settings.footer_separators.is_none() {
-            settings.footer_separators = repo.trailer_separators();
+        if settings.comment_symbol.is_none() || settings.footer_separators.is_none() {
+            let repo_config = repo.message_config();
+            if settings.comment_symbol.is_none() {
+                settings.comment_symbol = repo_config.comment_symbol;
+            }
+            if settings.footer_separators.is_none() {
+                settings.footer_separators = repo_config.trailer_separators;
+            }
         }
 
         Ok(Self::new(repo, settings))

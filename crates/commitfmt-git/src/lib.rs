@@ -8,7 +8,7 @@ mod repository;
 pub mod testing;
 
 pub use commit::Commit;
-pub use repository::Repository;
+pub use repository::{Repository, RepositoryConfig};
 
 #[derive(Error, Debug)]
 pub enum GitError {

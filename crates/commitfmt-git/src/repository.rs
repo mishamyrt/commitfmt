@@ -9,21 +9,17 @@ use crate::head::branch_name_from_head;
 use crate::path::{find_root, get_commit_message_file, get_head_file, hooks_dir};
 use crate::{Commit, GitError, GitResult};
 
+const MESSAGE_CONFIG_PATTERN: &str = r"^(core\.comment(char|string)|trailer\.separators)$";
+
 #[derive(Debug, Clone)]
 pub struct Repository {
     root_dir: PathBuf,
 }
 
-#[derive(Debug, Clone, Copy, Display)]
-pub(crate) enum ConfigKey {
-    #[strum(to_string = "trailer.separators")]
-    TrailerSeparators,
-
-    #[strum(to_string = "core.commentChar")]
-    CommentChar,
-
-    #[strum(to_string = "core.commentString")]
-    CommentString,
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct RepositoryConfig {
+    pub comment_symbol: Option<String>,
+    pub trailer_separators: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Display)]
@@ -105,38 +101,41 @@ impl Repository {
         Ok(hooks_path.join(hook.to_string()))
     }
 
-    /// Returns the comment symbol configured for the repository
-    ///
-    /// Depending on git version and configuration, the comment symbol may be a string or a single character.
-    /// Returns `None` if both are not set.
-    pub fn comment_symbol(&self) -> Option<String> {
-        match self.get_config(ConfigKey::CommentString) {
-            Some(comment_string) => Some(comment_string),
-            None => self.get_config(ConfigKey::CommentChar),
-        }
-    }
+    /// Returns commit-message settings configured for the repository.
+    pub fn message_config(&self) -> RepositoryConfig {
+        let Ok(output) = self.run(&["config", "--get-regexp", MESSAGE_CONFIG_PATTERN]) else {
+            return RepositoryConfig::default();
+        };
 
-    /// Returns the trailer separators configured for the repository
-    pub fn trailer_separators(&self) -> Option<String> {
-        self.get_config(ConfigKey::TrailerSeparators)
+        parse_message_config(&output)
     }
 
     /// Runs a git command in the repository
     pub(crate) fn run(&self, args: &[&str]) -> GitResult<String> {
         run_git(args, &self.root_dir)
     }
+}
 
-    /// Gets a git configuration value
-    fn get_config(&self, key: ConfigKey) -> Option<String> {
-        let Ok(output) = self.run(&["config", &key.to_string()]) else {
-            return None;
+fn parse_message_config(output: &str) -> RepositoryConfig {
+    let mut comment_char = None;
+    let mut comment_string = None;
+    let mut trailer_separators = None;
+
+    for line in output.lines() {
+        let Some((key, value)) = line.split_once(' ') else {
+            continue;
         };
 
-        if output.is_empty() {
-            return None;
+        if key.eq_ignore_ascii_case("core.commentChar") {
+            comment_char = Some(value.to_string());
+        } else if key.eq_ignore_ascii_case("core.commentString") {
+            comment_string = Some(value.to_string());
+        } else if key.eq_ignore_ascii_case("trailer.separators") {
+            trailer_separators = Some(value.to_string());
         }
-        Some(output)
     }
+
+    RepositoryConfig { comment_symbol: comment_string.or(comment_char), trailer_separators }
 }
 
 #[cfg(test)]
@@ -238,37 +237,40 @@ mod tests {
     }
 
     #[test]
-    fn test_comment_symbol() {
+    fn test_message_config() {
         let test_bed = TestBed::empty().unwrap();
         test_bed.repo.run(&["config", "--local", "core.commentChar", "#"]).unwrap();
-        assert_eq!(test_bed.repo.comment_symbol(), Some("#".to_string()));
-
         test_bed.repo.run(&["config", "--local", "core.commentString", "//"]).unwrap();
-        assert_eq!(test_bed.repo.comment_symbol(), Some("//".to_string()));
-    }
-
-    #[test]
-    fn test_trailer_separators() {
-        let test_bed = TestBed::empty().unwrap();
         test_bed.repo.run(&["config", "--local", "trailer.separators", ":#"]).unwrap();
-        assert_eq!(test_bed.repo.trailer_separators(), Some(":#".to_string()));
+
+        assert_eq!(
+            test_bed.repo.message_config(),
+            RepositoryConfig {
+                comment_symbol: Some("//".to_string()),
+                trailer_separators: Some(":#".to_string()),
+            }
+        );
     }
 
     #[test]
-    fn test_get_config() {
-        let test_bed = TestBed::empty().unwrap();
-
-        // Test get_config function with non-existent key
-        let result = test_bed.repo.get_config(ConfigKey::TrailerSeparators);
-        // Result may be any depending on git configuration
-        assert!(result.is_none() || result.is_some());
-    }
-
-    #[test]
-    fn test_config_key_display() {
-        assert_eq!(ConfigKey::TrailerSeparators.to_string(), "trailer.separators");
-        assert_eq!(ConfigKey::CommentChar.to_string(), "core.commentChar");
-        assert_eq!(ConfigKey::CommentString.to_string(), "core.commentString");
+    fn test_parse_message_config() {
+        assert_eq!(parse_message_config(""), RepositoryConfig::default());
+        assert_eq!(
+            parse_message_config("core.commentchar #\ntrailer.separators :#"),
+            RepositoryConfig {
+                comment_symbol: Some("#".to_string()),
+                trailer_separators: Some(":#".to_string()),
+            }
+        );
+        assert_eq!(
+            parse_message_config(
+                "core.commentchar #\ncore.commentstring // comment\ntrailer.separators ="
+            ),
+            RepositoryConfig {
+                comment_symbol: Some("// comment".to_string()),
+                trailer_separators: Some("=".to_string()),
+            }
+        );
     }
 
     #[test]
