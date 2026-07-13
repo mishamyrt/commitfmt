@@ -15,37 +15,36 @@ pub(crate) fn parse_body(
         return (None, None);
     }
 
-    let meaningful_input = trim_meaningless_end(input, comment_symbol);
-
-    // Try to find last block of text.
-    // If no block is found, than input is single block.
-    let last_block_index: usize =
-        memmem::rfind(meaningful_input.as_bytes(), b"\n\n").unwrap_or(0);
-    if last_block_index == 0 {
-        let meaningful_input = trim_meaningless_start(meaningful_input, comment_symbol);
-        if meaningful_input.is_empty() {
-            return (None, None);
-        }
-
-        match Footers::parse(meaningful_input, footer_separators) {
-            Ok((_rest, footers)) => return (None, Some(footers)),
-            Err(_) => return (Some(meaningful_input.to_string()), None),
-        }
+    let meaningful_input =
+        trim_meaningless_start(trim_meaningless_end(input, comment_symbol), comment_symbol);
+    if meaningful_input.is_empty() {
+        return (None, None);
     }
 
-    let last_block = &meaningful_input[last_block_index + 2..];
+    // Try to find last block of text.
+    // If no block is found, input is a single footer candidate.
+    let (body, footer_candidate) = match memmem::rfind(meaningful_input.as_bytes(), b"\n\n") {
+        Some(last_block_index) => {
+            (&meaningful_input[..last_block_index], &meaningful_input[last_block_index + 2..])
+        }
+        None => ("", meaningful_input),
+    };
 
-    match Footers::parse(last_block, footer_separators) {
+    parse_footer_candidate(meaningful_input, body, footer_candidate, footer_separators)
+}
+
+fn parse_footer_candidate(
+    meaningful_input: &str,
+    body: &str,
+    footer_candidate: &str,
+    footer_separators: &str,
+) -> (Option<String>, Option<Footers>) {
+    match Footers::parse(footer_candidate, footer_separators) {
         Ok((_rest, footers)) => {
-            let body =
-                trim_meaningless_start(&meaningful_input[..last_block_index], comment_symbol)
-                    .to_string();
-            (Some(body), Some(footers))
+            let body = if body.is_empty() { None } else { Some(body.to_string()) };
+            (body, Some(footers))
         }
-        Err(_) => {
-            let body = trim_meaningless_start(input, comment_symbol).to_string();
-            (Some(body), None)
-        }
+        Err(_) => (Some(meaningful_input.to_string()), None),
     }
 }
 
@@ -203,6 +202,13 @@ Authored-By: Co Mitter <comitter@example.com>
                 alignment: SeparatorAlignment::Left,
             }]),
         );
+        assert_eq!(parse_body(input, ":", "#"), expected);
+    }
+
+    #[test]
+    fn test_parse_body_drops_trailing_comments_without_footers() {
+        let input = "para1\n\npara2\n\n# Please enter the commit message...";
+        let expected = (Some("para1\n\npara2".to_string()), None);
         assert_eq!(parse_body(input, ":", "#"), expected);
     }
 
