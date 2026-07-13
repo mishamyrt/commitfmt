@@ -114,18 +114,14 @@ impl RuleSet {
 
     /// Returns the union of the two rule sets `self` and `other`
     #[must_use]
-    pub const fn union(&mut self, other: Self) -> Self {
-        self.0 |= other.0;
-
-        *self
+    pub const fn union(self, other: Self) -> Self {
+        Self(self.0 | other.0)
     }
 
     /// Returns `self` without any of the rules contained in `other`.
     #[must_use]
-    pub const fn subtract(&mut self, other: Self) -> Self {
-        self.0 &= !other.0;
-
-        *self
+    pub const fn subtract(self, other: Self) -> Self {
+        Self(self.0 & !other.0)
     }
 
     /// Inserts `rule` into the set.
@@ -228,6 +224,9 @@ mod tests {
         assert!(union_set.contains(Rule::HeaderScopeMinLength));
         assert!(union_set.contains(Rule::BodyMaxLineLength));
         assert_eq!(union_set.len(), 2);
+        assert!(set1.contains(Rule::HeaderScopeMinLength));
+        assert!(!set1.contains(Rule::BodyMaxLineLength));
+        assert_eq!(set1.len(), 1);
     }
 
     #[test]
@@ -243,6 +242,9 @@ mod tests {
         assert!(subtract_set.contains(Rule::HeaderScopeMinLength));
         assert!(!subtract_set.contains(Rule::BodyMaxLineLength));
         assert_eq!(subtract_set.len(), 1);
+        assert!(set1.contains(Rule::HeaderScopeMinLength));
+        assert!(set1.contains(Rule::BodyMaxLineLength));
+        assert_eq!(set1.len(), 2);
     }
 
     #[test]
