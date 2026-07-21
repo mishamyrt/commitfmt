@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/mishamyrt/commitfmt/compare/v1.0.10..v1.1.0) - 2026-07-21
+
+### 🚀 Features
+
+- Correctly count utf-8 characters
+
+### 🐛 Bug Fixes
+
+- Correctly parse body with comments
+- Correctly parse scope length
+
+### 🚜 Refactor
+
+- Use safe rule to u8 casting
+- Simplify footer parsing
+- Correctly annotate path tests
+- Make rules clean
+- Join git calls
+- Remove atty and same-file
+
+### ⚡ Performance
+
+- Avoid extra allocation on kebab case parsing
+- Avoid config double parsing
+
 ## [1.0.6](https://github.com/mishamyrt/commitfmt/compare/v1.0.5..v1.0.6) - 2026-07-08
 
 ### 🐛 Bug Fixes

@@ -4,7 +4,7 @@ authors = [
     {name = "Mikhael Khrustik", email = "misha@myrt.co"},
 ]
 description = "Utility for formatting and verifying the commit message."
-version = "1.0.10"
+version = "1.1.0"
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["git", "hook"]
@@ -21,8 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "commitfmt-windows==1.0.10; sys_platform == 'win32'",
-    "commitfmt-darwin==1.0.10; sys_platform == 'darwin'",
-    "commitfmt-linux==1.0.10; sys_platform == 'linux'",
+    "commitfmt-windows==1.1.0; sys_platform == 'win32'",
+    "commitfmt-darwin==1.1.0; sys_platform == 'darwin'",
+    "commitfmt-linux==1.1.0; sys_platform == 'linux'",
 ]
 scripts = { "commitfmt"="commitfmt.__main__:main" }
