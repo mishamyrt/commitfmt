@@ -70,8 +70,8 @@ impl Footer {
             return true;
         }
 
-        let lower_key = key.to_lowercase();
-        lower_key == "breaking-changes" || lower_key == "breakingchanges"
+        key.eq_ignore_ascii_case("breaking-changes")
+            || key.eq_ignore_ascii_case("breakingchanges")
     }
 
     pub fn is_breaking_change(&self) -> bool {

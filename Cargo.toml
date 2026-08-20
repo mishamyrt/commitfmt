@@ -26,7 +26,7 @@ serde = "1.0.229"
 serde_json = "1.0.151"
 serde_yaml_ng = "0.10"
 serde_derive = "1.0.229"
-regex = "1.13.1"
+regex-lite = "0.1.9"
 
 # Parsing
 nom = "8.0.0"
@@ -105,3 +105,4 @@ lto = "fat"
 codegen-units = 1
 strip = true
 opt-level = "z"
+panic = "abort"

@@ -251,7 +251,8 @@ For example, if your branch name is `feature/CC-123/add-new-feature` or `feature
 
 If the ticket number is not found in the branch name, footer will be skipped.
 
-You can use [rustexp](https://rustexp.lpil.uk) to test your pattern.
+Branch patterns use the [regex-lite syntax](https://docs.rs/regex-lite/latest/regex_lite/#syntax).
+Unicode character classes and Unicode-aware case folding are not supported.
 
 ##### Patterns
 

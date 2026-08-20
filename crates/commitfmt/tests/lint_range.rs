@@ -65,6 +65,8 @@ fn test_cli_lint_correct_range() {
     let exe = env!("CARGO_BIN_EXE_commitfmt");
 
     let test_bed = TestBed::with_default_history().unwrap();
+    let pending_message = "feat: pending message.";
+    test_bed.repo.write_commit_message(pending_message).unwrap();
 
     let mut cmd = Command::new(exe);
     cmd.arg("--from").arg("HEAD~3").arg("--to").arg("HEAD");
@@ -72,6 +74,7 @@ fn test_cli_lint_correct_range() {
 
     let output = cmd.output().unwrap();
     assert!(output.status.success());
+    assert_eq!(test_bed.repo.read_commit_message().unwrap(), pending_message);
 
     let commitfmt = Commitfmt::from_path(&test_bed.path()).unwrap();
     let range = ("HEAD~3", "HEAD");

@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use strum::Display;
 
 use crate::command::run_git;
-use crate::commit::parse_git_log;
+use crate::commit::CommitLog;
 use crate::head::branch_name_from_head;
 use crate::path::{find_root, get_commit_message_file, get_head_file, hooks_dir};
 use crate::{Commit, GitError, GitResult};
@@ -68,14 +68,12 @@ impl Repository {
 
     /// Returns the commits between two references
     pub fn get_log(&self, from: &str, to: &str) -> GitResult<Vec<Commit>> {
-        let output =
-            self.run(&["log", "--pretty=format:%h%n%B#-eoc-#", &format!("{from}..{to}")])?;
+        self.stream_log(from, to)?.collect()
+    }
 
-        let Ok((_, commits)) = parse_git_log(&output) else {
-            return Err(GitError::CommandFailed(-1, "Failed to parse git log".to_string()));
-        };
-
-        Ok(commits)
+    /// Streams commits between two references.
+    pub fn stream_log(&self, from: &str, to: &str) -> GitResult<CommitLog> {
+        CommitLog::spawn(&self.root_dir, from, to)
     }
 
     pub fn commit(&self, message: &str) -> GitResult<()> {
@@ -234,6 +232,25 @@ mod tests {
 
         let log = test_bed.repo.get_log("HEAD~5", "HEAD").unwrap();
         assert_eq!(log.len(), 5);
+    }
+
+    #[test]
+    fn test_get_log_preserves_old_separator_in_message() {
+        let message = "feat: keep separator\n\n#-eoc-# is message content";
+        let test_bed = TestBed::with_history(&["chore: initial", message]).unwrap();
+
+        let log = test_bed.repo.get_log("HEAD~1", "HEAD").unwrap();
+        assert_eq!(log.len(), 1);
+        assert_eq!(log[0].message.trim_end(), message);
+    }
+
+    #[test]
+    fn test_stream_log_reports_git_error() {
+        let test_bed = TestBed::with_default_history().unwrap();
+        let mut log = test_bed.repo.stream_log("missing-ref", "HEAD").unwrap();
+
+        assert!(matches!(log.next(), Some(Err(GitError::CommandFailed(_, _)))));
+        assert!(log.next().is_none());
     }
 
     #[test]

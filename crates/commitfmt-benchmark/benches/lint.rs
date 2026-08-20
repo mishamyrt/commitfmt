@@ -3,30 +3,23 @@ use commitfmt_cc::Message;
 use commitfmt_linter::Check;
 use commitfmt_workspace::CommitSettings;
 
-fn lint_message() -> bool {
-    let config_data = r#"
+const CONFIG_DATA: &str = r#"
 [lint.header]
 type-enum = ["feat", "fix", "docs"]
 type-required = true
 scope-required = true
 description-max-length = 15
 "#;
-    let settings = CommitSettings::from_toml(config_data).unwrap();
-
-    let input = "feat(scope): description";
-    let message = Message::parse(input, Some(":"), Some("#"));
-
-    let mut check = Check::new(&settings.rules.settings, settings.rules.set);
-    check.lint(&message);
-
-    check.report.violations.is_empty()
-}
 
 pub fn lint_message_benchmark(c: &mut Criterion) {
+    let settings = CommitSettings::from_toml(CONFIG_DATA).unwrap();
+    let message = Message::parse("feat(scope): description", Some(":"), Some("#"));
+
     c.bench_function("lint message", |b| {
         b.iter(|| {
-            let result = lint_message();
-            std::hint::black_box(result)
+            let mut check = Check::new(&settings.rules.settings, settings.rules.set);
+            check.lint(std::hint::black_box(&message));
+            std::hint::black_box(check.report.violations.is_empty())
         });
     });
 }

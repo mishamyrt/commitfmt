@@ -72,7 +72,7 @@ pub enum Error {
     InvalidTextCase(String),
 
     #[error("Invalid pattern: {0}")]
-    InvalidPattern(#[from] regex::Error),
+    InvalidPattern(#[from] regex_lite::Error),
 
     #[error("Template parsing failed: {0}")]
     TemplateParseError(#[from] commitfmt_tpl::Error),

@@ -130,10 +130,13 @@ fn main() -> process::ExitCode {
 
         let to = cli.to.as_deref().unwrap_or("HEAD");
 
-        if let Err(err) = fmt.lint_commit_range((&from, to)) {
-            print_error!("{err}");
-            return process::ExitCode::FAILURE;
-        }
+        return match fmt.lint_commit_range((&from, to)) {
+            Ok(()) => process::ExitCode::SUCCESS,
+            Err(err) => {
+                print_error!("{err}");
+                process::ExitCode::FAILURE
+            }
+        };
     }
 
     let source = get_source(&fmt.repo);
@@ -168,16 +171,23 @@ fn main() -> process::ExitCode {
         return process::ExitCode::SUCCESS;
     }
 
-    let output = match fmt.format_commit_message(&input, cli.lint) {
+    if cli.lint {
+        return match fmt.lint_commit_message(&input) {
+            Ok(()) => process::ExitCode::SUCCESS,
+            Err(err) => {
+                print_error!("\n{err}");
+                process::ExitCode::FAILURE
+            }
+        };
+    }
+
+    let output = match fmt.format_commit_message(&input) {
         Ok(output) => output,
         Err(err) => {
             print_error!("\n{err}");
             return process::ExitCode::FAILURE;
         }
     };
-    if cli.lint {
-        return process::ExitCode::SUCCESS;
-    }
 
     match source {
         InputSource::Stdin => {

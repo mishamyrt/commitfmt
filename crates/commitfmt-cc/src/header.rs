@@ -116,7 +116,7 @@ impl Header {
         let (_, (kind, scope, breaking, description)) = result;
 
         let scope = match scope {
-            Some(scopes) => Scope::from(scopes),
+            Some(scopes) => Scope(scopes),
             None => Scope::default(),
         };
 

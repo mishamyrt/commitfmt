@@ -64,10 +64,11 @@ fn run_benchmark_group<F>(
         group.throughput(throughput_fn(case));
         group.bench_with_input(BenchmarkId::from_parameter(case.name), case, |b, case| {
             b.iter(|| {
-                let result = app.format_commit_message(
-                    std::hint::black_box(case.input),
-                    std::hint::black_box(case.lint_only),
-                );
+                let result = if std::hint::black_box(case.lint_only) {
+                    app.lint_commit_message(std::hint::black_box(case.input))
+                } else {
+                    app.format_commit_message(std::hint::black_box(case.input)).map(drop)
+                };
                 std::hint::black_box(result)
             });
         });
@@ -79,7 +80,7 @@ fn run_benchmark_group<F>(
 /// Calculate throughput based on message complexity
 fn message_complexity_throughput(case: &FormatCase) -> Throughput {
     let lines = case.input.lines().count() as u64;
-    let footers = case.input.matches('\n').filter(|_| case.input.contains(':')).count() as u64;
+    let footers = case.input.lines().filter(|line| line.contains(':')).count() as u64;
     let complexity = case.input.len() as u64 + lines * 10 + footers * 5;
     Throughput::Elements(complexity)
 }
@@ -277,10 +278,12 @@ pub fn benchmark_formatter_with_footers(c: &mut Criterion) {
                 case,
                 |b, case| {
                     b.iter(|| {
-                        let result = app.format_commit_message(
-                            std::hint::black_box(case.input),
-                            std::hint::black_box(case.lint_only),
-                        );
+                        let result = if std::hint::black_box(case.lint_only) {
+                            app.lint_commit_message(std::hint::black_box(case.input))
+                        } else {
+                            app.format_commit_message(std::hint::black_box(case.input))
+                                .map(drop)
+                        };
                         std::hint::black_box(result)
                     });
                 },
