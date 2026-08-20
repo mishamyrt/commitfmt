@@ -252,6 +252,23 @@ mod tests {
     }
 
     #[test]
+    fn test_additional_footer_rejects_invalid_branch_pattern() {
+        let config = AdditionalFooterConfig {
+            key: "Ticket-ID".to_string(),
+            on_conflict: None,
+            value: "${{ TICKET_ID }}".to_string(),
+            branch_pattern: Some("(".to_string()),
+            separator: None,
+            alignment: None,
+        };
+
+        assert!(matches!(
+            AdditionalFooter::from_config(config),
+            Err(Error::InvalidPattern(_))
+        ));
+    }
+
+    #[test]
     fn test_rules_settings_from_params() {
         let params = CommitParams {
             config: CommitConfiguration {

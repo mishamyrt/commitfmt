@@ -21,6 +21,36 @@ fn test_lint_correct_range() {
 }
 
 #[test]
+fn test_lint_single_commit_uses_singular_message() {
+    testing_logger::setup();
+
+    let test_bed = TestBed::with_default_history().unwrap();
+    let commitfmt = Commitfmt::from_path(&test_bed.path()).unwrap();
+
+    assert!(commitfmt.lint_commit_range(("HEAD~1", "HEAD")).is_ok());
+
+    testing_logger::validate(|captured_logs| {
+        assert_eq!(captured_logs.len(), 1);
+        assert_snapshot!(captured_logs[0].body, @"No problems found in 1 commit");
+    });
+}
+
+#[test]
+fn test_lint_empty_range() {
+    testing_logger::setup();
+
+    let test_bed = TestBed::with_default_history().unwrap();
+    let commitfmt = Commitfmt::from_path(&test_bed.path()).unwrap();
+
+    assert!(commitfmt.lint_commit_range(("HEAD", "HEAD")).is_ok());
+
+    testing_logger::validate(|captured_logs| {
+        assert_eq!(captured_logs.len(), 1);
+        assert_snapshot!(captured_logs[0].body, @"No problems found in 0 commits");
+    });
+}
+
+#[test]
 fn test_lint_incorrect_range() {
     let incorrect_commits =
         vec!["chore: initial commit", "fea: test.", "feat(tes): test", "feat(core): test."];
@@ -80,6 +110,40 @@ fn test_cli_lint_correct_range() {
     let range = ("HEAD~3", "HEAD");
     let result = commitfmt.lint_commit_range(range);
     assert!(result.is_ok());
+}
+
+#[test]
+fn test_cli_range_warns_when_lint_flag_is_redundant() {
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+    let test_bed = TestBed::with_default_history().unwrap();
+
+    let mut cmd = Command::new(exe);
+    cmd.arg("--lint").arg("--from").arg("HEAD~1");
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("--lint is ignored when --from is set"));
+    assert!(stdout.contains("No problems found in 1 commit"));
+}
+
+#[test]
+fn test_cli_range_reports_invalid_git_reference() {
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+    let test_bed = TestBed::with_default_history().unwrap();
+
+    let mut cmd = Command::new(exe);
+    cmd.arg("--from").arg("missing-ref");
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(!output.status.success());
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("Git operation failed"));
+    assert!(stdout.contains("missing-ref"));
 }
 
 #[test]

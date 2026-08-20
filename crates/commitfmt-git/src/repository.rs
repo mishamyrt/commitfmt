@@ -235,6 +235,22 @@ mod tests {
     }
 
     #[test]
+    fn test_stream_log_is_ordered_and_fused() {
+        let test_bed = TestBed::with_history(&[
+            "chore: initial commit",
+            "feat: second commit",
+            "fix: third commit",
+        ])
+        .unwrap();
+        let mut log = test_bed.repo.stream_log("HEAD~2", "HEAD").unwrap();
+
+        assert_eq!(log.next().unwrap().unwrap().message.trim_end(), "fix: third commit");
+        assert_eq!(log.next().unwrap().unwrap().message.trim_end(), "feat: second commit");
+        assert!(log.next().is_none());
+        assert!(log.next().is_none());
+    }
+
+    #[test]
     fn test_get_log_preserves_old_separator_in_message() {
         let message = "feat: keep separator\n\n#-eoc-# is message content";
         let test_bed = TestBed::with_history(&["chore: initial", message]).unwrap();

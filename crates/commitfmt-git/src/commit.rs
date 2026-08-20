@@ -110,3 +110,13 @@ impl Drop for CommitLog {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::string_from_git;
+
+    #[test]
+    fn test_string_from_git_replaces_invalid_utf8() {
+        assert_eq!(string_from_git(vec![b'f', 0x80, b'o']), "f\u{fffd}o");
+    }
+}
