@@ -45,12 +45,15 @@ impl Commitfmt {
     /// Lint a commit range (from..to).
     pub fn lint_commit_range(&self, range: CommitRange) -> Result<()> {
         let (from, to) = range;
-        let commits = self.repo.get_log(from, to)?;
+        let commits = self.repo.stream_log(from, to)?;
 
         let mut problems_count: usize = 0;
+        let mut commits_count: usize = 0;
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
 
-        for commit in &commits {
+        for commit in commits {
+            let commit = commit?;
+            commits_count += 1;
             if is_ignored_message(&commit.message) {
                 // Skip ignored commits.
                 continue;
@@ -81,14 +84,13 @@ impl Commitfmt {
             return Err(Error::Lint(problems_count));
         }
 
-        let commit_pluralized = pluralize(commits.len(), "commit", "commits");
-        print_info!("No problems found in {} {}", commits.len(), commit_pluralized);
+        let commit_pluralized = pluralize(commits_count, "commit", "commits");
+        print_info!("No problems found in {commits_count} {commit_pluralized}");
         Ok(())
     }
 
-    /// Formats a commit message.
-    pub fn format_commit_message(&self, input: &str, lint_only: bool) -> Result<String> {
-        let mut message = Message::parse(
+    fn check_message(&self, input: &str) -> (Message, Check<'_>) {
+        let message = Message::parse(
             input,
             self.settings.footer_separators.as_deref(),
             self.settings.comment_symbol.as_deref(),
@@ -96,14 +98,22 @@ impl Commitfmt {
 
         let mut check = Check::new(&self.settings.rules.settings, self.settings.rules.set);
         check.lint(&message);
+        (message, check)
+    }
 
-        if lint_only {
-            if check.report.violations.is_empty() {
-                return Ok(message.to_string());
-            }
-            let count = report_violations(check.report.violations.iter());
-            return Err(Error::Lint(count));
+    /// Lints a commit message without formatting it.
+    pub fn lint_commit_message(&self, input: &str) -> Result<()> {
+        let (_, check) = self.check_message(input);
+        if check.report.violations.is_empty() {
+            return Ok(());
         }
+        let count = report_violations(check.report.violations.iter());
+        Err(Error::Lint(count))
+    }
+
+    /// Formats a commit message.
+    pub fn format_commit_message(&self, input: &str) -> Result<String> {
+        let (mut message, check) = self.check_message(input);
 
         let mut unfixable_count: usize = 0;
         let message_ptr = &mut message;
@@ -132,11 +142,16 @@ impl Commitfmt {
             return Err(Error::Unfixable(unfixable_count));
         }
 
+        let footers = self.settings.footers.borrow();
+        if footers.is_empty() {
+            return Ok(message.to_string());
+        }
+
         let Some(branch) = self.repo.get_branch_name() else {
             return Ok(message.to_string());
         };
 
-        append_footers(&self.settings.footers.borrow(), &mut message, &branch)?;
+        append_footers(&footers, &mut message, &branch)?;
 
         Ok(message.to_string())
     }

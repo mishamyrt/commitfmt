@@ -12,15 +12,14 @@ license = { workspace = true }
 build = "build.rs"
 
 [dependencies]
-regex = { workspace = true }
 thiserror = { workspace = true }
-tempfile = { workspace = true }
 nom = { workspace = true }
 serde = { workspace = true }
 serde_derive = { workspace = true }
 memchr = { workspace = true }
 
 [dev-dependencies]
+tempfile = { workspace = true }
 serde_derive = { workspace = true }
 toml = { workspace = true }
 build-deps = { workspace = true }

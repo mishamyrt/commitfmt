@@ -1,4 +1,7 @@
-use std::{path::Path, time::Duration};
+use std::{
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 use commitfmt_benchmark::criterion::{criterion_group, criterion_main, Criterion, Throughput};
 use commitfmt_git::testing::TestBed;
@@ -86,7 +89,7 @@ fn comparison_benchmark(c: &mut Criterion) {
     ];
 
     let mut group = c.benchmark_group("Linting");
-    group.throughput(Throughput::Elements(commits.len() as u64));
+    group.throughput(Throughput::Elements(10));
 
     let commitfmt_bed = TestBed::with_history(&commits).expect("Failed to create test bed");
     let commitfmt_path = commitfmt_bed.path().join(".commitfmt.toml");
@@ -101,7 +104,15 @@ fn comparison_benchmark(c: &mut Criterion) {
         .parent()
         .and_then(|p| p.parent())
         .expect("Failed to find workspace root from manifest dir");
-    let bin_path = workspace_root.join("target/release/commitfmt");
+    let target_dir = std::env::var_os("CARGO_TARGET_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| workspace_root.join("target"));
+    let bin_path =
+        target_dir.join("dist").join(format!("commitfmt{}", std::env::consts::EXE_SUFFIX));
+    assert!(
+        bin_path.is_file(),
+        "commitfmt dist binary not found; run `cargo build --profile dist -p commitfmt`"
+    );
 
     group.bench_function("commitfmt", |b| {
         b.iter(|| run_commitfmt(&commitfmt_bed.path(), &bin_path));

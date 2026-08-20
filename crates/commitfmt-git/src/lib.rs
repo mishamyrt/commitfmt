@@ -5,9 +5,10 @@ mod commit;
 mod head;
 mod path;
 mod repository;
+#[cfg(any(test, feature = "testing"))]
 pub mod testing;
 
-pub use commit::Commit;
+pub use commit::{Commit, CommitLog};
 pub use repository::{Repository, RepositoryConfig};
 
 #[derive(Error, Debug)]
@@ -23,6 +24,9 @@ pub enum GitError {
 
     #[error("IO error: {0}")]
     IOError(#[from] std::io::Error),
+
+    #[error("Invalid git output: {0}")]
+    InvalidOutput(String),
 }
 
 type GitResult<T> = std::result::Result<T, GitError>;

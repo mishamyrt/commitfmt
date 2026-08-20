@@ -11,7 +11,13 @@ pub(crate) fn run_git(args: &[&str], dir: &Path) -> GitResult<String> {
             String::from_utf8_lossy(&output.stderr).to_string(),
         ));
     }
-    Ok(String::from_utf8_lossy(&output.stdout).trim_end().to_string())
+    match String::from_utf8(output.stdout) {
+        Ok(mut stdout) => {
+            stdout.truncate(stdout.trim_end().len());
+            Ok(stdout)
+        }
+        Err(err) => Ok(String::from_utf8_lossy(err.as_bytes()).trim_end().to_string()),
+    }
 }
 
 #[cfg(test)]

@@ -14,7 +14,7 @@ body
     let test_bed = TestBed::empty().unwrap();
     let app = Commitfmt::from_path(&test_bed.path()).unwrap();
 
-    let result = app.format_commit_message(input, false);
+    let result = app.format_commit_message(input);
 
     assert!(result.is_ok());
 

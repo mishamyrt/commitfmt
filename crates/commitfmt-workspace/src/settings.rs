@@ -1,6 +1,6 @@
 use std::{cell::RefCell, path::Path};
 
-use regex::Regex;
+use regex_lite::Regex;
 use toml::Table;
 
 use commitfmt_cc::footer::SeparatorAlignment;
@@ -233,6 +233,22 @@ mod tests {
             footer.value.segments_iter().next().unwrap(),
             &Segment::Command("echo $USER".to_string())
         );
+    }
+
+    #[test]
+    fn test_additional_footer_branch_pattern() {
+        let config = AdditionalFooterConfig {
+            key: "Ticket-ID".to_string(),
+            on_conflict: None,
+            value: "${{ TICKET_ID }}".to_string(),
+            branch_pattern: Some("(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)".to_string()),
+            separator: None,
+            alignment: None,
+        };
+
+        let footer = AdditionalFooter::from_config(config).unwrap();
+        let captures = footer.branch_pattern.unwrap().captures("feature/ABC-123").unwrap();
+        assert_eq!(&captures["TICKET_ID"], "ABC-123");
     }
 
     #[test]
