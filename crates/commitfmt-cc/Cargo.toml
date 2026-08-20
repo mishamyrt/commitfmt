@@ -12,23 +12,19 @@ license = { workspace = true }
 build = "build.rs"
 
 [dependencies]
-thiserror = { workspace = true }
+memchr = { workspace = true }
 nom = { workspace = true }
 serde = { workspace = true }
 serde_derive = { workspace = true }
-memchr = { workspace = true }
-
-[dev-dependencies]
-tempfile = { workspace = true }
-serde_derive = { workspace = true }
-toml = { workspace = true }
-build-deps = { workspace = true }
 thiserror = { workspace = true }
 
-[dev-dependencies.test-generator]
-# This fork of test-generator adds support for cargo workspaces, see
-# also https://github.com/frehberg/test-generator/pull/14
-workspace = true
+[dev-dependencies]
+build-deps = { workspace = true }
+serde_derive = { workspace = true }
+tempfile = { workspace = true }
+test-generator = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true }
 
 [lints]
 workspace = true

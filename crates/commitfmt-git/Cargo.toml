@@ -11,9 +11,9 @@ repository = { workspace = true }
 license = { workspace = true }
 
 [dependencies]
-thiserror = { workspace = true }
+strum = { workspace = true, features = ["derive", "strum_macros"] }
 tempfile = { workspace = true, optional = true }
-strum = { version = "0.27.2", features = ["derive", "strum_macros"] }
+thiserror = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
