@@ -1,7 +1,40 @@
-use commitfmt::testing::pipe_from_string;
+use commitfmt::{testing::pipe_from_string, Commitfmt, Error};
 use commitfmt_git::testing::TestBed;
 use insta::assert_snapshot;
 use std::process::Command;
+
+#[test]
+fn test_lint_commit_message_api() {
+    let test_bed = TestBed::empty().unwrap();
+    std::fs::write(
+        test_bed.path().join(".commitfmt.toml"),
+        r#"
+[lint.header]
+type-required = true
+scope-required = true
+"#,
+    )
+    .unwrap();
+    let app = Commitfmt::from_path(&test_bed.path()).unwrap();
+
+    assert!(app.lint_commit_message("feat(core): description").is_ok());
+    assert!(matches!(app.lint_commit_message("description"), Err(Error::Lint(2))));
+}
+
+#[test]
+fn test_cli_lint_valid_message_has_no_output() {
+    let test_bed = TestBed::empty().unwrap();
+    let exe = env!("CARGO_BIN_EXE_commitfmt");
+
+    let mut cmd = Command::new(exe);
+    cmd.arg("--lint");
+    cmd.stdin(pipe_from_string("feat(core): description"));
+    cmd.current_dir(test_bed.path());
+
+    let output = cmd.output().unwrap();
+    assert!(output.status.success());
+    assert!(output.stdout.is_empty());
+}
 
 #[test]
 fn test_cli_lint_configured() {

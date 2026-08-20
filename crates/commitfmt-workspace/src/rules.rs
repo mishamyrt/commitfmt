@@ -141,3 +141,115 @@ impl<'a> RuleSettingsReader<'a> {
         Ok(true)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use commitfmt_linter::{
+        case::{IdentifierCase, TextCase},
+        rules::Rule,
+    };
+
+    use crate::{CommitSettings, Error};
+
+    #[test]
+    fn test_parse_all_rule_setting_types() {
+        let settings = CommitSettings::from_toml(
+            r#"
+[lint.header]
+description-case = "upper-first"
+description-full-stop = false
+description-max-length = 72
+description-min-length = 3
+max-length = 80
+min-length = 5
+scope-case = "kebab"
+scope-enum = ["api", "core"]
+scope-max-length = 12
+scope-min-length = 2
+scope-required = true
+type-case = "lower"
+type-enum = ["feat", "fix"]
+type-max-length = 6
+type-min-length = 3
+type-required = true
+
+[lint.body]
+case = "upper-first"
+full-stop = true
+max-length = 500
+max-line-length = 100
+min-length = 5
+
+[lint.footer]
+breaking-exclamation = false
+exists = ["Issue-ID"]
+key-case = "capitalized-kebab"
+max-length = 200
+max-line-length = 120
+min-length = 3
+"#,
+        )
+        .unwrap();
+        let rules = &settings.rules;
+
+        assert_eq!(rules.settings.header.description_case, TextCase::UpperFirst);
+        assert_eq!(rules.settings.header.description_max_length, 72);
+        assert_eq!(rules.settings.header.description_min_length, 3);
+        assert_eq!(rules.settings.header.max_length, 80);
+        assert_eq!(rules.settings.header.min_length, 5);
+        assert_eq!(rules.settings.header.scope_case, IdentifierCase::Kebab);
+        assert_eq!(
+            rules.settings.header.scope_enum,
+            [Box::<str>::from("api"), Box::<str>::from("core")]
+        );
+        assert_eq!(rules.settings.header.scope_max_length, 12);
+        assert_eq!(rules.settings.header.scope_min_length, 2);
+        assert_eq!(rules.settings.header.type_case, IdentifierCase::Lower);
+        assert_eq!(
+            rules.settings.header.type_enum,
+            [Box::<str>::from("feat"), Box::<str>::from("fix")]
+        );
+        assert_eq!(rules.settings.header.type_max_length, 6);
+        assert_eq!(rules.settings.header.type_min_length, 3);
+
+        assert_eq!(rules.settings.body.case, TextCase::UpperFirst);
+        assert_eq!(rules.settings.body.max_length, 500);
+        assert_eq!(rules.settings.body.max_line_length, 100);
+        assert_eq!(rules.settings.body.min_length, 5);
+
+        assert_eq!(rules.settings.footer.required, [Box::<str>::from("Issue-ID")]);
+        assert_eq!(rules.settings.footer.key_case, IdentifierCase::CapitalizedKebab);
+        assert_eq!(rules.settings.footer.max_length, 200);
+        assert_eq!(rules.settings.footer.max_line_length, 120);
+        assert_eq!(rules.settings.footer.min_length, 3);
+
+        assert!(rules.set.contains(Rule::HeaderScopeRequired));
+        assert!(rules.set.contains(Rule::HeaderTypeRequired));
+        assert!(rules.set.contains(Rule::BodyFullStop));
+        assert!(!rules.set.contains(Rule::HeaderDescriptionFullStop));
+        assert!(!rules.set.contains(Rule::FooterBreakingExclamation));
+    }
+
+    #[test]
+    fn test_reject_invalid_rule_setting_values() {
+        let wrong_bool = CommitSettings::from_toml("[lint.header]\ntype-required = 1");
+        assert!(
+            matches!(wrong_bool, Err(Error::UnexpectedFieldType(_, expected)) if expected == "bool")
+        );
+
+        let negative_length = CommitSettings::from_toml("[lint.header]\nmax-length = -1");
+        assert!(matches!(negative_length, Err(Error::ParseError(_))));
+
+        let invalid_identifier_case =
+            CommitSettings::from_toml("[lint.header]\ntype-case = \"sentence\"");
+        assert!(matches!(invalid_identifier_case, Err(Error::InvalidWordCase(_))));
+
+        let invalid_text_case =
+            CommitSettings::from_toml("[lint.body]\ncase = \"capitalized-kebab\"");
+        assert!(matches!(invalid_text_case, Err(Error::InvalidTextCase(_))));
+
+        let invalid_array_item =
+            CommitSettings::from_toml("[lint.footer]\nexists = [\"Issue-ID\", 42]");
+        assert!(matches!(invalid_array_item, Err(Error::UnexpectedValueType(_))));
+    }
+}

@@ -35,6 +35,18 @@ harness = false
 name = "formatter"
 harness = false
 
+[[bench]]
+name = "settings"
+harness = false
+
+[[bench]]
+name = "branch_pattern"
+harness = false
+
+[[bench]]
+name = "git_range"
+harness = false
+
 [lints]
 workspace = true
 

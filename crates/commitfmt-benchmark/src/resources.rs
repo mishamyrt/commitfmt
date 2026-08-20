@@ -33,3 +33,32 @@ pub fn read_cc_files() -> io::Result<Vec<TestCase>> {
     }
     Ok(files)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::read_cc_files;
+
+    #[test]
+    fn test_read_cc_files_returns_sorted_named_cases() {
+        let cases = read_cc_files().unwrap();
+        let names: Vec<_> = cases.iter().map(|case| case.name.as_str()).collect();
+
+        assert_eq!(
+            names,
+            [
+                "basic",
+                "body_and_footers",
+                "comments_leading",
+                "comments_trailing",
+                "comments_xl",
+                "footer",
+                "footer_multiline",
+                "multi_paragraph_body",
+                "multiline_body",
+                "scope",
+                "short_body",
+            ]
+        );
+        assert!(cases.iter().all(|case| !case.message.is_empty()));
+    }
+}
