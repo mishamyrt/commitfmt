@@ -1,6 +1,7 @@
 /target
 .DS_Store
 .vscode
+.build
 
 .cursor/rules/
 
@@ -23,4 +24,3 @@ packaging/pypi/commitfmt_*/commitfmt_*/commitfmt_*
 packaging/pypi/**/build/
 packaging/pypi/**/dist/
 packaging/pypi/commitfmt_*/README.md
-
