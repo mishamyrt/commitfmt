@@ -1,4 +1,6 @@
 VERSION = 1.2.0
+COMPARISON_BENCHMARK_DIR = crates/commitfmt-benchmark/comparison
+COMMITLINT_BIN = $(COMPARISON_BENCHMARK_DIR)/node_modules/.bin/commitlint
 
 .PHONY: setup
 setup:
@@ -41,6 +43,14 @@ build:
 .PHONY: release
 release:
 	cargo build --release
+
+$(COMMITLINT_BIN): $(COMPARISON_BENCHMARK_DIR)/package.json $(COMPARISON_BENCHMARK_DIR)/package-lock.json
+	npm --prefix "$(COMPARISON_BENCHMARK_DIR)" ci
+
+.PHONY: benchmark-comparison
+benchmark-comparison: $(COMMITLINT_BIN)
+	cargo build --profile dist -p commitfmt
+	cargo bench -p commitfmt-benchmark --bench comparison --features comparison-benchmark
 
 .PHONY: format
 format:

@@ -1,0 +1,8 @@
+{
+  "name": "commitfmt-comparison-benchmark",
+  "private": true,
+  "description": "Pinned Node.js dependency for the commitfmt comparison benchmark",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.2"
+  }
+}
