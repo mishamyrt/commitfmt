@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/mishamyrt/commitfmt/compare/v1.1.0..v1.2.0) - 2026-08-20
+
+### ⚡ Performance
+
+- Minify, optimize
+
 ## [1.1.0](https://github.com/mishamyrt/commitfmt/compare/v1.0.10..v1.1.0) - 2026-07-21
 
 ### 🚀 Features
