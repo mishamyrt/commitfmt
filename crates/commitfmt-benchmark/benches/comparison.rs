@@ -99,14 +99,17 @@ fn comparison_benchmark(c: &mut Criterion) {
         "local commitlint binary not found; run `make benchmark-comparison`"
     );
 
+    let commitfmt_hook_args = ["--lint"];
     let commitlint_hook_args = ["--edit", ".git/COMMIT_EDITMSG"];
-    run_linter("commitfmt", &test_bed_path, &bin_path, &[]);
+    run_linter("commitfmt", &test_bed_path, &bin_path, &commitfmt_hook_args);
     run_linter("commitlint", &test_bed_path, &commitlint_bin_path, &commitlint_hook_args);
 
     let mut hook_group = c.benchmark_group("Linting/1_commit_hook");
     hook_group.throughput(Throughput::Elements(1));
     hook_group.bench_function("commitfmt", |b| {
-        b.iter(|| run_linter("commitfmt", &test_bed_path, &bin_path, &[]));
+        b.iter(|| {
+            run_linter("commitfmt", &test_bed_path, &bin_path, &commitfmt_hook_args);
+        });
     });
     hook_group.bench_function("commitlint", |b| {
         b.iter(|| {

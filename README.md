@@ -62,7 +62,7 @@ exists = ["Issue-ID", "Authored-By"]
 
 ### Performance
 
-commitfmt is very fast because its code is written in Rust with memory consumption and performance in mind. It's about 18x faster than commitlint.
+commitfmt is very fast because its code is written in Rust with memory consumption and performance in mind. It's about 18—21x faster than commitlint.
 
 It natively supports following platforms:
 
