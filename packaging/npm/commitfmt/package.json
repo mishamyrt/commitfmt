@@ -26,10 +26,6 @@
     "commitfmt-darwin-x64": "1.2.0",
     "commitfmt-linux-arm64": "1.2.0",
     "commitfmt-linux-x64": "1.2.0",
-    "commitfmt-freebsd-arm64": "1.2.0",
-    "commitfmt-freebsd-x64": "1.2.0",
-    "commitfmt-openbsd-arm64": "1.2.0",
-    "commitfmt-openbsd-x64": "1.2.0",
     "commitfmt-windows-arm64": "1.2.0",
     "commitfmt-windows-x64": "1.2.0"
   }
