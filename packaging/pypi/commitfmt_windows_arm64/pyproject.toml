@@ -1,5 +1,5 @@
 [project]
-name = "commitfmt_darwin"
+name = "commitfmt-windows-arm64"
 authors = [
     {name = "Mikhael Khrustik", email = "misha@myrt.co"},
 ]
@@ -19,8 +19,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
 ]
 
 [tool.setuptools.package-data]
-"*" = ["commitfmt_*"]
+commitfmt_windows_arm64 = ["commitfmt.exe"]

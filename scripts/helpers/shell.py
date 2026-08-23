@@ -4,7 +4,7 @@ import subprocess
 class ShellError(subprocess.CalledProcessError):
     """Shell error raised when shell command fails"""
 
-def shell(command: str, cwd: str = None) -> str:
+def shell(command: str, cwd: str = None, env=None) -> str:
     """Run a shell command and return output"""
     try:
         process = subprocess.run(
@@ -13,7 +13,8 @@ def shell(command: str, cwd: str = None) -> str:
             check=True,
             capture_output=True,
             text=True,
-            cwd=cwd)
+            cwd=cwd,
+            env=env)
     except subprocess.CalledProcessError as exc:
         print(exc.output)
         raise ShellError(

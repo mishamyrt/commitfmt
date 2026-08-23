@@ -41,12 +41,16 @@ def set_pypi_version(version: str):
         if package_dir.name.startswith("."):
             continue
         manifest_path = package_dir / "pyproject.toml"
+        if not manifest_path.is_file():
+            continue
         with manifest_path.open("r", encoding="utf-8") as file:
             pyproject_toml = file.read()
         pyproject_toml = re.sub(TOML_VERSION_RE, f"version = \"{version}\"", pyproject_toml)
         if package_dir.name == "commitfmt":
             pyproject_toml = re.sub(
-                r"(commitfmt-\w+)==[^;\"']+", rf"\1=={version}", pyproject_toml
+                r"(commitfmt-[A-Za-z0-9._-]+)==[^;\"']+",
+                rf"\1=={version}",
+                pyproject_toml,
             )
         with manifest_path.open("w", encoding="utf-8") as file:
             file.write(pyproject_toml)

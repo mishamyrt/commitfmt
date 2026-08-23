@@ -1,5 +1,5 @@
 [project]
-name = "commitfmt_linux"
+name = "commitfmt-darwin-x64"
 authors = [
     {name = "Mikhael Khrustik", email = "misha@myrt.co"},
 ]
@@ -19,5 +19,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
 ]
+
+[tool.setuptools.package-data]
+commitfmt_darwin_x64 = ["commitfmt"]
