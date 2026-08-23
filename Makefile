@@ -51,8 +51,8 @@ benchmark-comparison: $(COMMITLINT_BIN)
 
 .PHONY: format
 format:
-	cargo fmt
+	cargo fmt --all
 
 .PHONY: lint
 lint:
-	cargo clippy --all
+	cargo clippy --workspace --all-targets --all-features
