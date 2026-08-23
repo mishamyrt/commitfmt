@@ -60,7 +60,7 @@ pub(crate) fn breaking_exclamation(report: &mut Report, message: &Message) {
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
+    use commitfmt_cc::{Header, SeparatorAlignment, footer_vec};
 
     use super::*;
 

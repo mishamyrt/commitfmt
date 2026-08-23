@@ -1,4 +1,4 @@
-use crate::{rules, RuleSet};
+use crate::{RuleSet, rules};
 
 #[derive(Debug, Default, PartialEq)]
 pub struct Params {

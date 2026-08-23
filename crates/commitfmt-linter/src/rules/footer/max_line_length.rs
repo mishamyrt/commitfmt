@@ -1,5 +1,5 @@
 use crate::report::Report;
-use crate::rules::{longer_than_chars, LinterGroup};
+use crate::rules::{LinterGroup, longer_than_chars};
 use crate::violation::{Violation, ViolationMetadata};
 use commitfmt_cc::Message;
 use commitfmt_macros::ViolationMetadata;
@@ -64,7 +64,7 @@ pub(crate) fn max_line_length(report: &mut Report, message: &Message, length: us
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
+    use commitfmt_cc::{Header, SeparatorAlignment, footer_vec};
 
     use super::*;
 

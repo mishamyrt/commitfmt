@@ -57,7 +57,7 @@ pub(crate) fn key_case(report: &mut Report, message: &Message, case: IdentifierC
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
+    use commitfmt_cc::{Header, SeparatorAlignment, footer_vec};
 
     use super::*;
 

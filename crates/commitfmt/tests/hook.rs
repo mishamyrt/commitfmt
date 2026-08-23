@@ -7,13 +7,7 @@ use std::{fs::Permissions, os::unix::fs::PermissionsExt};
 fn write_hook(test_bed: &TestBed) {
     let exe: &str = env!("CARGO_BIN_EXE_commitfmt");
     let hook_path = test_bed.path().join(".git/hooks/prepare-commit-msg");
-    let exe_path = {
-        if cfg!(windows) {
-            exe.replace('\\', "/")
-        } else {
-            exe.to_string()
-        }
-    };
+    let exe_path = { if cfg!(windows) { exe.replace('\\', "/") } else { exe.to_string() } };
 
     std::fs::write(&hook_path, format!("#!/bin/sh\n\n{exe_path}")).unwrap();
 

@@ -1,10 +1,10 @@
 use memchr::memmem;
 use thiserror::Error;
 
-use crate::body::{parse_body, DEFAULT_COMMENT_SYMBOL};
+use crate::Footer;
+use crate::body::{DEFAULT_COMMENT_SYMBOL, parse_body};
 use crate::footer::Footers;
 use crate::header::Header;
-use crate::Footer;
 
 #[derive(Debug, Error)]
 pub enum ParseError {

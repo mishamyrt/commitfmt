@@ -31,11 +31,7 @@ macro_rules! print_warning {
 }
 
 pub(crate) fn pluralize(count: usize, singular: &str, plural: &str) -> String {
-    if count == 1 {
-        singular.to_string()
-    } else {
-        plural.to_string()
-    }
+    if count == 1 { singular.to_string() } else { plural.to_string() }
 }
 
 pub fn setup_logger(verbose: bool, no_color: bool) {

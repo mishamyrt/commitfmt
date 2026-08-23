@@ -1,5 +1,5 @@
 use codspeed_criterion_compat::BenchmarkId;
-use commitfmt_benchmark::criterion::{criterion_group, criterion_main, Criterion, Throughput};
+use commitfmt_benchmark::criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use commitfmt_workspace::CommitSettings;
 
 const CONFIG: &str = r#"

@@ -6,9 +6,9 @@ mod type_required;
 
 #[allow(unused)]
 pub(crate) use {
-    type_case::{type_case, TypeCase},
-    type_enum::{type_enum, TypeEnum},
-    type_max_length::{type_max_length, TypeMaxLength},
-    type_min_length::{type_min_length, TypeMinLength},
-    type_required::{type_required, TypeRequired},
+    type_case::{TypeCase, type_case},
+    type_enum::{TypeEnum, type_enum},
+    type_max_length::{TypeMaxLength, type_max_length},
+    type_min_length::{TypeMinLength, type_min_length},
+    type_required::{TypeRequired, type_required},
 };

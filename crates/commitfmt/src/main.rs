@@ -8,7 +8,7 @@ use std::{
 
 use commitfmt::ignore::is_ignored_message;
 use commitfmt::{
-    print_debug, print_error, print_info, print_warning, setup_logger, Commitfmt,
+    Commitfmt, print_debug, print_error, print_info, print_warning, setup_logger,
 };
 use commitfmt_git::Repository;
 

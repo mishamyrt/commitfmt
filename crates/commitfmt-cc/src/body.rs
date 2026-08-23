@@ -52,7 +52,7 @@ fn parse_footer_candidate(
 #[allow(clippy::cast_sign_loss)]
 unsafe fn line_offset(input: &str, line: &str) -> usize {
     let ptr = line.as_ptr();
-    let offset = ptr.offset_from(input.as_ptr());
+    let offset = unsafe { ptr.offset_from(input.as_ptr()) };
 
     offset as usize
 }

@@ -1,6 +1,6 @@
 use std::process::{Command, Stdio};
 
-use commitfmt::{testing::pipe_from_string, Commitfmt, Error};
+use commitfmt::{Commitfmt, Error, testing::pipe_from_string};
 use commitfmt_git::testing::TestBed;
 
 fn app_with_config(config: &str) -> (TestBed, Commitfmt) {

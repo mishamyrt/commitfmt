@@ -7,7 +7,7 @@ pub use settings::AdditionalFooter;
 use commitfmt_linter::rules::LinterGroup;
 use thiserror::Error;
 
-pub use settings::{open_settings, CommitSettings, OnConflictAction};
+pub use settings::{CommitSettings, OnConflictAction, open_settings};
 
 #[derive(Error, Debug)]
 pub enum Error {

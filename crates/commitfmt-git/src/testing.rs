@@ -2,9 +2,9 @@ use std::path::PathBuf;
 
 use tempfile::TempDir;
 
+use crate::GitResult;
 use crate::command::run_git;
 use crate::repository::Repository;
-use crate::GitResult;
 
 pub const COMMIT_HISTORY: &[&str] = &[
     "chore: initial commit",

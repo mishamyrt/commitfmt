@@ -4,7 +4,7 @@ use commitfmt_cc::SeparatorAlignment;
 use commitfmt_git::testing::TestBed;
 use std::collections::HashMap;
 
-use commitfmt_benchmark::criterion::{criterion_group, criterion_main, Criterion, Throughput};
+use commitfmt_benchmark::criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use commitfmt_benchmark::read_cc_files;
 
 /// Test case for formatter benchmarks
@@ -102,11 +102,7 @@ static FORMAT_CASES: &[FormatCase] = &[
         input: "feat  (  test   ): test\nbody\n\nfooter-key: value",
         lint_only: false,
     },
-    FormatCase {
-        name: "lint_only_valid",
-        input: "feat(test): test\nbody",
-        lint_only: true,
-    },
+    FormatCase { name: "lint_only_valid", input: "feat(test): test\nbody", lint_only: true },
     FormatCase {
         name: "lint_only_invalid",
         input: "feat  (  test   ): test",
@@ -316,7 +312,10 @@ value = "${{ BUILD_ID }}"
     static TEST_INPUTS: &[(&str, &str)] = &[
         ("simple", "feat(test): add feature\n\nbody text"),
         ("with_existing_footers", "feat(test): add feature\n\nbody text\n\nExisting: value"),
-        ("complex", "feat(scope): add complex feature\n\nDetailed description\nwith multiple lines\n\nBreaking-Change: something"),
+        (
+            "complex",
+            "feat(scope): add complex feature\n\nDetailed description\nwith multiple lines\n\nBreaking-Change: something",
+        ),
     ];
 
     let setup = BenchmarkSetup::new().unwrap();

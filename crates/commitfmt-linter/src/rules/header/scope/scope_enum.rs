@@ -48,7 +48,7 @@ pub(crate) fn scope_enum(report: &mut Report, message: &Message, allowed: &[Box<
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header};
+    use commitfmt_cc::{Header, footer_vec};
 
     use super::*;
 

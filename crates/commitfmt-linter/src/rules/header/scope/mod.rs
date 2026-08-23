@@ -6,9 +6,9 @@ mod scope_required;
 
 #[allow(unused)]
 pub(crate) use {
-    scope_case::{scope_case, ScopeCase},
-    scope_enum::{scope_enum, ScopeEnum},
-    scope_max_length::{scope_max_length, ScopeMaxLength},
-    scope_min_length::{scope_min_length, ScopeMinLength},
-    scope_required::{scope_required, ScopeRequired},
+    scope_case::{ScopeCase, scope_case},
+    scope_enum::{ScopeEnum, scope_enum},
+    scope_max_length::{ScopeMaxLength, scope_max_length},
+    scope_min_length::{ScopeMinLength, scope_min_length},
+    scope_required::{ScopeRequired, scope_required},
 };

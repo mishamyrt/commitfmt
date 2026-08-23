@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::parse::{Parse, ParseStream};
 use syn::{
-    parenthesized, spanned::Spanned, Error, Expr, ExprCall, ExprMatch, Ident, ItemFn, LitStr,
-    Pat, Path, Stmt, Token,
+    Error, Expr, ExprCall, ExprMatch, Ident, ItemFn, LitStr, Pat, Path, Stmt, Token,
+    parenthesized, spanned::Spanned,
 };
 
 struct Rule {

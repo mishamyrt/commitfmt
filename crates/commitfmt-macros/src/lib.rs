@@ -2,7 +2,7 @@ mod map_names;
 mod violation_metadata;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, Error, ItemFn};
+use syn::{DeriveInput, Error, ItemFn, parse_macro_input};
 
 use violation_metadata::violation_metadata;
 

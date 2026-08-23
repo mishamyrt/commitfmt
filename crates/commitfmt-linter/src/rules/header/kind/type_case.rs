@@ -50,7 +50,7 @@ pub(crate) fn type_case(report: &mut Report, message: &Message, case: Identifier
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header};
+    use commitfmt_cc::{Header, footer_vec};
 
     use super::*;
 

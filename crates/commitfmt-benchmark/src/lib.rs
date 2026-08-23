@@ -1,4 +1,4 @@
 pub mod criterion;
 mod resources;
 
-pub use resources::{read_cc_files, TestCase};
+pub use resources::{TestCase, read_cc_files};

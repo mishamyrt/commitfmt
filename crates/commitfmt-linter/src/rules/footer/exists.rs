@@ -49,7 +49,7 @@ pub(crate) fn exists(report: &mut Report, message: &Message, required: &Vec<Box<
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header, SeparatorAlignment};
+    use commitfmt_cc::{Header, SeparatorAlignment, footer_vec};
 
     use super::*;
 

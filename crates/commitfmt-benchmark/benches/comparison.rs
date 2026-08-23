@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use commitfmt_benchmark::criterion::{criterion_group, criterion_main, Criterion, Throughput};
+use commitfmt_benchmark::criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use commitfmt_git::testing::TestBed;
 use std::process::{Command, Stdio};
 

@@ -1,8 +1,8 @@
 use nom::{
+    IResult, Parser,
     bytes::complete::take_while1,
     combinator::{all_consuming, recognize},
     sequence::pair,
-    IResult, Parser,
 };
 
 const NAME_ANY: &str = "any";

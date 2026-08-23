@@ -1,5 +1,5 @@
 use codspeed_criterion_compat::{
-    criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
+    BenchmarkId, Criterion, Throughput, criterion_group, criterion_main,
 };
 use commitfmt_cc::Message;
 use commitfmt_linter::Check;

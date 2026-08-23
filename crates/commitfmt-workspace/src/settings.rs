@@ -4,7 +4,7 @@ use regex_lite::Regex;
 use toml::Table;
 
 use commitfmt_cc::footer::SeparatorAlignment;
-use commitfmt_linter::{rules, Rule, RuleSet};
+use commitfmt_linter::{Rule, RuleSet, rules};
 use commitfmt_tpl::Template;
 
 use crate::configuration::{AdditionalFooterConfig, CommitParams};

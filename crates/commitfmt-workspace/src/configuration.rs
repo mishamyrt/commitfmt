@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use commitfmt_cc::footer::SeparatorAlignment;
 use serde_derive::{Deserialize, Serialize};
-use toml::{map::Map, Table, Value};
+use toml::{Table, Value, map::Map};
 
 use crate::{Error, Result};
 

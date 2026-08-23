@@ -49,7 +49,7 @@ pub(crate) fn scope_case(report: &mut Report, message: &Message, case: Identifie
 
 #[cfg(test)]
 mod tests {
-    use commitfmt_cc::{footer_vec, Header};
+    use commitfmt_cc::{Header, footer_vec};
 
     use super::*;
 

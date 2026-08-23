@@ -2,13 +2,13 @@ use std::{collections::HashMap, process::Command};
 
 use crate::{Error, Result};
 use nom::{
+    IResult, Parser,
     branch::alt,
     bytes::complete::{is_not, tag},
     character::complete::multispace0,
     combinator::map,
     error::{Error as NomError, ErrorKind},
     sequence::{delimited, preceded},
-    IResult, Parser,
 };
 
 const TAG_VARIABLE_START: &str = "${{";
@@ -251,12 +251,16 @@ mod tests {
 
     #[test]
     fn test_render_variable_from_env() {
-        std::env::set_var("TEST_VAR", "test_value");
+        unsafe {
+            std::env::set_var("TEST_VAR", "test_value");
+        }
         let template = Template::parse("Value: ${{ TEST_VAR }}").unwrap();
         let vars = HashMap::new();
         let result = template.render(&vars).unwrap();
         assert_eq!(result, "Value: test_value");
-        std::env::remove_var("TEST_VAR");
+        unsafe {
+            std::env::remove_var("TEST_VAR");
+        }
     }
 
     #[test]
@@ -291,13 +295,17 @@ mod tests {
 
     #[test]
     fn test_render_locals_override_env() {
-        std::env::set_var("OVERRIDE_TEST", "env_value");
+        unsafe {
+            std::env::set_var("OVERRIDE_TEST", "env_value");
+        }
         let template = Template::parse("Value: ${{ OVERRIDE_TEST }}").unwrap();
         let mut vars = HashMap::new();
         vars.insert("OVERRIDE_TEST".to_string(), "local_value".to_string());
         let result = template.render(&vars).unwrap();
         assert_eq!(result, "Value: local_value");
-        std::env::remove_var("OVERRIDE_TEST");
+        unsafe {
+            std::env::remove_var("OVERRIDE_TEST");
+        }
     }
 
     #[test]

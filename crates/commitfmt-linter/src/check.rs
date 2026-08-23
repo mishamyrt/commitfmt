@@ -2,7 +2,7 @@ use commitfmt_cc::Message;
 
 use crate::report::Report;
 use crate::rule_set::RuleSet;
-use crate::rules::{body, footer, header, Rule, Settings};
+use crate::rules::{Rule, Settings, body, footer, header};
 
 pub struct Check<'a> {
     pub report: Report,

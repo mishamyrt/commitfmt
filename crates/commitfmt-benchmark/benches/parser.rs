@@ -1,8 +1,8 @@
 use codspeed_criterion_compat::BenchmarkId;
 use commitfmt_cc::Message;
 
-use commitfmt_benchmark::criterion::{criterion_group, criterion_main, Criterion, Throughput};
-use commitfmt_benchmark::{read_cc_files, TestCase};
+use commitfmt_benchmark::criterion::{Criterion, Throughput, criterion_group, criterion_main};
+use commitfmt_benchmark::{TestCase, read_cc_files};
 
 fn create_cc_cases() -> Vec<TestCase> {
     read_cc_files().expect("Failed to read conventional commit files")

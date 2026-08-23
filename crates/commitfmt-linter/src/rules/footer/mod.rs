@@ -10,11 +10,11 @@ mod settings;
 // TODO: add case check
 #[allow(unused)]
 pub(crate) use {
-    breaking_exclamation::{breaking_exclamation, BreakingExclamation},
-    exists::{exists, Exists},
-    key_case::{key_case, KeyCase},
-    max_length::{max_length, MaxLength},
-    max_line_length::{max_line_length, MaxLineLength},
-    min_length::{min_length, MinLength},
+    breaking_exclamation::{BreakingExclamation, breaking_exclamation},
+    exists::{Exists, exists},
+    key_case::{KeyCase, key_case},
+    max_length::{MaxLength, max_length},
+    max_line_length::{MaxLineLength, max_line_length},
+    min_length::{MinLength, min_length},
     settings::Settings,
 };

@@ -8,10 +8,10 @@ mod settings;
 
 #[allow(unused)]
 pub(crate) use {
-    case::{case, Case},
-    full_stop::{full_stop, FullStop},
-    max_length::{max_length, MaxLength},
-    max_line_length::{max_line_length, MaxLineLength},
-    min_length::{min_length, MinLength},
+    case::{Case, case},
+    full_stop::{FullStop, full_stop},
+    max_length::{MaxLength, max_length},
+    max_line_length::{MaxLineLength, max_line_length},
+    min_length::{MinLength, min_length},
     settings::Settings,
 };

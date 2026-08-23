@@ -93,7 +93,7 @@ impl Iterator for CommitLog {
             Ok(None) => {
                 return Some(self.fail(GitError::InvalidOutput(
                     "git log ended before the commit message".to_string(),
-                )))
+                )));
             }
             Err(err) => return Some(self.fail(err)),
         };

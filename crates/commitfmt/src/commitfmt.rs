@@ -6,12 +6,12 @@ use colored::Colorize;
 use commitfmt_cc::{Footer, Message};
 use commitfmt_git::Repository;
 use commitfmt_linter::{Check, FixMode, Rule, Violation};
-use commitfmt_workspace::{open_settings, AdditionalFooter, CommitSettings, OnConflictAction};
+use commitfmt_workspace::{AdditionalFooter, CommitSettings, OnConflictAction, open_settings};
 
 use crate::ignore::is_ignored_message;
 use crate::logging::pluralize;
-use crate::{print_error, print_info};
 use crate::{CommitRange, Error, Result};
+use crate::{print_error, print_info};
 
 /// Commitfmt application.
 pub struct Commitfmt {

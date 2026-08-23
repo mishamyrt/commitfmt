@@ -1,4 +1,4 @@
-use commitfmt::{testing::pipe_from_string, Commitfmt, Error};
+use commitfmt::{Commitfmt, Error, testing::pipe_from_string};
 use commitfmt_git::testing::TestBed;
 use insta::assert_snapshot;
 use std::process::Command;
