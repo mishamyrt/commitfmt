@@ -3,8 +3,8 @@ members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
-edition = "2021"
-rust-version = "1.87"
+edition = "2024"
+rust-version = "1.98"
 homepage = "https://github.com/mishamyrt/commitfmt"
 documentation = "https://github.com/mishamyrt/commitfmt"
 repository = "https://github.com/mishamyrt/commitfmt"
