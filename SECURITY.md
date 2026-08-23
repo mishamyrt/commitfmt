@@ -1,6 +1,6 @@
 # Security Policy
 
-Thank you for helping keep the perplexity-web-api-mcp secure.
+Thank you for helping keep commitfmt secure.
 
 ## Reporting Security Issues
 
