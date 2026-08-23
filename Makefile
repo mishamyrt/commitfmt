@@ -56,3 +56,7 @@ format:
 .PHONY: lint
 lint:
 	cargo clippy --workspace --all-targets --all-features
+
+.PHONY: rules-docs
+rules-docs:
+	cargo run -p commitfmt-linter --example generate-rules-docs

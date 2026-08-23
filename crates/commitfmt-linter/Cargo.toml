@@ -16,11 +16,13 @@ commitfmt-cc = { workspace = true }
 commitfmt-macros = { workspace = true }
 nom = { workspace = true }
 
-[build-dependencies]
+[dev-dependencies]
 syn = { workspace = true, features = ["full", "parsing", "extra-traits"] }
-quote = { workspace = true }
-proc-macro2 = { workspace = true }
 walkdir = { workspace = true }
+
+[[example]]
+name = "generate-rules-docs"
+path = "tools/generate_rules_docs.rs"
 
 [lints]
 workspace = true

@@ -19,3 +19,5 @@ The following applications from `cargo` are required for the developer's environ
 7. Run the tests again
 8. Push your changes to your fork
 9. Create a pull request
+
+If you change a linter rule, regenerate its documentation with `make rules-docs`.

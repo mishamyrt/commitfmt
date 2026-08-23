@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
-use std::env;
 use std::fmt::Write;
 use std::fs::{self, create_dir_all};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use syn::{File, Item};
 use walkdir::WalkDir;
 
@@ -15,18 +14,14 @@ struct RuleInfo {
 }
 
 fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=src/rules");
-
-    println!("cargo:warning=Building rules documentation...");
-
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let rules_dir = Path::new(&manifest_dir).join("src").join("rules");
-    let docs_dir = Path::new(&manifest_dir).join("docs");
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let rules_dir = manifest_dir.join("src").join("rules");
+    let docs_dir = manifest_dir.join("docs");
 
     // Create a map to store rules by group
     let mut rules_by_group: HashMap<String, Vec<RuleInfo>> = HashMap::new();
     let mut processed_files = HashSet::new();
+    let mut generated_files = HashSet::new();
 
     for entry in WalkDir::new(&rules_dir)
         .into_iter()
@@ -42,12 +37,13 @@ fn main() {
                     &docs_dir,
                     &mut rules_by_group,
                     &mut processed_files,
+                    &mut generated_files,
                 );
             }
         }
     }
 
-    // Generate index file
+    remove_stale_rule_docs(&docs_dir, &generated_files);
     generate_index_file(&docs_dir, &rules_by_group);
 }
 
@@ -57,6 +53,7 @@ fn process_file(
     docs_dir: &Path,
     rules_by_group: &mut HashMap<String, Vec<RuleInfo>>,
     processed_files: &mut HashSet<String>,
+    generated_files: &mut HashSet<PathBuf>,
 ) {
     let content = fs::read_to_string(file_path).unwrap();
     let syntax: File = syn::parse_file(&content).unwrap();
@@ -190,6 +187,7 @@ fn process_file(
                 );
 
                 fs::write(&md_path, md_content).unwrap();
+                generated_files.insert(md_path);
 
                 rules_by_group.entry(group.clone()).or_default().push(RuleInfo {
                     rule_name,
@@ -198,6 +196,23 @@ fn process_file(
                     fix_mode,
                 });
             }
+        }
+    }
+}
+
+fn remove_stale_rule_docs(docs_dir: &Path, generated_files: &HashSet<PathBuf>) {
+    for entry in WalkDir::new(docs_dir)
+        .min_depth(2)
+        .max_depth(2)
+        .into_iter()
+        .filter_map(Result::ok)
+        .filter(|entry| entry.file_type().is_file())
+    {
+        let path = entry.path();
+        if path.extension().is_some_and(|extension| extension == "md")
+            && !generated_files.contains(path)
+        {
+            fs::remove_file(path).unwrap();
         }
     }
 }
