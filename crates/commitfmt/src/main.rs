@@ -23,7 +23,7 @@ enum InputSource {
     None,
 }
 
-/// Utility to add ticket id to commit message
+/// Utility for formatting and verifying commit messages.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
