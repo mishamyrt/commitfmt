@@ -18,9 +18,3 @@ OUT_BINARIES = {
     ("windows", "arm64"): DIST_DIR / "commitfmt-aarch64-pc-windows-msvc" / WIN_BIN_NAME,
     ("windows", "x64"): DIST_DIR / "commitfmt-x86_64-pc-windows-msvc" / WIN_BIN_NAME,
 }
-
-#  ("darwin", "x64"): "commitfmt-x86_64-apple-darwin/commitfmt",
-#     ("linux", "arm64"): "commitfmt-aarch64-unknown-linux-gnu/commitfmt",
-#     ("linux", "x64"): "commitfmt-x86_64-unknown-linux-gnu/commitfmt",
-#     ("windows", "arm64"): "commitfmt-aarch64-pc-windows-msvc/commitfmt.exe",
-#     ("windows", "x64"): "commitfmt-x86_64-pc-windows-msvc/commitfmt.exe",
