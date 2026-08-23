@@ -4,10 +4,7 @@ COMMITLINT_BIN = $(COMPARISON_BENCHMARK_DIR)/node_modules/.bin/commitlint
 
 .PHONY: setup
 setup:
-# TODO: remove dependency on Go
-	@go install github.com/evilmartians/lefthook@latest
-
-	lefthook install
+	git config core.hooksPath .hooks
 
 .PHONY: test
 test:
