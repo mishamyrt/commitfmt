@@ -22,6 +22,25 @@ scope-required = true
 }
 
 #[test]
+fn test_lint_uses_config_from_repository_root() {
+    let test_bed = TestBed::empty().unwrap();
+    std::fs::write(
+        test_bed.path().join(".commitfmt.toml"),
+        r#"
+[lint.header]
+type-required = true
+"#,
+    )
+    .unwrap();
+    let nested_path = test_bed.path().join("nested");
+    std::fs::create_dir(&nested_path).unwrap();
+
+    let app = Commitfmt::from_path(&nested_path).unwrap();
+
+    assert!(matches!(app.lint_commit_message("description"), Err(Error::Lint(1))));
+}
+
+#[test]
 fn test_cli_lint_valid_message_has_no_output() {
     let test_bed = TestBed::empty().unwrap();
     let exe = env!("CARGO_BIN_EXE_commitfmt");

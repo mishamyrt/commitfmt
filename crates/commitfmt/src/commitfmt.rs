@@ -28,7 +28,7 @@ impl Commitfmt {
     /// Creates a new Commitfmt application with workspace from the given path.
     pub fn from_path(path: &Path) -> Result<Self> {
         let repo = Repository::open(path)?;
-        let mut settings = open_settings(path)?;
+        let mut settings = open_settings(&repo.get_root())?;
         if settings.comment_symbol.is_none() || settings.footer_separators.is_none() {
             let repo_config = repo.message_config();
             if settings.comment_symbol.is_none() {
