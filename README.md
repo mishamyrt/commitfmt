@@ -19,22 +19,20 @@
   </a>
 </p>
 
-It's not a linter. At least not a complete replacement for [commitlint](https://commitlint.js.org), because commitfmt can't prevent you from writing a body or force you to write a description in uppercase (I don't know why you might want to do that), but it will help keep git history clean and readable.
-
-By design, commitfmt runs on the `prepare-commit-msg` hook and formats the message according to git standards and [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in particular.
+commitfmt is an opinionated formatter and configurable linter for Git commit messages. Designed primarily for use in a Git `prepare-commit-msg` hook, it helps keep commit history clean and readable.
 
 ## Features
 
 ### Formatting
 
-commitfmt by default transforms a message like this:
+By default, commitfmt transforms a message like this:
 
 ```
 feat ( scope     ,    scope  )  : add new feature.
 body description
 ```
 
-into well-formatted message:
+into a well-formatted message:
 
 ```
 feat(scope, scope): add new feature
@@ -44,9 +42,9 @@ body description
 
 ### Linting
 
-commitfmt can check that developers follow the rules set by the project.
+commitfmt can enforce project-specific commit rules.
 
-For example, check that only allowed types and scopes are used. To do this, add the following to the <nobr>[configuration file](#configuration)</nobr>:
+For example, to restrict commit types and scopes, add the following to the [configuration file](#configuration):
 
 ```toml
 [lint.header]
@@ -62,22 +60,24 @@ exists = ["Issue-ID", "Authored-By"]
 
 ### Performance
 
-commitfmt is very fast because its code is written in Rust with memory consumption and performance in mind. It's about 18—21x faster than commitlint.
-
-It natively supports following platforms:
-
-| OS | Architecture |
-| --- | --- |
-| macOS | x86_64, arm64 |
-| Windows | x86_64, i686 |
-| Linux | x86_64, i686, arm64 |
+commitfmt is designed for low-overhead local hooks. The [comparison benchmark](docs/benchmark.md) records mean latency and throughput for commitfmt and commitlint when checking the current commit and a 10-commit history range.
 
 ## Installation
+
+Prebuilt binaries are available for the following platforms and installation methods:
+
+| OS | Installation script | npm or pip |
+| --- | --- | --- |
+| macOS | x64, arm64 | x64, arm64 |
+| Windows | x64, x86, arm64 | x64, arm64 |
+| Linux | x64, x86, arm64 | x64, arm64 |
 
 ### Script
 
 You can use a simple [script](https://github.com/mishamyrt/commitfmt/blob/refs/heads/main/scripts/install.sh) to install commitfmt.
-It will download the latest version of the binary and install it to the system.
+It downloads and installs the latest prebuilt binary.
+
+The installer requires Bash, `curl` or `wget`, and the appropriate archive tools: `tar` on macOS and Linux, with `xz` or `unxz` as a fallback, or `unzip` on Windows. On Windows, run it from Git Bash, MSYS2, or Cygwin. The binary is installed in `/usr/local/bin` when that directory is writable; otherwise, it is installed in `~/.local/bin`.
 
 ```bash
 # Install latest version
@@ -110,9 +110,9 @@ pip install commitfmt
 
 ## Hook
 
-After installing the package, you need to add a hook to the `prepare-commit-msg` event. You can use any hook manager.
+After installing commitfmt, add a Git `prepare-commit-msg` hook. You can configure it manually or use any hook manager.
 
-> **Important:** if you are using a pnpm, yarn or any other package manager, you need to run `pnpm commitfmt`, `yarn commitfmt`, etc. instead of `commitfmt`.
+> **Command used in hooks:** the examples below assume an installation made with the script or pip and use the direct `commitfmt` command. For a local Node.js development dependency, replace it with `pnpm exec commitfmt`, `npm exec -- commitfmt`, or `yarn exec commitfmt`.
 
 ### Script
 
@@ -136,7 +136,7 @@ prepare-commit-msg:
 
 ### [Husky](https://github.com/typicode/husky)
 
-Add to your `.husky` folder `prepare-commit-msg` file with the following content:
+Create `.husky/prepare-commit-msg` with the following content:
 
 ```bash
 #!/bin/sh
@@ -145,29 +145,29 @@ commitfmt
 
 ## Configuration
 
-In commitfmt, you cannot customize basic formatting rules such as extra spaces removal.
-
-It is an opinionated formatter and the author has established best practices that should not harm anyone.
+Core formatting behavior, such as removing extra whitespace, is intentionally not configurable. This keeps formatted commit messages consistent and predictable across a project. Project-specific constraints can be configured using the lint rules below.
 
 ### Linting
 
-Most of the linting rules are disabled by default. Default config contains 2 rules as they can be safely auto-fixed:
+Most linting rules are disabled by default. Two rules are enabled because the formatter can fix them safely:
 
 ```toml
 [lint.header]
-description-full-stop = true
+description-full-stop = true # Remove trailing periods from header descriptions
 
 [lint.footer]
-breaking-exclamation = true
+breaking-exclamation = true # Add ! for BREAKING CHANGE or BREAKING-CHANGE
 ```
 
-To enable more rules, create a `commitfmt.toml` or (`.commitfmt.toml`) file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt-linter/docs/rules.md) file.
+Breaking-change footer keys are case-sensitive. commitfmt recognizes `BREAKING CHANGE` and `BREAKING-CHANGE`; `BREAKING CHANGES` is not supported.
 
-If there is a problem with an enabled rule and it cannot be automatically fixed, the commit process will be aborted.
+To enable more rules, create a `commitfmt.toml` or `.commitfmt.toml` file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt-linter/docs/rules.md) file.
+
+In the default formatting mode, safe fixes are applied automatically. The command fails on violations that cannot be fixed; when used as a hook, this aborts the commit. In `--lint` mode, the message is never modified and any violation causes a non-zero exit code.
 
 #### Unsafe fixes
 
-Some rules may be fixed, but in certain contexts this fix may not be what is desired. For example, adding a full stop to the end of body will be useful in most cases, if there is a log at the end of the message, the period may distort it. You can see which rules have unsafe patches in the same `rules.md` file mentioned above.
+Some rules have fixes that may be undesirable in certain contexts. For example, adding a period to the end of a body may distort an embedded log. Rules with unsafe fixes are marked in the same `rules.md` file.
 
 To enable unsafe fixes, add the following to your config file:
 
@@ -178,13 +178,13 @@ unsafe-fixes = true
 
 ### Extending
 
-You can extend the configuration of the parent project by adding the `extends` key to your config file:
+To reuse another configuration, add `extends` with a path relative to the current configuration file:
 
 ```toml
 extends = "node_modules/commitfmt-config-standard/commitfmt.toml"
 ```
 
-Extension is only possible for the current configuration. If the current configuration extends another configuration, which in turn extends a third configuration, commitfmt will throw an error when trying to load such a configuration.
+Only one inheritance level is supported. If the referenced configuration also contains `extends`, commitfmt returns an error. Values from the current file override inherited values, while its additional footers are appended to the inherited footer list.
 
 ### Parser Configuration
 
@@ -208,7 +208,7 @@ By default, commitfmt uses git's `core.commentChar` or `core.commentString` conf
 comment-symbol = "//"
 ```
 
-Lines starting with the comment symbol will be ignored during parsing.
+Comment lines immediately after the header and at the end of the commit message are ignored during parsing. Comment lines elsewhere are preserved as message content, and the header is always parsed as content.
 
 ### Additional footers
 
@@ -231,10 +231,12 @@ You can use shell commands to dynamically generate footer values:
 ```toml
 [[additional-footers]]
 key = "Authored-By"
-value = "{{ echo $USER }}"
+value = "{{ printf %s \"$USER\" }}"
 ```
 
-Inside the template expression you can use any shell command available in the `PATH`.
+Commands are executed with `sh -c`. The `sh` executable and any external commands must be available through `PATH`; shell built-ins such as `printf` require no separate executable. A non-zero exit code aborts formatting, and trailing line endings are removed from standard output before it is used as the footer value.
+
+> **Security:** shell templates execute arbitrary commands. Use configuration files only from trusted sources.
 
 #### Branch value pattern
 
@@ -243,13 +245,13 @@ You can also add the ticket number from the task tracker to the footer if it is 
 ```toml
 [[additional-footers]]
 key = "Ticket-ID"
-branch-pattern = "(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)"
+branch-pattern = "^(?:[^/]+/)*(?<TICKET_ID>[A-Z][A-Z0-9]*-[0-9]+)(?:/.*)?$"
 value = "${{ TICKET_ID }}"
 ```
 
 For example, if your branch name is `feature/CC-123/add-new-feature` or `feature/CC-123`, the `Ticket-ID` footer will be added to the commit message with the value `CC-123`.
 
-If the ticket number is not found in the branch name, footer will be skipped.
+The named capture is available to the value template as `TICKET_ID`. If the current branch is unavailable or does not match the pattern, the footer is skipped.
 
 Branch patterns use the [regex-lite syntax](https://docs.rs/regex-lite/latest/regex_lite/#syntax).
 Unicode character classes and Unicode-aware case folding are not supported.
@@ -258,34 +260,34 @@ Unicode character classes and Unicode-aware case folding are not supported.
 
 Examples of patterns for branch names in git flow format:
 
-- Jira/YouTrack: `(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)`
+- Jira/YouTrack: `^(?:[^/]+/)*(?<TICKET_ID>[A-Z][A-Z0-9]*-[0-9]+)(?:/.*)?$`
   - `feature/CFMT-123`
   - `feature/CFMT-123/add-new-feature`
-- GitHub: `(?:.*)/(?<ISSUE_ID>[0-9-]+)/?(?:.*)`
+- GitHub: `^(?:[^/]+/)*(?<ISSUE_ID>[0-9]+)(?:/.*)?$`
   - `feature/123`
   - `feature/123/add-new-feature`
 
 #### On conflict
 
-If the footer already exists in the commit message, you can specify what to do with it. By default, the footer will be skipped.
+If the message already contains a footer with the same key, `on-conflict` determines whether commitfmt adds the configured footer. The existing footer is never removed.
 
 ```toml
 [[additional-footers]]
 key = "Ticket-ID"
-branch-pattern = "(?:.*)/(?<TICKET_ID>[A-Z0-9-]+)/?(?:.*)"
+branch-pattern = "^(?:[^/]+/)*(?<TICKET_ID>[A-Z][A-Z0-9]*-[0-9]+)(?:/.*)?$"
 value = "${{ TICKET_ID }}"
-on-conflict = "error" # optional. default: skip. available: skip, append, error
+on-conflict = "error" # optional; default: skip
 ```
 
 Available options:
 
-- `skip` - skip the footer if it already exists
-- `append` - append the footer to the end of the footer list
-- `error` - abort the commit
+- `skip` — keep the existing footer and do not add the configured one (default)
+- `append` — keep the existing footer and add the configured one at the end
+- `error` — return an error without writing the formatted message; when running as a hook, this aborts the commit
 
 #### Footer formatting
 
-You can customize how footers are formatted using `separator` and `alignment` options:
+You can customize how footers are formatted using `separator` and `alignment`. The separator must be a single character.
 
 ```toml
 [[additional-footers]]
@@ -297,8 +299,8 @@ alignment = "right"
 
 Available alignment options:
 
-- `left` - align separator to the left (default)
-- `right` - align separator to the right
+- `left` — no space before the separator and one after it (default): `Ticket-ID# CFMT-123`
+- `right` — one space before the separator and none after it: `Ticket-ID #CFMT-123`
 
 ### Recipe
 
@@ -321,28 +323,52 @@ case = "upper-first"
 breaking-exclamation = true
 ```
 
-## Testing
+## Command-line usage
 
-To test the configuration and the work of commitfmt, run the following command:
+### Formatting a message
+
+When a message is supplied through standard input, `commitfmt` formats it and writes the result to standard output:
 
 ```bash
-echo "chore ( test ) : test commit" | commitfmt
+printf '%s\n' "chore ( test ) : test commit." | commitfmt
+# chore(test): test commit
+
 # or
-cat commit_text.txt | commitfmt
+commitfmt < commit_text.txt
 ```
 
-## History testing
+The command exits with a non-zero status if configuration loading, parsing, or an unfixable rule fails.
 
-To test the history of commits, run the following command:
+When run without redirected standard input during an active Git commit, as in a `prepare-commit-msg` hook, commitfmt reads and updates Git's `COMMIT_EDITMSG` file instead of writing the formatted message to standard output.
+
+### Linting a message
+
+Use `--lint` to check a message without modifying it:
+
+```bash
+printf '%s\n' "chore(test): test commit" | commitfmt --lint
+```
+
+A valid message produces no output and exits with status 0. Any violation produces a report and a non-zero exit status.
+
+### Linting commit history
+
+Use `--from` to lint a Git commit range:
 
 ```bash
 commitfmt --from HEAD~20
 # or
-commitfmt --from 1234567890 --to 1234567890
+commitfmt --from v1.1.0 --to HEAD
 ```
+
+The lower boundary is excluded. `--to` defaults to `HEAD` and can only be used together with `--from`. History mode always lints messages, so `--lint` is unnecessary and ignored.
 
 ## Ignoring commits
 
-commitfmt ignores commit messages that start with `Merge` or `Revert` to avoid breaking standard git processes.
+commitfmt skips messages whose text starts with the exact, case-sensitive prefix `Merge` or `Revert`. This avoids rewriting Git-generated merge and revert messages.
 
-This happens both when formatting a single commit and when linting a history.
+The check is based only on the message text, not commit metadata: `merge`, `revert:`, and other differently cased prefixes are not skipped, while any custom message starting with `Merge` or `Revert` is skipped. This applies both when formatting a single message and when linting history.
+
+## License
+
+[MIT](./LICENSE).
