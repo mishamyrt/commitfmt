@@ -56,7 +56,7 @@ pub enum Error {
     #[error("Footer '{0}' has Invalid on conflict action: {1}")]
     InvalidOnConflictAction(String, String),
 
-    #[error("Nested extend is not supported")]
+    #[error("Nested extends are not supported")]
     NestedExtend,
 
     #[error("Unable to parse TOML: {0}")]

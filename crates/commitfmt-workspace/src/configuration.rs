@@ -95,6 +95,9 @@ impl CommitParams {
         if let Some(extends) = &target_params.config.extends {
             let parent_path = config_path.parent().unwrap().join(extends);
             let mut parent_params = Self::open_single(&parent_path)?;
+            if parent_params.config.extends.is_some() {
+                return Err(Error::NestedExtend);
+            }
             parent_params.extend(&target_params);
 
             Ok(parent_params)
@@ -528,6 +531,20 @@ alignment = \"right\"
 
         let header_table = params.lint_values.get("header").unwrap().as_table().unwrap();
         assert_eq!(header_table.get("full-stop").unwrap(), &Value::Boolean(false));
+    }
+
+    #[test]
+    fn test_open_rejects_nested_extends() {
+        let dir = tempfile::tempdir().unwrap();
+        let base_path = dir.path().join("base.toml");
+        let parent_path = dir.path().join("parent.toml");
+        let child_path = dir.path().join("child.toml");
+
+        std::fs::write(&base_path, "[lint.header]\ntype-required = true\n").unwrap();
+        std::fs::write(&parent_path, "extends = \"base.toml\"\n").unwrap();
+        std::fs::write(&child_path, "extends = \"parent.toml\"\n").unwrap();
+
+        assert!(matches!(CommitParams::open(&child_path), Err(Error::NestedExtend)));
     }
 
     #[test]
