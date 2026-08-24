@@ -48,6 +48,7 @@ $(COMMITLINT_BIN): $(COMPARISON_BENCHMARK_DIR)/package.json $(COMPARISON_BENCHMA
 benchmark-comparison: $(COMMITLINT_BIN)
 	cargo build --profile dist -p commitfmt
 	cargo bench -p commitfmt-benchmark --bench comparison --features comparison-benchmark
+	python3 ./scripts/update_benchmark_docs.py
 
 .PHONY: format
 format:
