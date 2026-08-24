@@ -1,4 +1,4 @@
-name: PyPi publish
+name: Build PyPI distributions
 
 on:
   workflow_call:
@@ -7,8 +7,11 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
-  publish:
+  build:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v7
@@ -35,9 +38,13 @@ jobs:
           uv venv .venv
           source .venv/bin/activate
           uv pip install build twine
-      - name: Publish
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      - name: Build distributions
         run: |
           source .venv/bin/activate
           scripts/publish_pypi.py
+      - name: Upload distributions
+        uses: actions/upload-artifact@v7
+        with:
+          name: pypi-distributions
+          path: target/pypi-dist/
+          retention-days: 1

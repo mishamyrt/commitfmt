@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Build and publish commitfmt PyPI packages."""
+"""Build and collect commitfmt PyPI distributions for trusted publishing."""
 import argparse
 import shutil
-import os
-import sys
+from pathlib import Path
 
 from helpers.shell import shell
 from project_config import PYPI_PACKAGES_DIR, OUT_BINARIES
@@ -19,7 +18,7 @@ PACKAGE_BINARIES = {
 
 
 def package_directories(platform_only=False):
-    """Return package directories in publication order."""
+    """Return package directories with the metapackage last."""
     packages = [
         package
         for package in PYPI_PACKAGES_DIR.iterdir()
@@ -61,18 +60,15 @@ def build(packages):
         shell("python -m twine check dist/*", cwd=package)
 
 
-def publish(packages, token: str):
-    """Publish platform packages first and the commitfmt metapackage last."""
-    environment = os.environ.copy()
-    environment["TWINE_USERNAME"] = "__token__"
-    environment["TWINE_PASSWORD"] = token
+def collect_distributions(packages, output_dir):
+    """Collect every built distribution in one directory for the publish job."""
+    shutil.rmtree(output_dir, ignore_errors=True)
+    output_dir.mkdir(parents=True)
     for package in packages:
-        print(f"- {package.name}")
-        shell(
-            "python -m twine upload dist/* --repository pypi --non-interactive",
-            cwd=package,
-            env=environment,
-        )
+        for distribution in sorted((package / "dist").iterdir()):
+            destination = output_dir / distribution.name
+            print(f"{distribution} → {destination}")
+            shutil.copy2(distribution, destination)
 
 
 def parse_args():
@@ -81,7 +77,13 @@ def parse_args():
     parser.add_argument(
         "--platform-only",
         action="store_true",
-        help="publish only architecture-specific packages during the initial bootstrap",
+        help="build only architecture-specific packages during the initial bootstrap",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("target/pypi-dist"),
+        help="directory in which to collect built distributions",
     )
     return parser.parse_args()
 
@@ -89,10 +91,6 @@ def parse_args():
 def main():
     """Script entry point"""
     args = parse_args()
-    pypi_token = os.getenv("PYPI_TOKEN")
-    if pypi_token is None:
-        print("PYPI_TOKEN is not set")
-        sys.exit(1)
     packages = package_directories(platform_only=args.platform_only)
     print("Copying READMEs...")
     copy_readme(packages)
@@ -100,8 +98,8 @@ def main():
     copy_binaries(packages)
     print("Building packages...")
     build(packages)
-    print("Publishing packages...")
-    publish(packages, pypi_token)
+    print("Collecting distributions...")
+    collect_distributions(packages, args.output_dir)
 
 
 if __name__ == "__main__":

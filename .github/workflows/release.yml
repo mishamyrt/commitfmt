@@ -286,13 +286,11 @@ jobs:
     uses: ./.github/workflows/npm_publish.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    secrets: inherit
-    # publish jobs get escalated permissions
     permissions:
+      "contents": "read"
       "id-token": "write"
-      "packages": "write"
 
-  custom-pypi_publish:
+  custom-pypi_build:
     needs:
       - plan
       - host
@@ -300,22 +298,43 @@ jobs:
     uses: ./.github/workflows/pypi_publish.yml
     with:
       plan: ${{ needs.plan.outputs.val }}
-    secrets: inherit
-    # publish jobs get escalated permissions
     permissions:
+      "contents": "read"
+
+  custom-pypi_publish:
+    needs:
+      - plan
+      - custom-pypi_build
+    if: ${{ !fromJson(needs.plan.outputs.val).announcement_is_prerelease || fromJson(needs.plan.outputs.val).publish_prereleases }}
+    runs-on: "ubuntu-latest"
+    environment:
+      name: pypi
+      url: https://pypi.org/p/commitfmt
+    permissions:
+      "contents": "read"
       "id-token": "write"
-      "packages": "write"
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: pypi-distributions
+          path: target/pypi-dist/
+      - name: Publish distributions
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: target/pypi-dist/
 
   announce:
     needs:
       - plan
       - host
       - custom-npm_publish
+      - custom-pypi_build
       - custom-pypi_publish
     # use "always() && ..." to allow us to wait for all publish jobs while
     # still allowing individual publish jobs to skip themselves (for prereleases).
     # "host" however must run to completion, no skipping allowed!
-    if: ${{ always() && needs.host.result == 'success' && (needs.custom-npm_publish.result == 'skipped' || needs.custom-npm_publish.result == 'success') && (needs.custom-pypi_publish.result == 'skipped' || needs.custom-pypi_publish.result == 'success') }}
+    if: ${{ always() && needs.host.result == 'success' && (needs.custom-npm_publish.result == 'skipped' || needs.custom-npm_publish.result == 'success') && (needs.custom-pypi_build.result == 'skipped' || needs.custom-pypi_build.result == 'success') && (needs.custom-pypi_publish.result == 'skipped' || needs.custom-pypi_publish.result == 'success') }}
     runs-on: "ubuntu-22.04"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
