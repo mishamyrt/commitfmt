@@ -147,11 +147,8 @@ impl Commitfmt {
             return Ok(message.to_string());
         }
 
-        let Some(branch) = self.repo.get_branch_name() else {
-            return Ok(message.to_string());
-        };
-
-        append_footers(&footers, &mut message, &branch)?;
+        let branch = self.repo.get_branch_name();
+        append_footers(&footers, &mut message, branch.as_deref())?;
 
         Ok(message.to_string())
     }
@@ -197,7 +194,7 @@ fn print_violation(violation: &dyn Violation, fix_available: bool) {
 fn append_footers(
     footers: &[AdditionalFooter],
     message: &mut Message,
-    branch: &str,
+    branch: Option<&str>,
 ) -> Result<()> {
     for footer in footers {
         if message.footers.contains_key(&footer.key) {
@@ -216,6 +213,9 @@ fn append_footers(
 
         let mut variables = HashMap::new();
         if let Some(branch_pattern) = &footer.branch_pattern {
+            let Some(branch) = branch else {
+                continue;
+            };
             let Some(caps) = branch_pattern.captures(branch) else {
                 continue;
             };

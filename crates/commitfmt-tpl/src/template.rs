@@ -100,7 +100,13 @@ impl Template {
 
 fn execute_command(command: &str) -> Result<String> {
     let output = Command::new("sh").arg("-c").arg(command).output()?;
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    if !output.status.success() {
+        let code = output.status.code().unwrap_or(-1);
+        let stderr = String::from_utf8_lossy(&output.stderr).trim_end().to_string();
+        return Err(Error::CommandExecutionFailed(code, stderr));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).trim_end_matches(['\r', '\n']).to_string())
 }
 
 /// Parser for text NOT containing tags
@@ -268,7 +274,7 @@ mod tests {
         let template = Template::parse("{{ echo hello }}").unwrap();
         let vars = HashMap::new();
         let result = template.render(&vars).unwrap();
-        assert_eq!(result.trim(), "hello");
+        assert_eq!(result, "hello");
     }
 
     #[test]
@@ -278,7 +284,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("NAME".to_string(), "Alice".to_string());
         let result = template.render(&vars).unwrap();
-        assert_eq!(result.trim(), "Hello Alice, result: success");
+        assert_eq!(result, "Hello Alice, result: success");
     }
 
     #[test]
@@ -314,8 +320,8 @@ mod tests {
         let vars = HashMap::new();
         let result = template.render(&vars).unwrap();
         // Check that result is not empty and contains expected value
-        assert!(!result.trim().is_empty());
-        assert_eq!(result.trim(), "Number: 42");
+        assert!(!result.is_empty());
+        assert_eq!(result, "Number: 42");
     }
 
     #[test]
@@ -334,8 +340,6 @@ mod tests {
         let template = Template::parse("{{ echo hello }}{{ echo world }}").unwrap();
         let vars = HashMap::new();
         let result = template.render(&vars).unwrap();
-        // Remove newlines since echo adds them
-        let result = result.replace('\n', "");
         assert_eq!(result, "helloworld");
     }
 
@@ -344,6 +348,17 @@ mod tests {
         let template = Template::parse("{{ echo hello world }}").unwrap();
         let vars = HashMap::new();
         let result = template.render(&vars).unwrap();
-        assert_eq!(result.trim(), "hello world");
+        assert_eq!(result, "hello world");
+    }
+
+    #[test]
+    fn test_command_failure() {
+        let template = Template::parse("{{ echo failed >&2; exit 7 }}").unwrap();
+        let result = template.render(&HashMap::new());
+
+        assert!(matches!(
+            result,
+            Err(Error::CommandExecutionFailed(7, message)) if message == "failed"
+        ));
     }
 }

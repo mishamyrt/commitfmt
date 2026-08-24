@@ -133,6 +133,34 @@ value = "${{ TICKET_ID }}"
 }
 
 #[test]
+fn test_format_adds_static_footer_in_detached_head() {
+    let (test_bed, app) = app_with_config(
+        r#"
+[[additional-footers]]
+key = "Authored-By"
+value = "John Doe"
+
+[[additional-footers]]
+key = "Ticket-ID"
+branch-pattern = "^feature/(?<TICKET_ID>[A-Z0-9-]+)$"
+value = "${{ TICKET_ID }}"
+"#,
+    );
+    test_bed.repo.commit("chore: initial commit").unwrap();
+
+    let output = Command::new("git")
+        .args(["switch", "--detach", "HEAD"])
+        .current_dir(test_bed.path())
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+
+    let result = app.format_commit_message("feat: description").unwrap();
+
+    assert_eq!(result, "feat: description\n\nAuthored-By: John Doe");
+}
+
+#[test]
 fn test_cli_format_default_stdin() {
     let input = "
 feat  (  test   ): test
