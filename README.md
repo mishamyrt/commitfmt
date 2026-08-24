@@ -21,6 +21,25 @@
 
 commitfmt is an opinionated formatter and configurable linter for Git commit messages. Designed primarily for use in a Git `prepare-commit-msg` hook, it helps keep commit history clean and readable.
 
+## Quick start
+
+The example below installs commitfmt as a local npm development dependency. See [Installation](#installation) for standalone and Python alternatives.
+
+```bash
+npm install --save-dev commitfmt
+```
+
+Try the default formatting mode:
+
+```bash
+printf '%s\n' "feat ( parser ) : add new option." | npm exec -- commitfmt
+# feat(parser): add new option
+```
+
+Then add `npm exec -- commitfmt` to a Git `prepare-commit-msg` hook using one of the [hook examples](#hook). No configuration is required for formatting. To enforce project-specific rules, add a [configuration file](#configuration) to the repository root.
+
+See [Modes](#modes) for the difference between formatting a message, linting a message, and checking commit history.
+
 ## Features
 
 ### Formatting
@@ -130,9 +149,13 @@ Add to your `lefthook.yml` file:
 
 ```yaml
 prepare-commit-msg:
-  - name: format commit message
-    run: commitfmt
+  jobs:
+    - name: format commit message
+      run: commitfmt
+      args: ""
 ```
+
+`args` is intentionally empty: Lefthook otherwise forwards Git hook arguments, while commitfmt locates Git's `COMMIT_EDITMSG` itself.
 
 ### [Husky](https://github.com/typicode/husky)
 
@@ -161,7 +184,7 @@ breaking-exclamation = true # Add ! for BREAKING CHANGE or BREAKING-CHANGE
 
 Breaking-change footer keys are case-sensitive. commitfmt recognizes `BREAKING CHANGE` and `BREAKING-CHANGE`; `BREAKING CHANGES` is not supported.
 
-To enable more rules, create a `commitfmt.toml` or `.commitfmt.toml` file in the root of your project. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt-linter/docs/rules.md) file.
+To enable more rules, create a `.commitfmt.toml` or `commitfmt.toml` file in the root of your Git repository. commitfmt loads the configuration from the repository root even when it is run from a subdirectory. If both files exist, `.commitfmt.toml` takes precedence. Available lint rules can be found in the [rules.md](https://github.com/mishamyrt/commitfmt/blob/main/crates/commitfmt-linter/docs/rules.md) file.
 
 In the default formatting mode, safe fixes are applied automatically. The command fails on violations that cannot be fixed; when used as a hook, this aborts the commit. In `--lint` mode, the message is never modified and any violation causes a non-zero exit code.
 
@@ -184,7 +207,14 @@ To reuse another configuration, add `extends` with a path relative to the curren
 extends = "node_modules/commitfmt-config-standard/commitfmt.toml"
 ```
 
-Only one inheritance level is supported. If the referenced configuration also contains `extends`, commitfmt returns an error. Values from the current file override inherited values, while its additional footers are appended to the inherited footer list.
+Only one inheritance level is supported. If the referenced configuration also contains `extends`, commitfmt returns an error.
+
+Configuration inheritance uses a shallow merge:
+
+- top-level parser options from the current file override inherited values
+- redefining `[lint.header]`, `[lint.body]`, or `[lint.footer]` replaces the entire inherited group; groups omitted from the current file remain inherited
+- `[lint]` options from the current file replace inherited `[lint]` options, so repeat `unsafe-fixes = true` when the current file defines lint settings and still needs unsafe fixes
+- additional footers from the current file are appended after inherited footers
 
 ### Parser Configuration
 
@@ -323,9 +353,11 @@ case = "upper-first"
 breaking-exclamation = true
 ```
 
-## Command-line usage
+## Modes
 
-### Formatting a message
+### Formatting mode
+
+Formatting is the default mode. commitfmt normalizes the message structure and applies fixes from enabled rules. Safe fixes are always applied; unsafe fixes are applied only when [`unsafe-fixes`](#unsafe-fixes) is enabled. An unfixable violation returns a non-zero exit status and prevents the formatted message from being written.
 
 When a message is supplied through standard input, `commitfmt` formats it and writes the result to standard output:
 
@@ -341,17 +373,17 @@ The command exits with a non-zero status if configuration loading, parsing, or a
 
 When run without redirected standard input during an active Git commit, as in a `prepare-commit-msg` hook, commitfmt reads and updates Git's `COMMIT_EDITMSG` file instead of writing the formatted message to standard output.
 
-### Linting a message
+### Lint mode
 
-Use `--lint` to check a message without modifying it:
+Use `--lint` to check a message without modifying it or applying available fixes:
 
 ```bash
 printf '%s\n' "chore(test): test commit" | commitfmt --lint
 ```
 
-A valid message produces no output and exits with status 0. Any violation produces a report and a non-zero exit status.
+A valid message produces no output and exits with status 0. Any violation produces a report and a non-zero exit status. When used in a hook, lint mode checks `COMMIT_EDITMSG` but never rewrites it.
 
-### Linting commit history
+### History mode
 
 Use `--from` to lint a Git commit range:
 
@@ -361,7 +393,7 @@ commitfmt --from HEAD~20
 commitfmt --from v1.1.0 --to HEAD
 ```
 
-The lower boundary is excluded. `--to` defaults to `HEAD` and can only be used together with `--from`. History mode always lints messages, so `--lint` is unnecessary and ignored.
+The lower boundary is excluded. `--to` defaults to `HEAD` and can only be used together with `--from`. History mode never modifies existing commits and always lints messages, so `--lint` is unnecessary and ignored.
 
 ## Ignoring commits
 
