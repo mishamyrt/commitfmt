@@ -14,14 +14,14 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: I had to heavily rework several modules. Compatibility of TreeView and Card components may be broken due to the library update.
+/// BREAKING CHANGE: I had to heavily rework several modules. Compatibility of TreeView and Card components may be broken due to the library update.
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: I had to heavily rework several modules.
+/// BREAKING CHANGE: I had to heavily rework several modules.
 ///  Compatibility of TreeView and Card components may be broken
 ///  due to the library update.
 /// ```
@@ -76,7 +76,7 @@ mod tests {
             header: Header::from("feat: my feature"),
             body: None,
             footers: footer_vec![{
-                key: "BREAKING CHANGES".to_string(),
+                key: "BREAKING CHANGE".to_string(),
                 value: "some breaking changes".to_string(),
                 separator: ':',
                 alignment: SeparatorAlignment::Left,

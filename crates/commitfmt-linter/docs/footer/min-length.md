@@ -12,12 +12,12 @@ A footer that is too short can hide the nature of what is happening in it.
 ```git-commit
 feat: my feature
 
-BREAKING CHANGES: api
+BREAKING CHANGE: api
 ```
 
 Use instead:
 ```git-commit
 feat: my feature
 
-BREAKING CHANGES: DB API interfaces are changed
+BREAKING CHANGE: DB API interfaces are changed
 ```

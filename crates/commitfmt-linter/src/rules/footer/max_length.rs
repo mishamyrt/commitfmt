@@ -15,7 +15,7 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: I had to heavily rework several modules.
+/// BREAKING CHANGE: I had to heavily rework several modules.
 ///  Compatibility of TreeView and Card components may be broken
 ///  due to the library update.
 /// ```
@@ -28,7 +28,7 @@ use commitfmt_macros::ViolationMetadata;
 /// of TreeView and Card components may be broken due
 /// to the library update.
 ///
-/// BREAKING CHANGES: TreeView and Card APIs
+/// BREAKING CHANGE: TreeView and Card APIs
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct MaxLength {
@@ -77,7 +77,7 @@ mod tests {
             header: Header::from("feat: my feature"),
             body: None,
             footers: footer_vec![{
-                key: "BREAKING CHANGES".to_string(),
+                key: "BREAKING CHANGE".to_string(),
                 value: "some breaking changes".to_string(),
                 separator: ':',
                 alignment: SeparatorAlignment::Left,

@@ -1,6 +1,6 @@
 ---
 source: crates/commitfmt/tests/lint.rs
-assertion_line: 54
+assertion_line: 87
 expression: result
 ---
 - Type case is inconsistent. Expected: lower [type-case]
@@ -14,7 +14,7 @@ expression: result
 - Body is not ended with a full stop [full-stop]
 - Body case is inconsistent. Expected: upper-first [case]
 - Footer 'Issue-ID' is required but not found [exists]
-- Footer 'BREAKING CHANGES' length is longer than 20 characters [max-length]
+- Footer 'BREAKING CHANGE' length is longer than 20 characters [max-length]
 - Message contains breaking changes footer but no exclamation mark [breaking-exclamation]
 - Footer key case is inconsistent. Expected: lower [key-case]
 - Footer 'Footer' length is less than 15 characters [min-length]

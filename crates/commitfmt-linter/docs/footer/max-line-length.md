@@ -12,14 +12,14 @@ Lines that are too long may not look good in the limited space of the terminal.
 ```git-commit
 feat: my feature
 
-BREAKING CHANGES: I had to heavily rework several modules. Compatibility of TreeView and Card components may be broken due to the library update.
+BREAKING CHANGE: I had to heavily rework several modules. Compatibility of TreeView and Card components may be broken due to the library update.
 ```
 
 Use instead:
 ```git-commit
 feat: my feature
 
-BREAKING CHANGES: I had to heavily rework several modules.
+BREAKING CHANGE: I had to heavily rework several modules.
 Compatibility of TreeView and Card components may be broken
 due to the library update.
 ```

@@ -45,7 +45,7 @@ Feat  (  Test   ): Test
 body text and more text
 
 Footer: value
-BREAKING CHANGES: test
+BREAKING CHANGE: test
 "
     .trim();
 

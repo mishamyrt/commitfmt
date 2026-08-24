@@ -209,7 +209,7 @@ alignment = "left"
 
 #### Case
 
-The case can be any, but it is recommended to write in `Train-Case` and `UPPER-TRAIN-CASE` for `BREAKING-CHANGES`
+The case can be any, but it is recommended to write in `Train-Case`. The breaking change tokens use the canonical uppercase forms `BREAKING CHANGE` and `BREAKING-CHANGE`.
 
 <!--<test-case id="key-train-case">-->
 
@@ -304,7 +304,7 @@ alignment = "left"
 
 #### Breaking changes
 
-The only exception to the key naming rules is `BREAKING CHANGES`. This key contains a space as a delimiter, but will still be processed correctly
+Breaking changes use either `BREAKING CHANGE` or `BREAKING-CHANGE`. The space in `BREAKING CHANGE` is the only exception to the footer key naming rules.
 
 <!--<test-case id="breaking-changes-variants">-->
 
@@ -312,9 +312,8 @@ The only exception to the key naming rules is `BREAKING CHANGES`. This key conta
 ```
 major update
 
-Breaking-Changes: removed deprecated API
-BreakingChanges: changed response format
-BREAKING CHANGES: updated authentication method
+BREAKING-CHANGE: removed deprecated API
+BREAKING CHANGE: updated authentication method
 ```
 
 <!--<test-result>-->
@@ -322,19 +321,13 @@ BREAKING CHANGES: updated authentication method
 description = "major update"
 
 [[footers]]
-key = "Breaking-Changes"
+key = "BREAKING-CHANGE"
 value = "removed deprecated API"
 separator = ":"
 alignment = "left"
 
 [[footers]]
-key = "BreakingChanges"
-value = "changed response format"
-separator = ":"
-alignment = "left"
-
-[[footers]]
-key = "BREAKING CHANGES"
+key = "BREAKING CHANGE"
 value = "updated authentication method"
 separator = ":"
 alignment = "left"

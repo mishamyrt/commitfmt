@@ -195,7 +195,7 @@ mod tests {
         let message = Message::parse(
             "feat:test.
     Body
-    BREAKING CHANGES: test",
+    BREAKING CHANGE: test",
             None,
             None,
         );

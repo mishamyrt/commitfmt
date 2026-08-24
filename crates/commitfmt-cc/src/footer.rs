@@ -42,7 +42,10 @@ pub struct Footer {
 
 impl Footer {
     /// Keep this constant because it's exception and breaks git trailers format
-    pub(crate) const BREAKING_TAG: &'static str = "BREAKING CHANGES";
+    pub(crate) const BREAKING_TAG: &'static str = "BREAKING CHANGE";
+
+    /// Alternative breaking change token allowed by Conventional Commits.
+    const BREAKING_TAG_HYPHENATED: &'static str = "BREAKING-CHANGE";
 
     /// Default key and value separator
     pub const DEFAULT_SEPARATOR: &'static str = ":";
@@ -64,14 +67,9 @@ impl Footer {
     }
 
     /// Checks if a key is a breaking change.
-    /// It is a breaking change if the key is `BREAKING CHANGES`, `Breaking-Changes`, or `BreakingChanges`.
+    /// It is a breaking change if the key is `BREAKING CHANGE` or `BREAKING-CHANGE`.
     pub fn is_breaking_key(key: &str) -> bool {
-        if key == Self::BREAKING_TAG {
-            return true;
-        }
-
-        key.eq_ignore_ascii_case("breaking-changes")
-            || key.eq_ignore_ascii_case("breakingchanges")
+        key == Self::BREAKING_TAG || key == Self::BREAKING_TAG_HYPHENATED
     }
 
     pub fn is_breaking_change(&self) -> bool {
@@ -287,9 +285,9 @@ mod tests {
 
     #[test]
     fn test_take_multiline() {
-        let input = "BREAKING CHANGES: Long description\n That even contains newlines";
+        let input = "BREAKING CHANGE: Long description\n That even contains newlines";
         let expected = Footer {
-            key: "BREAKING CHANGES".into(),
+            key: "BREAKING CHANGE".into(),
             value: "Long description\nThat even contains newlines".into(),
             separator: ':',
             alignment: SeparatorAlignment::Left,
@@ -322,13 +320,17 @@ mod tests {
 
     #[test]
     fn test_is_breaking_key() {
-        assert!(Footer::is_breaking_key("BREAKING CHANGES"));
-        assert!(Footer::is_breaking_key("breaking-changes"));
-        assert!(Footer::is_breaking_key("breakingchanges"));
-        assert!(Footer::is_breaking_key("BreakingChanges"));
-        assert!(!Footer::is_breaking_key("BREAKING CHANGES BUT NO"));
+        assert!(Footer::is_breaking_key("BREAKING CHANGE"));
+        assert!(Footer::is_breaking_key("BREAKING-CHANGE"));
+        assert!(!Footer::is_breaking_key("BREAKING CHANGES"));
+        assert!(!Footer::is_breaking_key("Breaking-Change"));
         assert!(!Footer::is_breaking_key("not-breaking"));
         assert!(!Footer::is_breaking_key(""));
+    }
+
+    #[test]
+    fn test_breaking_changes_is_not_a_footer() {
+        assert!(Footers::parse("BREAKING CHANGES: no longer supported", ":").is_err());
     }
 
     #[test]

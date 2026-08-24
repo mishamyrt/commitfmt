@@ -14,14 +14,14 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: api
+/// BREAKING CHANGE: api
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
 /// feat: my feature
 ///
-/// BREAKING CHANGES: DB API interfaces are changed
+/// BREAKING CHANGE: DB API interfaces are changed
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct MinLength {
@@ -70,7 +70,7 @@ mod tests {
             header: Header::from("feat: my feature"),
             body: None,
             footers: footer_vec![{
-                key: "BREAKING CHANGES".to_string(),
+                key: "BREAKING CHANGE".to_string(),
                 value: "some breaking changes".to_string(),
                 separator: ':',
                 alignment: SeparatorAlignment::Left,

@@ -6,7 +6,7 @@ use commitfmt_macros::ViolationMetadata;
 
 /// ## What it does
 /// Checks for the presence of a flag (exclamation mark)
-/// in a message containing `BREAKING CHANGES`.
+/// in a message containing `BREAKING CHANGE`.
 ///
 /// ## Why is this bad?
 /// Some utilities may not check commit footers and count on the presence of an exclamation mark.
@@ -16,14 +16,14 @@ use commitfmt_macros::ViolationMetadata;
 /// ```git-commit
 /// feat: my super feature
 ///
-/// BREAKING CHANGES: some breaking changes
+/// BREAKING CHANGE: some breaking changes
 /// ```
 ///
 /// Use instead:
 /// ```git-commit
 /// feat!: my super feature
 ///
-/// BREAKING CHANGES: some breaking changes
+/// BREAKING CHANGE: some breaking changes
 /// ```
 #[derive(ViolationMetadata)]
 pub(crate) struct BreakingExclamation;
@@ -47,7 +47,7 @@ impl Violation for BreakingExclamation {
     }
 }
 
-/// Checks for exclamation mark in a message containing `BREAKING CHANGES`.
+/// Checks for exclamation mark in a message containing `BREAKING CHANGE`.
 pub(crate) fn breaking_exclamation(report: &mut Report, message: &Message) {
     if message.footers.is_empty() || message.header.breaking {
         return;
@@ -69,7 +69,7 @@ mod tests {
         let mut report = Report::default();
 
         let footers = footer_vec![{
-            key: "BREAKING CHANGES".to_string(),
+            key: "BREAKING CHANGE".to_string(),
             value: "some breaking changes".to_string(),
             separator: ':',
             alignment: SeparatorAlignment::Left,
@@ -99,7 +99,7 @@ mod tests {
             body: None,
             footers: footer_vec![
                 {
-                    key: "BREAKING CHANGES".to_string(),
+                    key: "BREAKING CHANGE".to_string(),
                     value: "some breaking changes".to_string(),
                     separator: ':',
                     alignment: SeparatorAlignment::Left,

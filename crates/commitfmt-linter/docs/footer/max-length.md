@@ -13,7 +13,7 @@ didn't go according to plan. Maybe it should be in the body?
 ```git-commit
 feat: my feature
 
-BREAKING CHANGES: I had to heavily rework several modules.
+BREAKING CHANGE: I had to heavily rework several modules.
 Compatibility of TreeView and Card components may be broken
 due to the library update.
 ```
@@ -26,5 +26,5 @@ I had to heavily rework several modules. Compatibility
 of TreeView and Card components may be broken due
 to the library update.
 
-BREAKING CHANGES: TreeView and Card APIs
+BREAKING CHANGE: TreeView and Card APIs
 ```
