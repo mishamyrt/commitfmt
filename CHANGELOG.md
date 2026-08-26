@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/mishamyrt/commitfmt/compare/v1.2.0..v1.3.0) - 2026-08-26
+
+### 🚀 Features
+
+- Split pypi packages by arch
+- Support only canonical BREAKING CHANGE footer
+
+### 🐛 Bug Fixes
+
+- Correct help message
+- Run footers formatting with detached HEAD
+- Correctly handle nested extends
+- Load config from repo root
+
+### 📚 Documentation
+
+- Add security policy
+- Fix project name
+- Improve description
+- Add quick start guide
+
 ## [1.2.0](https://github.com/mishamyrt/commitfmt/compare/v1.1.0..v1.2.0) - 2026-08-20
 
 ### ⚡ Performance

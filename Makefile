@@ -1,4 +1,4 @@
-VERSION = 1.2.0
+VERSION = 1.3.0
 COMPARISON_BENCHMARK_DIR = crates/commitfmt-benchmark/comparison
 COMMITLINT_BIN = $(COMPARISON_BENCHMARK_DIR)/node_modules/.bin/commitlint
 

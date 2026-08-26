@@ -4,7 +4,7 @@ authors = [
     {name = "Mikhael Khrustik", email = "misha@myrt.co"},
 ]
 description = "Utility for formatting and verifying the commit message."
-version = "1.2.0"
+version = "1.3.0"
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["git", "hook"]
@@ -21,11 +21,11 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "commitfmt-windows-arm64==1.2.0; sys_platform == 'win32' and platform_machine == 'ARM64'",
-    "commitfmt-windows-x64==1.2.0; sys_platform == 'win32' and platform_machine == 'AMD64'",
-    "commitfmt-darwin-arm64==1.2.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
-    "commitfmt-darwin-x64==1.2.0; sys_platform == 'darwin' and platform_machine == 'x86_64'",
-    "commitfmt-linux-arm64==1.2.0; sys_platform == 'linux' and platform_machine == 'aarch64'",
-    "commitfmt-linux-x64==1.2.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "commitfmt-windows-arm64==1.3.0; sys_platform == 'win32' and platform_machine == 'ARM64'",
+    "commitfmt-windows-x64==1.3.0; sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "commitfmt-darwin-arm64==1.3.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "commitfmt-darwin-x64==1.3.0; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "commitfmt-linux-arm64==1.3.0; sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "commitfmt-linux-x64==1.3.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
 scripts = { "commitfmt"="commitfmt.__main__:main" }
